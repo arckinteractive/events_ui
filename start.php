@@ -14,6 +14,7 @@ elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
 
 function init() {
 	
+	elgg_register_css('jquery-ui', 'mod/' . PLUGIN_ID . '/vendors/jquery-ui/jquery-ui.min.css');
 	elgg_register_css('fullcalendar', 'mod/' . PLUGIN_ID . '/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.css');
 	elgg_register_css('fullcalendar:print', 'mod/' . PLUGIN_ID . '/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.print.css');
 	elgg_register_js('fullcalendar', 'mod/' . PLUGIN_ID . '/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.min.js');

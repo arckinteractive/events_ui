@@ -42,13 +42,13 @@ $repeat_frequency = elgg_view('input/dropdown', array(
 	'options_values' => $repeat_options
 ));
 
-if (!$vars['repeat_ends_type']) {
-	$vars['repeat_ends_type'] = 'never';
+if (!$vars['repeat_end_type']) {
+	$vars['repeat_end_type'] = 'never';
 }
 $repeat_ends_label = elgg_echo('repeat_ui:repeat_ends') . ':';
 $repeat_ends_input = elgg_view('input/radio', array(
-	'name' => 'repeat_ends_type',
-	'value' => $vars['entity'] ? $vars['entity']->repeat_ends_type : $vars['repeat_ends_type'],
+	'name' => 'repeat_end_type',
+	'value' => $vars['entity'] ? $vars['entity']->repeat_end_type : $vars['repeat_end_type'],
 	'options' => $repeat_ends_options
 ));
 

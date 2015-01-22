@@ -56,53 +56,41 @@ function handle_calendar_feed($params) {
 		echo json_encode(array());
 		exit;
 	}
-	
-	$mnvp = array();
-	$mnvp[] = array(
-		'name' => 'start_timestamp',
-		'value' => $start,
-		'operand' => '>'
-	);
 
-	$end_mnvp = array(
-		'name' => 'start_timestamp',
-		'value' => $end,
-		'operand' => '<'
-	);
-
-	$mnvp[] = $end_mnvp;
-
-	$mnvp[] = array(
-		'name' => 'repeat',
-		'values' => array(0) // get only non-repeating first
-	);
-
-	$options = array(
-		'type' => 'object',
-		'subtype' => 'event',
-		'relationship' => \Events\API\EVENT_CALENDAR_RELATIONSHIP,
-		'relationship_guid' => $calendar->guid,
-		'inverse_relationship' => true,
-		'metadata_name_value_pairs' => $mnvp,
-		'limit' => false
-	);
-
-	$events = $calendar->getNoneRepeatingEvents($start, $end);
+	$events = $calendar->getAllEvents($start, $end);
 
 	$result = array();
 	foreach ($events as $e) {
-		$result[] = array(
-			'id' => $e->guid,
-			'title' => $e->title,
-			'description' => $e->description,
-			'allDay' => false,
-			'start' => date('c', $e->start_timestamp),
-			'end' => date('c', $e->end_timestamp),
-			'url' => $e->getURL()
-		);
+		if (!$e->repeat) {
+			$result[] = array(
+				'id' => $e->guid,
+				'title' => $e->title,
+				'description' => $e->description,
+				'allDay' => $e->allDay ? 1 : 0,
+				'start' => date('c', $e->start_timestamp),
+				'end' => date('c', $e->end_timestamp),
+				'url' => $e->getURL()
+			);
+		}
+		else {
+			$starts = $e->getStartTimes($start, $end);
+			
+			foreach ($starts as $s) {
+				$result[] = array(
+					'id' => $e->guid,
+					'title' => $e->title,
+					'description' => $e->description,
+					'allDay' => $e->allDay ? 1 : 0,
+					'start' => date('c', $s),
+					'end' => date('c', $s + $e->end_delta),
+					'url' => $e->getURL()
+				);
+			}
+		}
 	}
 
 	// get repeating events
+	/*
 	unset($options['metadata_name_value_pairs'][0]);
 
 	$options['metadata_name_value_pairs'][2]['values'] = array('daily', 'weekly', 'monthly');
@@ -186,7 +174,8 @@ function handle_calendar_feed($params) {
 				break;
 		}
 	}
-
+	*/
+	
 	echo json_encode($result);
 	exit;
 }

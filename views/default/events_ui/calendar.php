@@ -4,6 +4,7 @@ namespace Events\UI;
 
 $calendar = $vars['entity'];
 
+elgg_load_css('jquery-ui');
 elgg_load_css('events-ui');
 elgg_load_css('fullcalendar');
 elgg_load_js('fullcalendar');
