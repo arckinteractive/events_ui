@@ -47,8 +47,10 @@ function handle_container_calendar($container_guid) {
 
 
 function handle_calendar_feed($params) {
-	$start = $params['start'];
-	$end = $params['end'];
+	
+	// normalize the timezone (set start for the start of the day, end for the end of its day)
+	$start = mktime(0,0,0, date('n', $params['start']), date('j', $params['start']), date('Y', $params['start']));
+	$end = mktime(0,0,0, date('n', $params['end']), date('j', $params['end']) + 1, date('Y', $params['end']));
 
 	$calendar = get_entity($params['guid']);
 
@@ -195,7 +197,37 @@ function handle_event_page($guid) {
 	elgg_push_breadcrumb(elgg_echo('calendar'), $calendar->getURL());
 	elgg_push_breadcrumb($event->title);
 	
+	// register title menu items
+	register_event_title_menu($event);
+	
 	$content = elgg_view_entity($event);
+	
+	$layout = elgg_view_layout('content', array(
+		'title' => $event->title,
+		'content' => $content,
+		'filter' => false
+	));
+	
+	echo elgg_view_page($event->title, $layout);
+}
+
+
+function handle_event_edit_page($guid) {
+	$event = get_entity($guid);
+
+	if (!elgg_instanceof($event, 'object', 'event') || !$event->canEdit()) {
+		forward('404');
+	}
+	
+	$calendar = $event->getContainerEntity();
+	elgg_set_page_owner_guid($calendar->container_guid);
+	
+	// breadcrumbs
+	elgg_push_breadcrumb(elgg_echo('calendar'), $calendar->getURL());
+	elgg_push_breadcrumb($event->title, $event->getURL());
+	elgg_push_breadcrumb(elgg_echo('edit'));
+	
+	$content = elgg_view_form('events/edit', array('enctype' => 'multipart/form-data'), array('entity' => $event, 'dateautoinit' => 1));
 	
 	$layout = elgg_view_layout('content', array(
 		'title' => $event->title,

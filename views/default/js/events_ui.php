@@ -7,56 +7,63 @@
 		var guid = $('#events-ui-calendar').attr('data-guid');
 		var $cal = $('#events-ui-calendar');
 
-		$cal.fullCalendar({
-			header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'month,agendaWeek,agendaDay'
-			},
-			editable: (parseInt($cal.attr('data-editable')) === 1),
-			fixedWeekCount: false,
-			events: elgg.get_site_url() + 'calendar/feed/' + guid,
-			eventLimit: 3,
-			loading: function (isLoading, view) {
-				if (isLoading) {
-					elgg.events_ui.showLoader();
+		if ($cal.length) {
+			$cal.fullCalendar({
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month,agendaWeek,agendaDay'
+				},
+				editable: (parseInt($cal.attr('data-editable')) === 1),
+				fixedWeekCount: false,
+				events: elgg.get_site_url() + 'calendar/feed/' + guid,
+				eventLimit: 3,
+				loading: function(isLoading, view) {
+					if (isLoading) {
+						elgg.events_ui.showLoader();
+					}
+					else {
+						elgg.events_ui.dialogClose();
+					}
+				},
+				dayClick: function(date, allDay, jsEvent, view) {
+					// if we can edit the calendar create a new event
+					if (parseInt($('#events-ui-calendar').attr('data-editable')) == 1) {
+						elgg.events_ui.newEvent(date);
+					}
+					else {
+						$cal.fullCalendar('gotoDate', date);
+						$cal.fullCalendar('changeView', 'agendaDay');
+					}
+				},
+				eventClick: function(event, jsEvent, view) {
+					// just letting them go to their url for now
+				},
+				eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+					elgg.events_ui.moveEvent(event, dayDelta, minuteDelta, allDay, revertFunc);
+				},
+				eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
+					elgg.events_ui.resizeEvent(event, dayDelta, minuteDelta, revertFunc);
 				}
-				else {
-					elgg.events_ui.dialogClose();
-				}
-			},
-			dayClick: function(date, allDay, jsEvent, view) {
-				// if we can edit the calendar create a new event
-				if (parseInt($('#events-ui-calendar').attr('data-editable')) == 1) {
-					elgg.events_ui.newEvent(date);
-				}
-				else {
-					$cal.fullCalendar('gotoDate', date);
-					$cal.fullCalendar('changeView', 'agendaDay');
-				}
-			},
-			eventClick: function(event, jsEvent, view) {
-				// just letting them go to their url for now
-			},
-			eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-				elgg.events_ui.moveEvent(event, dayDelta, minuteDelta, allDay, revertFunc);
-			},
-			eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
-				elgg.events_ui.resizeEvent(event, dayDelta, minuteDelta, revertFunc);
-			}
-		});
-
+			});
+		}
 
 		$('input[type="checkbox"][name="repeat"]').live('change', function(e) {
 			if ($(this).is(':checked')) {
-				$('.events-ui-form .events-ui-repeat').slideDown();
+				//$('.events-ui-form .events-ui-repeat').slideDown();
+				$(this).closest('form').find('.events-ui-repeat').slideDown();
 			}
 			else {
-				$('.events-ui-form .events-ui-repeat').slideUp();
+				//$('.events-ui-form .events-ui-repeat').slideUp();
+				$(this).closest('form').find('.events-ui-repeat').slideUp();
 			}
 		});
 
-		$('.elgg-form-events-edit').live('submit', elgg.events_ui.createEvent);
+		$('#events-ui-dialog .elgg-form-events-edit').live('submit', elgg.events_ui.createEvent);
+		
+		$('.events-ui-datepicker[autoinit="1"]').each(function() {
+			elgg.events_ui.initDatePicker($(this));
+		});
 	};
 
 
@@ -138,28 +145,9 @@
 			},
 			success: function(response) {
 				if (response.status >= 0) {
-					/* this creates a double...
-					// add the event to the calendar
-					var start_date = $('.events-ui-form input[name="start_date"]').val();
-					var start_time = $('.events-ui-form select[name="start_time"]').val();
-					var start = moment(start_date + ' ' + start_time, 'YYYY-MM-DD h:mma');
-
-					var end_date = $('.events-ui-form input[name="end_date"]').val();
-					var end_time = $('.events-ui-form select[name="end_time"]').val();
-					var end = moment(end_date + ' ' + end_time, 'YYYY-MM-DD h:mma');
-					
-					$('#events-ui-calendar').fullCalendar('addEventSource', [
-						{
-							title: $('.events-ui-form input[name="title"]').val(),
-							start: start.format('YYYY-MM-DD H:mm:ss'),
-							end: end.format('YYYY-MM-DD H:mm:ss'),
-							allDay: $('.events-ui-form input[name="all_day"]').is(':checked')
-						}
-					]);
-					*/
 					
 					elgg.events_ui.dialogClose();
-					
+
 					$('#events-ui-calendar').fullCalendar('refetchEvents');
 
 				}
@@ -199,7 +187,7 @@
 			}
 		});
 	};
-	
+
 	elgg.events_ui.resizeEvent = function(event, dayDelta, minuteDelta, revertFunc) {
 		// attempt to move the event
 		elgg.action('events/resize', {
@@ -233,7 +221,7 @@
 	elgg.events_ui.dialogClose = function() {
 		$('#events-ui-dialog').dialog('close');
 	};
-	
+
 	elgg.events_ui.showLoader = function() {
 		var dialogContainer = elgg.events_ui.getDialogContainer();
 		dialogContainer.html('<div class="elgg-ajax-loader"></div>');

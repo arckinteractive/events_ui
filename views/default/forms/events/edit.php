@@ -1,6 +1,13 @@
 <?php
 
+elgg_load_css('jquery-ui');
+elgg_load_css('events-ui');
+elgg_load_js('events-ui');
+
 $calendar = $vars['calendar'];
+if (!$calendar && $vars['entity']) {
+	$calendar = $vars['entity']->getContainerEntity();
+}
 
 $hour_options = array();
 $time = mktime(0, 0, 0);
@@ -30,7 +37,8 @@ echo '<div class="elgg-col elgg-col-1of2">';
 echo elgg_view('input/text', array(
 	'name' => 'start_date',
 	'value' => $vars['entity'] ? $vars['entity']->start_date : $start,
-	'class' => 'events-ui-datepicker'
+	'class' => 'events-ui-datepicker',
+	'autoinit' => $vars['dateautoinit']
 ));
 echo '</div>';
 echo '<div class="elgg-col elgg-col-1of2">';
@@ -49,7 +57,8 @@ echo '<div class="elgg-col elgg-col-1of2">';
 echo elgg_view('input/text', array(
 	'name' => 'end_date',
 	'value' => $vars['entity'] ? $vars['entity']->end_date : $end,
-	'class' => 'events-ui-datepicker'
+	'class' => 'events-ui-datepicker',
+	'autoinit' => $vars['dateautoinit']
 ));
 echo '</div>';
 echo '<div class="elgg-col elgg-col-1of2">';
@@ -66,10 +75,15 @@ echo elgg_view('input/checkbox', array('name' => 'all_day', 'value' => 1)) . '<l
 echo '</div>';
 
 echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/checkbox', array('name' => 'repeat', 'value' => 1)) . '<label>' . elgg_echo('events_ui:repeat') . '...</label>';
+$checked = $vars['entity'] ? ($vars['entity']->repeat ? true : false) : false;
+echo elgg_view('input/checkbox', array(
+	'name' => 'repeat',
+	'value' => 1,
+	'checked' => $checked,
+	)) . '<label>' . elgg_echo('events_ui:repeat') . '...</label>';
 echo '</div>';
 
-echo '<div class="events-ui-repeat hidden clearfix clearfloat ptm">';
+echo '<div class="events-ui-repeat clearfix clearfloat ptm' . ($checked ? '' : ' hidden') . '">';
 echo elgg_view('forms/events/repeat', $vars);
 echo '</div>';
 
@@ -89,7 +103,7 @@ echo elgg_view('input/access', array('entity' => $vars['entity']));
 echo '</div>';
 
 echo '<div class="elgg-foot ptm">';
-echo elgg_view('input/hidden', array('name' => 'calendar', 'value' => $vars['calendar']->guid));
+echo elgg_view('input/hidden', array('name' => 'calendar', 'value' => $calendar->guid));
 echo elgg_view('input/hidden', array('name' => 'guid', 'value' => $vars['entity'] ? $vars['entity']->guid : 0));
 echo elgg_view('input/submit', array('value' => elgg_echo('save')));
 echo '</div>';

@@ -8,7 +8,7 @@ $repeat_options = array(
 	'dailymwf' => elgg_echo('events_ui:repeat:mwf'),
 	'dailytt' => elgg_echo('events_ui:repeat:tt'),
 	'weekly' => elgg_echo('events_ui:repeat:weekly'),
-	'montly' => elgg_echo('events_ui:repeat:monthly'),
+	'monthly' => elgg_echo('events_ui:repeat:monthly'),
 	'yearly' => elgg_echo('events_ui:repeat:yearly'),
 );
 
@@ -22,7 +22,8 @@ $after_input = elgg_view('input/text', array(
 $on_input = elgg_view('input/text', array(
 	'name' => 'repeat_end_on',
 	'value' => $vars['entity'] ? $vars['entity']->repeat_end_on : $vars['repeat_end_on'],
-	'class' => 'events-ui-datepicker events-text-small'
+	'class' => 'events-ui-datepicker events-text-small',
+	'autoinit' => $vars['dateautoinit']
 ));
 
 $repeat_ends_options = array(

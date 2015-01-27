@@ -9,6 +9,7 @@ elgg_load_css('events-ui');
 elgg_load_css('fullcalendar');
 elgg_load_js('fullcalendar');
 elgg_load_js('events-ui');
+elgg_load_js('jquery.form');
 elgg_load_js('moment.js');
 
 elgg_load_css('lightbox');
@@ -23,5 +24,5 @@ $attr = array(
 echo '<div ' . elgg_format_attributes($attr) . '></div>';
 
 echo '<div class="events-ui-add-event-form hidden">';
-echo elgg_view_form('events/edit', array(), array('calendar' => $calendar));
+echo elgg_view_form('events/edit', array('enctype' => 'multipart/form-data'), array('calendar' => $calendar));
 echo '</div>';

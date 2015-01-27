@@ -9,6 +9,7 @@ const PLUGIN_ID = 'events_ui';
 const UPGRADE_VERSION = 20141215;
 
 require_once __DIR__ . '/lib/page_handlers.php';
+require_once __DIR__ . '/lib/functions.php';
 
 elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
 
@@ -57,11 +58,26 @@ function page_handler($page) {
 			);
 			handle_calendar_feed($params);
 			break;
-		case 'event':
-			handle_event_page($page[1]);
-			return true;
+		case 'events':
+			$result = event_pagehandler($page);
+			return $result;
 			break;
 	}
 	
+	return false;
+}
+
+
+function event_pagehandler($page) {
+	switch ($page[1]) {
+		case 'view':
+			handle_event_page($page[2]);
+			return true;
+			break;
+		case 'edit':
+			handle_event_edit_page($page[2]);
+			return true;
+			break;
+	}
 	return false;
 }
