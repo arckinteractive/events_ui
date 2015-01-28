@@ -82,7 +82,7 @@ function handle_calendar_feed($params) {
 					'id' => $e->guid,
 					'title' => $e->title,
 					'description' => $e->description,
-					'allDay' => $e->allDay ? 1 : 0,
+					'allDay' => $e->all_day ? 1 : 0,
 					'start' => date('c', $s),
 					'end' => date('c', $s + $e->end_delta),
 					'url' => $e->getURL()

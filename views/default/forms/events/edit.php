@@ -71,7 +71,12 @@ echo '</div>';
 echo '</div>';
 
 echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/checkbox', array('name' => 'all_day', 'value' => 1)) . '<label>' . elgg_echo('events_ui:allday') . '</label>';
+echo elgg_view('input/checkbox', array(
+	'name' => 'all_day',
+	'value' => 1,
+	'checked' => $vars['entity']->all_day ? true : false
+));
+echo '<label>' . elgg_echo('events_ui:allday') . '</label>';
 echo '</div>';
 
 echo '<div class="elgg-col elgg-col-1of2">';
