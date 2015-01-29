@@ -91,93 +91,6 @@ function handle_calendar_feed($params) {
 		}
 	}
 
-	// get repeating events
-	/*
-	unset($options['metadata_name_value_pairs'][0]);
-
-	$options['metadata_name_value_pairs'][2]['values'] = array('daily', 'weekly', 'monthly');
-
-	$r_events = new ElggBatch('elgg_get_entities_from_metadata', $options);
-	foreach ($r_events as $e) {
-		switch ($e->repeat) {
-			case 'daily':
-				$day_interval = 60 * 60 * 24;
-				for ($i = $interval_start; $i < $interval_end; $i += $day_interval) {
-
-					if ($e->starttime < $i) {
-						// this is a day match, and it's after it's started
-						// calculate the right timestamp
-						$start = mktime(
-							date('H', $e->starttime), date('i', $e->starttime), date('s', $e->starttime), date('n', $i), date('j', $i), date('Y', $i)
-						);
-
-						$result[] = array(
-							'id' => $e->guid,
-							'title' => $e->title,
-							'description' => $e->description,
-							'allDay' => false,
-							'start' => date('c', $start),
-							'end' => date('c', $end),
-							$e->getURL()
-						);
-					}
-				}
-				break;
-			case 'weekly':
-				// determine which week day this falls on
-				$day = date('D', $e->starttime);
-
-				$day_interval = 60 * 60 * 24;
-				for ($i = $interval_start; $i < $interval_end; $i += $day_interval) {
-					$test_day = date('D', $i);
-
-					if ($day == $test_day && $e->starttime < $i) {
-						// this is a day match, and it's after it's started
-						// calculate the right timestamp
-						$start = mktime(
-								date('H', $e->starttime), date('i', $e->starttime), date('s', $e->starttime), date('n', $i), date('j', $i), date('Y', $i)
-						);
-
-						$result[] = array(
-							'id' => $e->guid,
-							'title' => $e->title,
-							'description' => $e->description,
-							'allDay' => false,
-							'start' => date('c', $start)
-						);
-					}
-				}
-				break;
-				
-			case 'monthly':
-				// determine which day of the month this falls on
-				$day = date('j', $e->starttime);
-
-				$day_interval = 60 * 60 * 24;
-				for ($i = $interval_start; $i < $interval_end; $i += $day_interval) {
-					$test_day = date('j', $i);
-
-					if ($day == $test_day && $e->starttime < $i) {
-						// this is a day match, and it's after it's started
-						// calculate the right timestamp
-						$start = mktime(
-								date('H', $e->starttime), date('i', $e->starttime), date('s', $e->starttime), date('n', $i), date('j', $i), date('Y', $i)
-						);
-
-						$result[] = array(
-							'id' => $e->guid,
-							'title' => $e->title,
-							'description' => $e->description,
-							'allDay' => false,
-							'start' => date('c', $start)
-						);
-					}
-				}
-				break;
-		}
-	}
-	*/
-	
 	echo json_encode($result);
 	exit;
 }
@@ -200,7 +113,7 @@ function handle_event_page($guid) {
 	// register title menu items
 	register_event_title_menu($event);
 	
-	$content = elgg_view_entity($event);
+	$content = elgg_view_entity($event, array('full_view' => true));
 	
 	$layout = elgg_view_layout('content', array(
 		'title' => $event->title,
