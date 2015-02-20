@@ -5,79 +5,44 @@
 
 namespace Events\UI;
 
-const PLUGIN_ID = 'events_ui';
 const UPGRADE_VERSION = 20141215;
 
-require_once __DIR__ . '/lib/page_handlers.php';
 require_once __DIR__ . '/lib/functions.php';
+require_once __DIR__ . '/lib/events.php';
+require_once __DIR__ . '/lib/hooks.php';
+require_once __DIR__ . '/lib/page_handlers.php';
 
 elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
+elgg_register_event_handler('pagesetup', 'system', __NAMESPACE__ .'\\pagesetup');
 
 function init() {
-	
-	elgg_register_css('jquery-ui', 'mod/' . PLUGIN_ID . '/vendors/jquery-ui/jquery-ui.min.css');
-	elgg_register_css('fullcalendar', 'mod/' . PLUGIN_ID . '/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.css');
-	elgg_register_css('fullcalendar:print', 'mod/' . PLUGIN_ID . '/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.print.css');
-	elgg_register_js('fullcalendar', 'mod/' . PLUGIN_ID . '/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.min.js');
-	
-	elgg_register_js('moment.js', 'mod/' . PLUGIN_ID . '/vendors/jquery/moment.min.js');
-	
+
+	elgg_register_css('jquery-ui', 'mod/events_ui/vendors/jquery-ui/jquery-ui.min.css');
+	elgg_register_css('fullcalendar', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.css');
+	elgg_register_css('fullcalendar:print', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.print.css');
+	elgg_register_js('fullcalendar', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.min.js');
+
+	elgg_register_js('moment.js', 'mod/events_ui/vendors/jquery/moment.min.js');
+
+	elgg_register_viewtype('ical');
+
 	elgg_register_simplecache_view('css/events_ui');
 	$url = elgg_get_simplecache_url('css', 'events_ui');
 	elgg_register_css('events-ui', $url);
-	
+
 	elgg_register_simplecache_view('js/events_ui');
 	$url = elgg_get_simplecache_url('js', 'events_ui');
 	elgg_register_js('events-ui', $url);
-	
+
 	elgg_register_page_handler('calendar', __NAMESPACE__ . '\\page_handler');
-}
+	elgg_register_entity_url_handler('object', 'calendar', __NAMESPACE__ . '\\url_handler');
+	elgg_register_entity_url_handler('object', 'event', __NAMESPACE__ . '\\url_handler');
 
+	elgg_register_plugin_hook_handler('register', 'menu:owner_block', __NAMESPACE__ . '\\owner_block_menu_setup');
+	elgg_register_plugin_hook_handler('register', 'menu:entity', __NAMESPACE__ . '\\entity_menu_setup');
 
-function page_handler($page) {
-	switch ($page[0]) {
-		case 'view':
-			if (!$page[1]) {
-				$page[1] = elgg_get_logged_in_user_guid();
-			}
-			handle_container_calendar($page[1]);
-			return true;
-			break;
-		case 'feed':
-			
-			$start = get_input('start', false);
-			$end = get_input('end', false);
-			if (!$page[1] || !is_numeric($start) || !is_numeric($end)) {
-				return false;
-			}
-			
-			$params = array(
-				'guid' => $page[1],
-				'start' => $start,
-				'end' => $end
-			);
-			handle_calendar_feed($params);
-			break;
-		case 'events':
-			$result = event_pagehandler($page);
-			return $result;
-			break;
-	}
+	elgg_register_plugin_hook_handler('container_permissions_check', 'object', __NAMESPACE__ . '\\container_permissions_check');
 	
-	return false;
-}
+	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
 
-
-function event_pagehandler($page) {
-	switch ($page[1]) {
-		case 'view':
-			handle_event_page($page[2]);
-			return true;
-			break;
-		case 'edit':
-			handle_event_edit_page($page[2]);
-			return true;
-			break;
-	}
-	return false;
 }

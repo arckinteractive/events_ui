@@ -2,23 +2,17 @@
 
 namespace Events\UI;
 
-$calendar = $vars['entity'];
+use Events\API\Calendar;
 
-elgg_load_css('jquery-ui');
-elgg_load_css('events-ui');
-elgg_load_css('fullcalendar');
-elgg_load_js('fullcalendar');
-elgg_load_js('events-ui');
-elgg_load_js('jquery.form');
-elgg_load_js('moment.js');
-
-elgg_load_css('lightbox');
-elgg_load_js('lightbox');
+$calendar = elgg_extract('entity', $vars);
+if (!$calendar instanceof Calendar) {
+	return;
+}
 
 $attr = array(
 	'id' => "events-ui-calendar",
 	'data-guid' => $calendar->guid,
-	'data-editable' => $calendar->canEdit() ? 1 : 0
+	'data-editable' => $calendar->canAddEvent() ? 1 : 0
 );
 
 echo '<div ' . elgg_format_attributes($attr) . '></div>';
