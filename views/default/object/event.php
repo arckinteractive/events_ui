@@ -1,94 +1,82 @@
 <?php
 
+namespace Events\UI;
 
-$full = elgg_extract('full_view', $vars, FALSE);
-$event = elgg_extract('entity', $vars, FALSE);
+use Events\API\Event;
 
-if (!$event) {
-	return TRUE;
+$entity = elgg_extract('entity', $vars);
+$instance = elgg_extract('instance', $vars, array());
+$calendar = elgg_extract('calendar', $vars);
+$full = elgg_extract('full_view', $vars, false);
+
+if (!$entity instanceof Event) {
+	return;
 }
 
-$owner = $event->getOwnerEntity();
-$calendar = $event->getContainerEntity();
-$categories = elgg_view('output/categories', $vars);
-$excerpt = $event->excerpt;
-if (!$excerpt) {
-	$excerpt = elgg_get_excerpt($event->description);
-}
+$owner = $entity->getOwnerEntity();
 
-$owner_icon = elgg_view_entity_icon($owner, 'tiny');
 $owner_link = elgg_view('output/url', array(
-	'href' => "blog/owner/$owner->username",
+	'href' => "collections/owner/$owner->username",
 	'text' => $owner->name,
 	'is_trusted' => true,
-));
-$author_text = elgg_echo('byline', array($owner_link));
-$date = elgg_view_friendly_time($event->time_created);
-
-// The "on" status changes for comments, so best to check for !Off
-if ($event->comments_on != 'Off') {
-	$comments_count = $event->countComments();
-	//only display if there are commments
-	if ($comments_count != 0) {
-		$text = elgg_echo("comments") . " ($comments_count)";
-		$comments_link = elgg_view('output/url', array(
-			'href' => $event->getURL() . '#blog-comments',
-			'text' => $text,
-			'is_trusted' => true,
 		));
-	} else {
-		$comments_link = '';
-	}
-} else {
-	$comments_link = '';
-}
+$author_text = elgg_echo('byline', array($owner_link));
 
-$metadata = elgg_view_menu('entity', array(
-	'entity' => $vars['entity'],
-	'sort_by' => 'priority',
-	'class' => 'elgg-menu-hz',
+$start = elgg_extract('start', $instance, $entity->start_timestamp);
+if (!$entity->isValidStartTime($start)) {
+	$start = $entity->getNextOccurrence();
+}
+$end = $start + $entity->end_delta;
+
+$date = elgg_view('output/events_ui/date_range', array(
+	'start' => $start,
+	'end' => $end,
 ));
 
-$subtitle = "$author_text $date $comments_link $categories";
+$categories = elgg_view('output/categories', $vars);
 
-// do not show the metadata and controls in widget view
-if (elgg_in_context('widgets')) {
-	$metadata = '';
-}
+$subtitle = "$date<br />$author_text $categories";
 
 if ($full) {
-
-	$body = elgg_view('output/longtext', array(
-		'value' => $event->description,
-		'class' => 'blog-post',
+	$title = false;
+	$summary = '';
+	$content = elgg_view('output/longtext', array(
+		'value' => $entity->description,
 	));
-
-	$params = array(
-		'entity' => $event,
-		'title' => false,
-		'metadata' => $metadata,
-		'subtitle' => $subtitle,
-	);
-	$params = $params + $vars;
-	$summary = elgg_view('object/elements/summary', $params);
-
-	echo elgg_view('object/elements/full', array(
-		'summary' => $summary,
-		'icon' => $owner_icon,
-		'body' => $body,
+	$metadata = elgg_view_menu('entity', array(
+		'entity' => $entity,
+		'handler' => 'events',
+		'sort_by' => 'priority',
+		'class' => 'elgg-menu-hz',
 	));
-
+	$tags = '';
 } else {
-	// brief view
+	$title = elgg_view('output/url', array(
+		'text' => $entity->getDisplayName(),
+		'href' => $entity->getURL($start, $calendar->guid),
+	));
+	$summary = elgg_get_excerpt($entity->description);
+	$metadata = false;
+	$tags = false;
+}
 
-	$params = array(
-		'entity' => $event,
-		'metadata' => $metadata,
-		'subtitle' => $subtitle,
-		'content' => $excerpt,
-	);
-	$params = $params + $vars;
-	$list_body = elgg_view('object/elements/summary', $params);
+$summary = elgg_view('object/elements/summary', array(
+	'entity' => $entity,
+	'title' => $title,
+	'subtitle' => $subtitle,
+	'content' => $summary,
+	'metadata' => $metadata,
+		));
 
-	echo elgg_view_image_block($owner_icon, $list_body);
+$icon = elgg_view_entity_icon($entity, 'small');
+
+if ($full) {
+	echo elgg_view('object/elements/full', array(
+		'entity' => $entity,
+		'summary' => $summary,
+		'icon' => $icon,
+		'body' => $content,
+	));
+} else {
+	echo elgg_view_image_block($icon, $summary);
 }

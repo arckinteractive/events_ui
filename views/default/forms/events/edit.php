@@ -1,12 +1,17 @@
 <?php
 
-elgg_load_css('jquery-ui');
-elgg_load_css('events-ui');
-elgg_load_js('events-ui');
+namespace Events\UI;
+
+$entity = elgg_extract('entity', $vars);
+/* @var Events\API\Event $entity */
+
+$container = elgg_extract('container', $vars, elgg_get_logged_in_user_entity());
+
+$now = time();
 
 $calendar = $vars['calendar'];
-if (!$calendar && $vars['entity']) {
-	$calendar = $vars['entity']->getContainerEntity();
+if (!$calendar && $entity) {
+	$calendar = $entity->getContainerEntity();
 }
 
 $hour_options = array();
@@ -15,106 +20,149 @@ $count = 0;
 while ($count < 96) {
 	$count++;
 	$hour_options[] = date('g:ia', $time);
-	
-	$time += 60*15; //add half an hour
-}
 
-echo '<div class="elgg-col elgg-col-1of1">';
-echo elgg_view('input/text', array(
-	'name' => 'title',
-	'value' => $vars['entity'] ? $vars['entity']->title : '',
-	'placeholder' => elgg_echo('events:edit:title:placeholder')
-));
-echo '</div>';
+	$time += 60 * 15; //add half an hour
+}
 
 $start = $vars['start_date'] ? $vars['start_date'] : gmdate('Y-m-d');
 $end = $vars['end_date'] ? $vars['end_date'] : gmdate('Y-m-d');
-echo '<div class="elgg-col elgg-col-1of1">';
-echo '<div class="elgg-col elgg-col-1of2">';
-echo '<label>' . elgg_echo('events:edit:label:start') . '</label>';
-echo '<div class="clearfix clearfloat"></div>';
-echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/text', array(
-	'name' => 'start_date',
-	'value' => $vars['entity'] ? $vars['entity']->start_date : $start,
-	'class' => 'events-ui-datepicker',
-	'autoinit' => $vars['dateautoinit']
-));
-echo '</div>';
-echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/dropdown', array(
-	'name' => 'start_time',
-	'value' => $vars['entity'] ? $vars['entity']->start_time : '12:00am',
-	'options' => $hour_options
-));
-echo '</div>';
-echo '</div>';
+?>
+<div class="events-ui-row">
+	<?php
+	echo elgg_view('input/text', array(
+		'name' => 'title',
+		'value' => $entity ? $entity->title : '',
+		'placeholder' => elgg_echo('events:edit:title:placeholder')
+	));
+	?>
+</div>
+<div class="events-ui-row">
+	<div class="elgg-col elgg-col-1of2">
+		<label class="elgg-col elgg-col-1of1"><?php echo elgg_echo('events:edit:label:start') ?></label>
+		<div class="elgg-col elgg-col-1of2">
+			<?php
+			echo elgg_view('input/text', array(
+				'name' => 'start_date',
+				'value' => $entity ? $entity->start_date : $start,
+				'class' => 'events-ui-datepicker',
+				'autoinit' => $vars['dateautoinit']
+			));
+			?>
+		</div>
+		<div class="elgg-col elgg-col-1of2">
+			<?php
+			$default_time = round(($now+900/2)/900)*900;
+			echo elgg_view('input/dropdown', array(
+				'name' => 'start_time',
+				'value' => $entity ? $entity->start_time : date('g:ia', $default_time),
+				'options' => $hour_options,
+				'class' => 'events-ui-time',
+			));
+			?>
+		</div>
+	</div>
+	<div class="elgg-col elgg-col-1of2">
+		<label class="elgg-col elgg-col-1of1"><?php echo elgg_echo('events:edit:label:end') ?></label>
+		<div class="elgg-col elgg-col-1of2">
+			<?php
+			echo elgg_view('input/text', array(
+				'name' => 'end_date',
+				'value' => $entity ? $entity->end_date : $end,
+				'class' => 'events-ui-datepicker',
+				'autoinit' => $vars['dateautoinit']
+			));
+			?>
+		</div>
+		<div class="elgg-col elgg-col-1of2">
+			<?php
+			echo elgg_view('input/dropdown', array(
+				'name' => 'end_time',
+				'value' => $entity ? $entity->end_time : date('g:ia', $default_time + 3600),
+				'options' => $hour_options,
+				'class' => 'events-ui-time',
+			));
+			?>
+		</div>
+	</div>
+</div>
+<div class="events-ui-row">
+	<ul class="elgg-menu elgg-menu-hz">
+		<li>
+			<label>
+				<?php
+				echo elgg_view('input/checkbox', array(
+					'name' => 'all_day',
+					'value' => 1,
+					'checked' => $entity->all_day ? true : false
+				));
+				echo elgg_echo('events_ui:allday');
+				?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<?php
+				echo elgg_view('input/checkbox', array(
+					'name' => 'repeat',
+					'value' => 1,
+					'checked' => $checked,
+				));
+				echo elgg_echo('events_ui:repeat')
+				?>
+			</label>
+		</li>
+	</ul>
+</div>
+<div class="events-ui-row">
+	<div class="events-ui-repeat <?php echo ($checked) ? '' : 'hidden' ?>">
+		<?php
+		echo elgg_view('forms/events/repeat', $vars);
+		?>
+	</div>
+</div>
+<div class="events-ui-row">
+	<label><?php echo elgg_echo('events_ui:description') ?></label>
+	<?php
+	echo elgg_view('input/plaintext', array(
+		'name' => 'description',
+		'value' => $entity ? $entity->description : '',
+		'rows' => 3,
+	));
+	?>
+</div>
 
-echo '<div class="elgg-col elgg-col-1of2">';
-echo '<label>' . elgg_echo('events:edit:label:end') . '</label>';
-echo '<div class="clearfix clearfloat"></div>';
-echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/text', array(
-	'name' => 'end_date',
-	'value' => $vars['entity'] ? $vars['entity']->end_date : $end,
-	'class' => 'events-ui-datepicker',
-	'autoinit' => $vars['dateautoinit']
-));
-echo '</div>';
-echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/dropdown', array(
-	'name' => 'end_time',
-	'value' => $vars['entity'] ? $vars['entity']->end_time : '12:00am',
-	'options' => $hour_options
-));
-echo '</div>';
-echo '</div>';
+<?php
+// extension point for other plugins
+echo elgg_view('events/add/extend');
+?>
 
-echo '<div class="elgg-col elgg-col-1of2">';
-echo elgg_view('input/checkbox', array(
-	'name' => 'all_day',
-	'value' => 1,
-	'checked' => $vars['entity']->all_day ? true : false
-));
-echo '<label>' . elgg_echo('events_ui:allday') . '</label>';
-echo '</div>';
+<div class="events-ui-row">
+	<label><?php echo elgg_echo('access') ?></label>
+	<?php
+	echo elgg_view('input/access', array('entity' => $entity));
+	?>
+</div>
 
-echo '<div class="elgg-col elgg-col-1of2">';
-$checked = $vars['entity'] ? ($vars['entity']->repeat ? true : false) : false;
-echo elgg_view('input/checkbox', array(
-	'name' => 'repeat',
-	'value' => 1,
-	'checked' => $checked,
-	)) . '<label>' . elgg_echo('events_ui:repeat') . '...</label>';
-echo '</div>';
+<div class="events-ui-row elgg-foot">
+	<?php
+	echo elgg_view('input/hidden', array(
+		'name' => 'calendar',
+		'value' => $calendar->guid
+	));
+	echo elgg_view('input/hidden', array(
+		'name' => 'container_guid',
+		'value' => $container->guid,
+	));
+	echo elgg_view('input/hidden', array(
+		'name' => 'guid',
+		'value' => $entity->guid,
+	));
+	echo elgg_view('input/submit', array(
+		'value' => elgg_echo('save')
+	));
+	?>
+</div>
 
-echo '<div class="events-ui-repeat clearfix clearfloat ptm' . ($checked ? '' : ' hidden') . '">';
-echo elgg_view('forms/events/repeat', $vars);
-echo '</div>';
-
-echo '<div class="elgg-col elgg-col-1of1">';
-echo '<label>' . elgg_echo('events_ui:description') . '</label>';
-echo elgg_view('input/plaintext', array(
-	'name' => 'description',
-	'value' => $vars['entity'] ? $vars['entity']->description : ''
-));
-echo '</div>';
-
-echo elgg_view('events/add/extend'); // extension point for other plugins
-
-echo '<div class="elgg-col elgg-col-1of1">';
-echo '<label>' . elgg_echo('access') . '</label>';
-echo elgg_view('input/access', array('entity' => $vars['entity']));
-echo '</div>';
-
-echo '<div class="elgg-foot ptm">';
-echo elgg_view('input/hidden', array('name' => 'calendar', 'value' => $calendar->guid));
-echo elgg_view('input/hidden', array('name' => 'guid', 'value' => $vars['entity'] ? $vars['entity']->guid : 0));
-echo elgg_view('input/submit', array('value' => elgg_echo('save')));
-echo '</div>';
-
-echo '</div>';
-
-
+<?php
 // this is solely to force the loading of core js libs
-echo elgg_view('input/date', array('class' => 'hidden'));
+echo elgg_view('input/date', array('class' => 'hidden', 'style' => 'display: none;'));
