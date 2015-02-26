@@ -2,8 +2,14 @@
 
 namespace Events\UI;
 
+use Events\API\Event;
+
 $entity = elgg_extract('entity', $vars);
-/* @var Events\API\Event $entity */
+
+if ($entity && !($entity instanceof Event)) {
+	echo '<p>' . elgg_echo('events:error:invalid:guid') . '</p>';
+	return;
+}
 
 $container = elgg_extract('container', $vars, elgg_get_logged_in_user_entity());
 
@@ -26,6 +32,8 @@ while ($count < 96) {
 
 $start = $vars['start_date'] ? $vars['start_date'] : gmdate('Y-m-d');
 $end = $vars['end_date'] ? $vars['end_date'] : gmdate('Y-m-d');
+
+$recurring = ($entity) ? $entity->isRecurring() : false;
 ?>
 <div class="events-ui-row">
 	<?php
@@ -105,7 +113,7 @@ $end = $vars['end_date'] ? $vars['end_date'] : gmdate('Y-m-d');
 				echo elgg_view('input/checkbox', array(
 					'name' => 'repeat',
 					'value' => 1,
-					'checked' => $checked,
+					'checked' => $recurring,
 				));
 				echo elgg_echo('events_ui:repeat')
 				?>
@@ -114,7 +122,7 @@ $end = $vars['end_date'] ? $vars['end_date'] : gmdate('Y-m-d');
 	</ul>
 </div>
 <div class="events-ui-row">
-	<div class="events-ui-repeat <?php echo ($checked) ? '' : 'hidden' ?>">
+	<div class="events-ui-repeat <?php echo ($recurring) ? '' : 'hidden' ?>">
 		<?php
 		echo elgg_view('forms/events/repeat', $vars);
 		?>
