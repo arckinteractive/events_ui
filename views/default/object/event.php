@@ -22,7 +22,7 @@ $owner_link = elgg_view('output/url', array(
 		));
 $author_text = elgg_echo('byline', array($owner_link));
 
-$start = elgg_extract('start', $instance, $entity->start_timestamp);
+$start = elgg_extract('start_timestamp', $instance, $entity->start_timestamp);
 if (!$entity->isValidStartTime($start)) {
 	$start = $entity->getNextOccurrence();
 }
