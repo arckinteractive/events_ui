@@ -27,23 +27,25 @@ $end = (int) Util::getMonthEnd($start);
 
 $events = $entity->getAllEventInstances($start, $end);
 
-elgg_register_menu_item('extras', array(
+elgg_register_menu_item('title', array(
 	'name' => 'calendar_view',
 	'href' => elgg_http_add_url_query_elements("calendar/view/$entity->guid", array(
 		'start' => $start,
 		'end' => $end,
 	)),
-	'text' => elgg_view_icon('events-calendar'),
-	'title' => elgg_echo('events:view:calendar'),
+	'text' => elgg_echo('events:view:calendar'),//elgg_view_icon('events-calendar'),
+	'title' => elgg_echo('events:view:calendar:switch'),
+	'link_class' => 'elgg-button elgg-button-action',
 ));
-elgg_register_menu_item('extras', array(
+elgg_register_menu_item('title', array(
 	'name' => 'ical_view',
 	'href' => $entity->getIcalURL("calendar/feed/$entity->guid", array(
 		'start' => $start,
 		'end' => $end,
 	)),
-	'text' => elgg_view_icon('events-ical'),
+	'text' => elgg_echo('events:view:ical'), //elgg_view_icon('events-ical'),
 	'title' => elgg_echo('events:view:ical'),
+	'link_class' => 'elgg-button elgg-button-action',
 ));
 $prev_start = strtotime('-1 month', $start);
 $next_start = strtotime('+1 month', $start);
@@ -54,7 +56,7 @@ elgg_register_menu_item('title', array(
 	'href' => elgg_http_add_url_query_elements("calendar/feed/$entity->guid", array(
 		'start' => $prev_start,
 	)),
-	'link_class' => 'elgg-button elgg-button-action',
+	'link_class' => 'elgg-button elgg-button-action mlm',
 	'priority' => 100,
 ));
 elgg_register_menu_item('title', array(

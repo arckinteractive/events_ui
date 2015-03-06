@@ -33,17 +33,19 @@ if (elgg_instanceof($container, 'user')) {
 $title = $entity->getDisplayName();
 elgg_push_breadcrumb($title);
 
-elgg_register_menu_item('extras', array(
+elgg_register_menu_item('title', array(
 	'name' => 'feed_view',
 	'href' => "calendar/feed/$entity->guid",
-	'text' => elgg_view_icon('events-feed'),
-	'title' => elgg_echo('events:view:feed'),
+	'text' => elgg_echo('events:view:feed'), //elgg_view_icon('events-feed'),
+	'title' => elgg_echo('events:view:feed:switch'),
+	'link_class' => 'elgg-button elgg-button-action',
 ));
-elgg_register_menu_item('extras', array(
+elgg_register_menu_item('title', array(
 	'name' => 'ical_view',
 	'href' => $entity->getIcalURL("calendar/feed/$entity->guid"),
-	'text' => elgg_view_icon('events-ical'),
+	'text' => elgg_echo('events:view:ical'), //elgg_view_icon('events-ical'),
 	'title' => elgg_echo('events:view:ical'),
+	'link_class' => 'elgg-button elgg-button-action',
 ));
 
 $sidebar = elgg_view('events_ui/sidebar', array(

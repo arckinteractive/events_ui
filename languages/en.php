@@ -46,8 +46,10 @@ $english = array(
 	'events:feed:range' => 'Events between %s and %s',
 	'events:feed:month' => 'Events in %s',
 
-	'events:view:calendar' => 'Switch to calendar view',
-	'events:view:feed' => 'Switch to feed view',
+	'events:view:calendar' => 'Calendar view',
+	'events:view:calendar:switch' => 'Switch to calendar view',
+	'events:view:feed' => 'Feed view',
+	'events:view:feed:switch' => 'Switch to feed view',
 	'events:view:ical' => 'iCal',
 
 	'events:no_results' => 'There are no events to display',
