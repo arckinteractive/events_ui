@@ -61,7 +61,8 @@ $english = array(
 	
 	'river:event:create' => "%s created a new event %s",
 	'events:start:time' => "Start Time",
-	'events:end:time' => "End Time"
+	'events:end:time' => "End Time",
+	'events:error:empty_title' => "You must enter a title for the event",
 );
 
 add_translation("en", $english);
