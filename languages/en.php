@@ -59,6 +59,9 @@ $english = array(
 	'events:calendar:group' => 'Group calendars',
 	'events:add_to_calendar:default' => 'Add to my calendar',
 	
+	'river:event:create' => "%s created a new event %s",
+	'events:start:time' => "Start Time",
+	'events:end:time' => "End Time"
 );
 
 add_translation("en", $english);

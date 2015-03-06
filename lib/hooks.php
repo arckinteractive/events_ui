@@ -6,6 +6,7 @@ use ElggGroup;
 use ElggMenuItem;
 use ElggUser;
 use Events\API\Calendar;
+use Events\API\Event;
 
 /**
  * Sets up owner block menu
@@ -87,5 +88,16 @@ function container_permissions_check($hook, $type, $return, $params) {
 		return false;
 	}
 
+	return $return;
+}
+
+
+function entity_icon_url($hook, $type, $return, $params) {
+	$entity = elgg_extract('entity', $params);
+
+	if ($entity instanceof Event) {
+		return 'mod/events_ui/graphics/event-' . $params['size'] . '.jpg';
+	}
+	
 	return $return;
 }

@@ -1,18 +1,28 @@
 <?php
 /**
- * Blog river view.
+ * Event river view.
  */
 
-$object = $vars['item']->getObjectEntity();
+$event = $vars['item']->getObjectEntity();
 
-$excerpt = strip_tags($object->description);
-$excerpt = elgg_get_excerpt($excerpt);
+$owner = $event->getOwnerEntity();
+$owner_link = elgg_view('output/url', array(
+	'text' => $owner->name,
+	'href' => $owner->getURL()
+));
 
-/**
- * @todo: Add next occurence info
- */
+$event_link = elgg_view('output/url', array(
+	'text' => $event->title,
+	'href' => $event->getURL()
+));
 
-echo elgg_view('river/elements/layout', array(
-	'item' => $vars['item'],
-	'message' => $excerpt,
+
+$vars['summary'] = elgg_echo('river:event:create', array($owner_link, $event_link));
+
+$vars['message'] = elgg_view('river/object/event/message', array('event' => $event));
+
+echo elgg_view('page/components/image_block', array(
+	'image' => elgg_view_entity_icon($event, 'small'),
+	'body' => elgg_view('river/elements/body', $vars),
+	'class' => 'elgg-river-item',
 ));
