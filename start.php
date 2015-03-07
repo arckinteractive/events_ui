@@ -48,4 +48,5 @@ function init() {
 	
 	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
 
+	elgg_register_ajax_view('resources/calendar/picker');
 }

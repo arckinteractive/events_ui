@@ -151,6 +151,24 @@ echo elgg_view('events/add/extend');
 	?>
 </div>
 
+<?php
+if ($entity):
+?>
+<div class="events-ui-row">
+	<label>
+	<?php
+		echo elgg_view('input/checkbox', array(
+			'name' => 'resend_notifications',
+			'value' => 1
+		));
+		echo elgg_echo('events_ui:resend:notifications');
+	?>
+	</label>
+</div>
+<?php
+endif;
+?>
+
 <div class="events-ui-row elgg-foot">
 	<?php
 	echo elgg_view('input/hidden', array(

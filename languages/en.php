@@ -60,11 +60,16 @@ $english = array(
 	'events:calendar:groups:enable' => 'Enable group calendar',
 	'events:calendar:group' => 'Group calendars',
 	'events:add_to_calendar:default' => 'Add to my calendar',
+	'events:add_to_calendar:multi' => "Show on the following calendars",
+	'events:calendars:added' => "Event has been added to selected calendars",
+	'events:calendars:orphan:added' => "Orphaned event has been restored to the default calendar",
 	
 	'river:event:create' => "%s created a new event %s",
 	'events:start:time' => "Start Time",
 	'events:end:time' => "End Time",
 	'events:error:empty_title' => "You must enter a title for the event",
+	'events_ui:resend:notifications' => "Resend notifications to members with this event on their calendars",
+	'events_ui:default:calendar' => "Default Calendar",
 );
 
 add_translation("en", $english);
