@@ -46,6 +46,15 @@ function init() {
 
 	elgg_register_plugin_hook_handler('container_permissions_check', 'object', __NAMESPACE__ . '\\container_permissions_check');
 	
+	if (elgg_is_logged_in()) {
+		elgg_register_menu_item('page', array(
+			'name' => 'calendar_settings',
+			'text' => elgg_echo('calendar:settings'),
+			'href' => 'calendar/settings/' . elgg_get_logged_in_user_entity()->username,
+			'context' => array('settings')
+		));
+	}
+	
 	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
 
 	elgg_register_ajax_view('resources/calendar/picker');

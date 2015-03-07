@@ -88,6 +88,15 @@ function page_handler($page) {
 			$page_view = elgg_view('resources/calendar/feed');
 			break;
 
+		case 'settings':
+			$user = get_user_by_username($page[1]);
+			if (!$user || !$user->canEdit()) {
+				forward('404');
+			}
+			elgg_set_page_owner_guid($user->guid);
+			elgg_set_context('settings');
+			$page_view = elgg_view('resources/calendar/settings');
+			break;
 		case 'events':
 			return event_pagehandler(array_slice($page, 1));
 	}

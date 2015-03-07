@@ -70,6 +70,10 @@ $english = array(
 	'events:error:empty_title' => "You must enter a title for the event",
 	'events_ui:resend:notifications' => "Resend notifications to members with this event on their calendars",
 	'events_ui:default:calendar' => "Default Calendar",
+	'calendar:settings' => "Calendar Settings",
+	'calendar:groups:autosync' => "Sync group calendar settings",
+	'calendar:groups:autosync:none' => "You are not a member of any groups yet",
+	'calendar:autosync' => "Sync to your default calendar"
 );
 
 add_translation("en", $english);
