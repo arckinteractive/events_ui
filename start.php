@@ -55,6 +55,12 @@ function init() {
 		));
 	}
 	
+	elgg_register_event_handler('create', 'object', __NAMESPACE__ . '\\event_create');
+	elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\vroom_functions');
+	
+	
+	elgg_register_action('calendar/settings', __DIR__ . '/actions/calendar/settings.php');
+	
 	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
 
 	elgg_register_ajax_view('resources/calendar/picker');

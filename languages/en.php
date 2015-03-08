@@ -73,7 +73,8 @@ $english = array(
 	'calendar:settings' => "Calendar Settings",
 	'calendar:groups:autosync' => "Sync group calendar settings",
 	'calendar:groups:autosync:none' => "You are not a member of any groups yet",
-	'calendar:autosync' => "Sync to your default calendar"
+	'calendar:autosync' => "Sync to your default calendar",
+	'events:calendar:settings:saved' => "Calendar settings have been saved"
 );
 
 add_translation("en", $english);

@@ -4,6 +4,9 @@ namespace Events\UI;
 
 use ElggEntity;
 use Events\API\Calendar;
+use Events\API\Event;
+use ElggGroup;
+use ElggBatch;
 
 function register_event_title_menu($event) {
 
@@ -48,4 +51,54 @@ function register_event_title_menu($event) {
 			'link_class' => 'elgg-button elgg-button-delete elgg-requires-confirmation'
 		));
 	}
+}
+
+
+/**
+ * adds group events to the default calendar of interested members
+ * 
+ * @param type $event_guid
+ * @param type $group_guid
+ */
+function autosync_group_event($event_guid, $group_guid) {
+	// note that this function can be called after shutdown with vroom
+	// using guids for params so that we're not performing operations on potentially stale entities
+	$event = get_entity($event_guid);
+	$group = get_entity($group_guid);
+
+	if (!($event instanceof Event) || !($group instanceof ElggGroup)) {
+		return false;
+	}
+	
+	// get group members
+	$options = array(
+		'type' => 'user',
+		'relationship' => 'member',
+		'relationship_guid' => $group->guid,
+		'inverse_relationship' => true,
+		'limit' => false
+	);
+	
+	$users = new ElggBatch('elgg_get_entities_from_relationship', $options);
+	foreach ($users as $u) {
+		// only add to the calendar if they have not opted out
+		if (!check_entity_relationship($u->guid, 'calendar_nosync', $group->guid)) {
+			// they have not opted out, we should add it to their calendars
+			$calendar = Calendar::getPublicCalendar($u);
+			$calendar->addEvent($event);
+		}
+	}
+}
+
+
+function register_vroom_function($function, $args) {
+	$vroom_functions = elgg_get_config('event_vroom_functions');
+	
+	if (!is_array($vroom_functions)) {
+		$vroom_functions = array();
+	}
+	
+	$vroom_functions[] = array($function => $args);
+
+	elgg_set_config('event_vroom_functions', $vroom_functions);
 }
