@@ -41,7 +41,7 @@ $sidebar = elgg_view('events_ui/sidebar', array(
 $content = elgg_view_entity($entity, array(
 	'full_view' => true,
 	'instance' => array(
-		'start' => $ts,
+		'start_timestamp' => $ts,
 	),
 	'calendar' => $calendar,
 		));
