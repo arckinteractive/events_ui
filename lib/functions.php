@@ -7,6 +7,7 @@ use Events\API\Calendar;
 use Events\API\Event;
 use ElggGroup;
 use ElggBatch;
+use ElggUser;
 
 function register_event_title_menu($event) {
 
@@ -17,11 +18,11 @@ function register_event_title_menu($event) {
 	if (elgg_is_logged_in()) {
 		$calendar_count = Calendar::getCalendars(elgg_get_logged_in_user_entity(), true);
 	}
-	
+
 	if ($calendar_count) {
 		$calendar_picker = ' addtocalendar-picker';
 	}
-	
+
 	$calendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
 	elgg_register_menu_item('title', array(
 		'name' => 'add_to_calendar',
@@ -53,7 +54,6 @@ function register_event_title_menu($event) {
 	}
 }
 
-
 /**
  * adds group events to the default calendar of interested members
  * 
@@ -69,7 +69,7 @@ function autosync_group_event($event_guid, $group_guid) {
 	if (!($event instanceof Event) || !($group instanceof ElggGroup)) {
 		return false;
 	}
-	
+
 	// get group members
 	$options = array(
 		'type' => 'user',
@@ -78,7 +78,7 @@ function autosync_group_event($event_guid, $group_guid) {
 		'inverse_relationship' => true,
 		'limit' => false
 	);
-	
+
 	$users = new ElggBatch('elgg_get_entities_from_relationship', $options);
 	foreach ($users as $u) {
 		// only add to the calendar if they have not opted out
@@ -90,15 +90,42 @@ function autosync_group_event($event_guid, $group_guid) {
 	}
 }
 
-
 function register_vroom_function($function, $args) {
 	$vroom_functions = elgg_get_config('event_vroom_functions');
-	
+
 	if (!is_array($vroom_functions)) {
 		$vroom_functions = array();
 	}
-	
+
 	$vroom_functions[] = array($function => $args);
 
 	elgg_set_config('event_vroom_functions', $vroom_functions);
+}
+
+function get_calendar_notification_methods($user, $notification_name) {
+
+	if (!($user instanceof ElggUser)) {
+		return array();
+	}
+
+	$methods = array();
+	global $NOTIFICATION_HANDLERS;
+	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
+		$attr = '__notify_' . $method . '_' . $notification_name;
+
+		if ($user->$attr) {
+			$methods[] = $method;
+		}
+	}
+
+	return $methods;
+}
+
+function get_calendar_notifications() {
+	$calendar_notifications = array(
+		'addtocal',
+		'eventreminder'
+	);
+
+	return $calendar_notifications;
 }

@@ -74,7 +74,21 @@ $english = array(
 	'calendar:groups:autosync' => "Sync group calendar settings",
 	'calendar:groups:autosync:none' => "You are not a member of any groups yet",
 	'calendar:autosync' => "Sync to your default calendar",
-	'events:calendar:settings:saved' => "Calendar settings have been saved"
+	'events:calendar:settings:saved' => "Calendar settings have been saved",
+	'calendar:notifications' => "Calendar Notifications",
+	'calendar:notifications:addtocal' => "Receive notifications when events are added to your calendar",
+	'calendar:notifications:eventreminder' => "Receive reminder notifications before events",
+	'event:notify:addtocal:subject' => "A new event has been added to your calendar: %s",
+	'event:notify:addtocal:message' => "
+An event has been added to your calendar
+
+%s
+%s
+
+%s
+
+See the full details: %s
+"
 );
 
 add_translation("en", $english);
