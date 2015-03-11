@@ -20,7 +20,7 @@ $owner_link = elgg_view('output/url', array(
 	'text' => $owner->name,
 	'is_trusted' => true,
 		));
-$author_text = elgg_echo('byline', array($owner_link));
+$author_text = elgg_echo('events_ui:byline', array($owner_link));
 
 $start = elgg_extract('start_timestamp', $instance, $entity->start_timestamp);
 if (!$entity->isValidStartTime($start)) {
@@ -32,10 +32,18 @@ $date = elgg_view('output/events_ui/date_range', array(
 	'start' => $start,
 	'end' => $end,
 ));
-
+$location = elgg_view('output/location', array(
+	'value' => $entity->getLocation(),
+));
 $categories = elgg_view('output/categories', $vars);
 
-$subtitle = "$date<br />$author_text $categories";
+$subtitle = '';
+foreach (array($date, $location, $author_text, $categories) as $subtitle_element) {
+	// reulctant to just implode with <br /> for styling reasons
+	if ($subtitle_element) {
+		$subtitle .= '<div>' . $subtitle_element . '</div>';
+	}
+}
 
 if ($full) {
 	$title = false;

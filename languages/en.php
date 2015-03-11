@@ -17,6 +17,7 @@ $english = array(
 	
 	// forms
 	'events:edit:title:placeholder' => 'Untitled Event',
+	'events:edit:label:location' => 'Location',
 	'events:edit:label:start' => "Start",
 	'events:edit:label:end' => "End",
 	'events_ui:allday' => "All Day",
@@ -34,6 +35,7 @@ $english = array(
 	'events_ui:repeat_ends:after' => "After %s occurrences",
 	'events_ui:repeat_ends:on' => "On %s",
 	'events_ui:description' => 'Description',
+	'events_ui:byline' => 'Hosted by %s',
 
 	'repeat_ui:repeat:weekly:weekday' => 'on %s',
 	'repeat_ui:repeat_monthly_by' => 'Repeat by',

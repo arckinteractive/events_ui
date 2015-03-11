@@ -45,6 +45,15 @@ $recurring = ($entity) ? $entity->isRecurring() : false;
 	?>
 </div>
 <div class="events-ui-row">
+	<label><?php echo elgg_echo('events:edit:label:location') ?></label>
+	<?php
+		echo elgg_view('input/location', array(
+			'name' => 'location',
+			'value' => ($entity) ? $entity->getLocation() : '',
+		));
+	?>
+</div>
+<div class="events-ui-row">
 	<div class="elgg-col elgg-col-1of2">
 		<label class="elgg-col elgg-col-1of1"><?php echo elgg_echo('events:edit:label:start') ?></label>
 		<div class="elgg-col elgg-col-1of2">
