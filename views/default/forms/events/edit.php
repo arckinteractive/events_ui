@@ -34,6 +34,7 @@ $start = $vars['start_date'] ? $vars['start_date'] : gmdate('Y-m-d');
 $end = $vars['end_date'] ? $vars['end_date'] : gmdate('Y-m-d');
 
 $recurring = ($entity) ? $entity->isRecurring() : false;
+$has_reminders = ($entity) ? $entity->hasReminders() : false;
 ?>
 <div class="events-ui-row">
 	<?php
@@ -128,12 +129,31 @@ $recurring = ($entity) ? $entity->isRecurring() : false;
 				?>
 			</label>
 		</li>
+		<li>
+			<label>
+				<?php
+				echo elgg_view('input/checkbox', array(
+					'name' => 'has_reminders',
+					'value' => 1,
+					'checked' => $has_reminders,
+				));
+				echo elgg_echo('events_ui:enable_reminders')
+				?>
+			</label>
+		</li>
 	</ul>
 </div>
 <div class="events-ui-row">
 	<div class="events-ui-repeat <?php echo ($recurring) ? '' : 'hidden' ?>">
 		<?php
 		echo elgg_view('forms/events/repeat', $vars);
+		?>
+	</div>
+</div>
+<div class="events-ui-row">
+	<div class="events-ui-reminders <?php echo ($has_reminders) ? '' : 'hidden' ?>">
+		<?php
+		echo elgg_view('forms/events/reminders', $vars);
 		?>
 	</div>
 </div>

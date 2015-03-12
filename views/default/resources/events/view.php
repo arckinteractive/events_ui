@@ -38,22 +38,32 @@ $sidebar = elgg_view('events_ui/sidebar', array(
 	'entity' => $entity,
 		));
 
-$content = elgg_view_entity($entity, array(
-	'full_view' => true,
-	'instance' => array(
-		'start_timestamp' => $ts,
-	),
-	'calendar' => $calendar,
-		));
 
-$layout = elgg_view_layout('content', array(
-	'title' => $title,
-	'content' => $content,
-	'filter' => false,
-	'sidebar' => $sidebar,
-	'entity' => $entity,
-		));
+if (elgg_is_xhr()) {
+	echo elgg_view('object/event/modal', array(
+		'entity' => $entity,
+		'instance' => array(
+			'start_timestamp' => $ts,
+		),
+		'calendar' => $calendar,
+	));
+} else {
+	$content = elgg_view_entity($entity, array(
+		'full_view' => true,
+		'instance' => array(
+			'start_timestamp' => $ts,
+		),
+		'calendar' => $calendar,
+	));
+	$layout = elgg_view_layout('content', array(
+		'title' => $title,
+		'content' => $content,
+		'filter' => false,
+		'sidebar' => $sidebar,
+		'entity' => $entity,
+	));
 
-echo elgg_view_page($title, $layout, 'default', array(
-	'entity' => $entity,
-));
+	echo elgg_view_page($title, $layout, 'default', array(
+		'entity' => $entity,
+	));
+}

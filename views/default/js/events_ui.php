@@ -1,129 +1,565 @@
 //<script>
-
-	elgg.provide('elgg.events_ui');
-
-	elgg.events_ui.init = function() {
-
-		var guid = $('#events-ui-calendar').attr('data-guid');
-		var $cal = $('#events-ui-calendar');
-
-		if ($cal.length) {
-			$cal.fullCalendar({
+	elgg.provide('elgg.events.ui');
+	/**
+	 * @param {Number} guid
+	 * @constructor
+	 */
+	elgg.events.ui.Calendar = function (guid) {
+		this.guid = guid;
+		this.$calendar = $("#js-events-ui-calendar-" + guid);
+		var $form = $("#js-events-ui-form-" + guid).find('form');
+		this.eventForm = new elgg.events.ui.EventForm($form, this);
+		this.initialized = false;
+	};
+	/**
+	 * Calendar prototype
+	 * @type elgg.events.ui.Calendar
+	 */
+	elgg.events.ui.Calendar.prototype = {
+		constructor: elgg.events.ui.Calendar,
+		getDataSrc: function () {
+			var self = this;
+			return elgg.normalize_url('calendar/feed/' + self.guid + '?view=json');
+		},
+		isEditable: function () {
+			var self = this;
+			return self.editable || (parseInt(self.$calendar.data('editable')) === 1);
+		},
+		getDefaultOptions: function () {
+			var self = this;
+			return {
 				header: {
 					left: 'prev,next today',
 					center: 'title',
 					right: 'month,agendaWeek,agendaDay'
 				},
-				editable: (parseInt($cal.attr('data-editable')) === 1),
+				editable: self.isEditable(),
 				fixedWeekCount: false,
-				events: elgg.get_site_url() + 'calendar/feed/' + guid + '?view=json',
+				events: self.getDataSrc(),
 				eventLimit: 3,
-				loading: function(isLoading, view) {
-					if (isLoading) {
-						elgg.events_ui.showLoader();
-					}
-					else {
-						elgg.events_ui.dialogClose();
+				loading: self.showLoading.bind(self),
+				dayClick: self.dayClick.bind(self),
+				eventClick: self.showEventDetails.bind(self),
+				eventDrop: self.moveEvent.bind(self),
+				eventResize: self.resizeEvent.bind(self),
+			};
+		},
+		init: function (options) {
+			var self = this;
+			if (self.initialized) {
+				return self.$calendar;
+			}
+
+			var options = options || {};
+			// Merge all full calendar options
+			// Data attributes on fullcalendar div take precedence over options and defaults
+			var params = $.extend({}, self.getDefaultOptions(), options, self.$calendar.data());
+			var fullCalendar = self.$calendar.fullCalendar(params);
+			self.fullCalendar = fullCalendar;
+			self.bindUIEvents();
+			self.initialized = true;
+			return self.$calendar;
+		},
+		bindUIEvents: function () {
+			var self = this;
+			if (self.initialized) {
+				return;
+			}
+		},
+		dayClick: function (date, allDay, jsEvent, view) {
+			var self = this;
+			// if we can edit the calendar create a new event
+			if (self.isEditable()) {
+				self.newEvent(date);
+			} else {
+				self.$calendar.fullCalendar('gotoDate', date);
+				self.$calendar.fullCalendar('changeView', 'agendaDay');
+			}
+		},
+		showEventDetails: function (event, jsEvent, view) {
+			var self = this;
+			jsEvent.preventDefault();
+			elgg.ajax('events/view/' + event.id, {
+				data: {
+					ts: event.start_timestamp,
+					calendar: self.guid
+				},
+				beforeSend: function () {
+					self.showLoading(true);
+				},
+				success: function (response) {
+					elgg.events.ui.dialog.open(response, {
+						title: event.title,
+					});
+					var eventObj = new elgg.events.ui.Event(event.id, self);
+					eventObj.init();
+				},
+				complete: function () {
+					self.showLoading(false);
+				}
+			});
+		},
+		newEvent: function (date) {
+			var self = this;
+			elgg.events.ui.dialog.open(self.eventForm.$form, {
+				title: elgg.echo('events:new'),
+				position: {
+					my: 'center top',
+					at: 'center top',
+					of: self.$calendar,
+				},
+				open: function (e, ui) {
+					self.eventForm.initNew(date);
+				}
+			});
+		},
+		moveEvent: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
+			// attempt to move the event
+			elgg.action('events/move', {
+				data: {
+					guid: event.id,
+					day_delta: dayDelta,
+					minute_delta: minuteDelta,
+					all_day: allDay ? 1 : 0
+				},
+				success: function (response) {
+					if (response.status != 0) {
+						// some error has occurred
+						revertFunc();
 					}
 				},
-				dayClick: function(date, allDay, jsEvent, view) {
-					// if we can edit the calendar create a new event
-					if (parseInt($('#events-ui-calendar').attr('data-editable')) == 1) {
-						elgg.events_ui.newEvent(date);
+				error: function (response) {
+					revertFunc();
+				}
+			});
+		},
+		resizeEvent: function (event, dayDelta, minuteDelta, revertFunc) {
+			// attempt to move the event
+			elgg.action('events/resize', {
+				data: {
+					guid: event.id,
+					day_delta: dayDelta,
+					minute_delta: minuteDelta
+				},
+				success: function (response) {
+					if (response.status != 0) {
+						// some error has occurred
+						revertFunc();
 					}
-					else {
-						$cal.fullCalendar('gotoDate', date);
-						$cal.fullCalendar('changeView', 'agendaDay');
+				},
+				error: function (response) {
+					revertFunc();
+				}
+			});
+		},
+		showLoading: function (isLoading, view) {
+			var self = this;
+			if (isLoading) {
+				self.$calendar.addClass('elgg-state-loading');
+			} else {
+				self.$calendar.removeClass('elgg-state-loading');
+			}
+		}
+	};
+
+	/**
+	 * @param {Number} guid
+	 * @constructor
+	 */
+	elgg.events.ui.Event = function (guid, Calendar) {
+		this.Calendar = Calendar || null;
+		this.guid = guid;
+		this.$event = $("#elgg-object-" + guid);
+		this.$addToCalendarBtn = $('.events-ui-event-action-addtocalendar[data-guid="' + this.guid + '"]');
+		this.$editBtn = $('.events-ui-event-action-edit[data-guid="' + this.guid + '"]');
+		this.$cancelBtn = $('.events-ui-event-action-cancel[data-guid="' + this.guid + '"]');
+		this.$cancelAllBtn = $('.events-ui-event-action-cancel-all[data-guid="' + this.guid + '"]');
+	};
+
+	/**
+	 * EventForm prototype
+	 * @type object
+	 */
+	elgg.events.ui.Event.prototype = {
+		constructor: elgg.events.ui.Event,
+		init: function () {
+			var self = this;
+			// Bind UI events to form elements
+			self.bindUIEvents();
+			self.initialized = true;
+		},
+		bindUIEvents: function () {
+			var self = this;
+			this.$addToCalendarBtn.unbind('click').bind('click', self.loadAddToCalendarForm.bind(self));
+			this.$editBtn.unbind('click').bind('click', self.loadEditForm.bind(self));
+			if (self.Calendar) {
+				this.$cancelBtn.unbind('click').bind('click', self.cancel.bind(self));
+				this.$cancelAllBtn.unbind('click').bind('click', self.cancelAll.bind(self));
+			}
+		},
+		loadAddToCalendarForm: function (e) {
+			var self = this;
+			e.preventDefault();
+			var guid = self.$addToCalendarBtn.data('guid');
+			elgg.ajax('ajax/view/events_ui/ajax/picker', {
+				data: {
+					guid: guid
+				},
+				beforeSend: function () {
+					elgg.events.ui.dialog.showLoader();
+				},
+				success: function (result) {
+					elgg.events.ui.dialog.setContent($(result));
+					self.$addToCalendarForm = $('.elgg-form-calendar-add-event');
+					if (self.Calendar) {
+						console.log(self.$addToCalendarForm.bind('submit', self.submitAddToCalendarForm.bind(self)));
 					}
 				},
-				eventClick: function(event, jsEvent, view) {
-					// just letting them go to their url for now
+				complete: function () {
+					elgg.events.ui.dialog.hideLoader();
+				}
+			});
+		},
+		submitAddToCalendarForm: function (e) {
+			e.preventDefault();
+			var self = this;
+			var $form = self.$addToCalendarForm;
+			var data = $form.data();
+			data['X-Requested-With'] = 'XMLHttpRequest';
+			data['X-PlainText-Response'] = true;
+			$form.ajaxSubmit({
+				dataType: 'json',
+				data: data,
+				iframe: ($form.prop('enctype') === 'multipart/form-data'),
+				beforeSend: function () {
+					$form.find('input[type="submit"]').prop('disabled', true).addClass('elgg-state-disabled');
+					elgg.events.ui.dialog.showLoader();
 				},
-				eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
-					elgg.events_ui.moveEvent(event, dayDelta, minuteDelta, allDay, revertFunc);
+				success: function (response) {
+					if (response.status >= 0) {
+						self.Calendar.$calendar.fullCalendar('refetchEvents');
+						elgg.events.ui.dialog.close();
+					}
+					if (response.system_messages.success) {
+						elgg.system_message(response.system_messages.success);
+					}
+					if (response.system_messages.error) {
+						elgg.register_error(response.system_messages.error);
+					}
 				},
-				eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
-					elgg.events_ui.resizeEvent(event, dayDelta, minuteDelta, revertFunc);
+				complete: function () {
+					$form.find('input[type="submit"]').prop('disabled', false).removeClass('elgg-state-disabled');
+					elgg.events.ui.dialog.hideLoader();
+				}
+			});
+		},
+		loadEditForm: function (e) {
+			var self = this;
+			e.preventDefault();
+			var guid = $(this).data('guid');
+			elgg.post(self.$editBtn.attr('href'), {
+				beforeSend: function () {
+					elgg.events.ui.dialog.showLoader();
+				},
+				success: function (result) {
+					var $form = $(result);
+					elgg.events.ui.dialog.open($form, {
+						position: {
+							my: 'center top',
+							at: 'center top',
+							of: self.$calendar,
+						}
+					});
+					var eventForm = new elgg.events.ui.EventForm($form, self.Calendar);
+					eventForm.init();
+				},
+				complete: function () {
+					elgg.events.ui.dialog.hideLoader();
+				}
+			});
+		},
+		cancel: function (e) {
+			var self = this;
+			e.preventDefault();
+			var confirmText = self.$cancelBtn.data('confirm') || elgg.echo('question:areyousure');
+			if (!confirm(confirmText)) {
+				return false;
+			}
+			elgg.action(self.$cancelBtn.attr('href'), {
+				beforeSend: function () {
+					self.Calendar.showLoading(true);
+				},
+				success: function (result) {
+					self.Calendar.$calendar.fullCalendar('refetchEvents');
+					elgg.events.ui.dialog.close();
+				},
+				complete: function () {
+					self.Calendar.showLoading(false);
+				}
+			});
+		},
+		cancelAll: function (e) {
+			var self = this;
+			e.preventDefault();
+			var confirmText = self.$cancelAllBtn.data('confirm') || elgg.echo('question:areyousure');
+			if (!confirm(confirmText)) {
+				return false;
+			}
+			elgg.action(self.$cancelAllBtn.attr('href'), {
+				beforeSend: function () {
+					self.Calendar.showLoading(true);
+				},
+				success: function (result) {
+					self.Calendar.$calendar.fullCalendar('refetchEvents');
+					elgg.events.ui.dialog.close();
+				},
+				complete: function () {
+					self.Calendar.showLoading(false);
 				}
 			});
 		}
+	};
 
-		$('input[type="checkbox"][name="repeat"]').live('change', function(e) {
-			if ($(this).is(':checked')) {
-				//$('.events-ui-form .events-ui-repeat').slideDown();
-				$(this).closest('form').find('.events-ui-repeat').slideDown();
+	/**
+	 * @param {Object} elgg.events.ui.Calendar
+	 * @constructor
+	 */
+	elgg.events.ui.EventForm = function ($form, Calendar) {
+		this.Calendar = Calendar || null;
+		this.$form = $form;
+		this.$repeatChkbx = $('input[type="checkbox"][name="repeat"]', this.$form);
+		this.$repeatOpts = $('.events-ui-repeat', this.$form);
+		this.$remindersChkbx = $('input[type="checkbox"][name="has_reminders"]', this.$form);
+		this.$remindersOpts = $('.events-ui-reminders', this.$form);
+		this.$remindersAddNew = $('.js-events-ui-reminders-add', this.$form);
+		this.$remindersRemove = $('.js-events-ui-reminders-remove', this.$form);
+		this.$remindersTmpl = $('.js-events-ui-reminder-tmpl', this.$form);
+		this.$remindersList = $('.js-events-ui-reminders-list', this.$form);
+		this.$repeatFrequencyInput = $('select[name="repeat_frequency"]', this.$form);
+		this.$allDayChkbx = $('input[type="checkbox"][name="all_day"]', this.$form);
+		this.$startDateInput = $('input[name="start_date"]', this.$form);
+		this.$startTimeInput = $('select[name="start_time"]', this.$form);
+		this.$endDateInput = $('input[name="end_date"]', this.$form);
+		this.$endTimeInput = $('select[name="end_time"]', this.$form);
+		this.$datePickers = $('.events-ui-datepicker', this.$form);
+		this.$submitBtn = $('input[type="submit"]', this.$form);
+	};
+	/**
+	 * EventForm prototype
+	 * @type object
+	 */
+	elgg.events.ui.EventForm.prototype = {
+		constructor: elgg.events.ui.EventForm,
+		init: function () {
+			var self = this;
+			// Bind UI events to form elements
+			self.bindUIEvents();
+			// Initialize datepickers
+			self.initDatePickers(self.$datePickers);
+			// Reset frequency related options
+			self.$repeatFrequencyInput.trigger('change');
+			self.initialized = true;
+		},
+		initNew: function (date) {
+			var self = this,
+					date = moment(date);
+			self.init();
+			// Reset start and end dates
+			self.$startDateInput.val(date.format('YYYY-MM-DD'));
+			self.$endDateInput.val(date.format('YYYY-MM-DD'));
+			// Reset start and end times
+			self.$startTimeInput.val(date.add(1, 'hours').startOf('hour').format('h:mma'));
+			self.$startTimeInput.val(date.add(2, 'hours').startOf('hour').format('h:mma'));
+		},
+		initDatePickers: function ($datepicker) {
+			var self = this;
+			$datepicker.datepicker({
+				dateFormat: 'yy-mm-dd', // ISO-8601
+				onSelect: self.onDatePickerChange
+			});
+		},
+		bindUIEvents: function () {
+			var self = this;
+			if (self.initialized) {
+				return;
 			}
-			else {
-				//$('.events-ui-form .events-ui-repeat').slideUp();
-				$(this).closest('form').find('.events-ui-repeat').slideUp();
+
+			if (self.Calendar) {
+				self.$form.bind('submit', self.saveEvent.bind(self));
 			}
-		});
 
-		$('input[type="checkbox"][name="all_day"]').live('change', function(e) {
-			if ($(this).is(':checked')) {
-				$(this).closest('form').find('.events-ui-time').hide();
+			self.$repeatChkbx.bind('change', self.onRepeatChange.bind(self));
+			console.log(self.$remindersChkbx.bind('change', self.onRemindersEnable.bind(self)));
+			self.$allDayChkbx.bind('change', self.onAllDayChange.bind(self));
+			self.$startDateInput.bind('change', self.onStartDateChange.bind(self));
+			self.$startTimeInput.bind('change', self.onStartTimeChange.bind(self));
+			self.$repeatFrequencyInput.bind('change', self.onFrequencyChange.bind(self));
+			$('input,select', self.$form).bind('change', self.onChange.bind(self));
+
+			self.$remindersAddNew.bind('click', self.addReminder.bind(self));
+			self.$remindersRemove.bind('click', self.removeReminder);
+		},
+		/**
+		 * Submit event form via AJAX
+		 * @param {Object} e Event object
+		 * @returns {void}
+		 */
+		saveEvent: function (e) {
+
+			e.preventDefault();
+			var self = this,
+					data = self.$form.data();
+
+			data['X-Requested-With'] = 'XMLHttpRequest';
+			data['X-PlainText-Response'] = true;
+			self.$form.ajaxSubmit({
+				dataType: 'json',
+				data: data,
+				iframe: (self.$form.prop('enctype') === 'multipart/form-data'),
+				beforeSend: function () {
+					self.$submitBtn.prop('disabled', true).addClass('elgg-state-disabled');
+					self.Calendar.showLoading(true);
+				},
+				success: function (response) {
+					if (response.status >= 0) {
+						self.Calendar.$calendar.fullCalendar('refetchEvents');
+						elgg.events.ui.dialog.close();
+					}
+					if (response.system_messages.success) {
+						elgg.system_message(response.system_messages.success);
+					}
+					if (response.system_messages.error) {
+						elgg.register_error(response.system_messages.error);
+					}
+				},
+				complete: function () {
+					self.$submitBtn.prop('disabled', false).removeClass('elgg-state-disabled');
+					self.Calendar.showLoading(false);
+				}
+			});
+		},
+		getRepeatFrequency: function () {
+			return this.$repeatFrequencyInput.val();
+		},
+		getStartDate: function () {
+			return this.$startDateInput.val();
+		},
+		getEndDate: function () {
+			return this.$endDateInput.val();
+		},
+		getStartTime: function () {
+			return this.$startTimeInput.val();
+		},
+		getEndTime: function () {
+			return this.$endTimeInput.val();
+		},
+		isAllDay: function () {
+			return this.$allDayChkbx.is(':checked');
+		},
+		isRecurring: function () {
+			return this.$repeatChkbx.is(':checked');
+		},
+		hasReminders: function () {
+			return this.$remindersChkbx.is(':checked');
+		},
+		onChange: function (e) {
+			var self = this;
+			self.changeRepeatLabel();
+		},
+		onDatePickerChange: function (dateText, instance) {
+			if ($(this).is('.elgg-input-timestamp')) {
+				// convert to unix timestamp
+				var dateParts = dateText.split("-");
+				var timestamp = Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]);
+				timestamp = timestamp / 1000;
+				var id = $(this).attr('id');
+				$('input[name="' + id + '"]').val(timestamp);
 			}
-			else {
-				$(this).closest('form').find('.events-ui-time').show();
+			// trigger change event
+			if (dateText !== instance.lastVal) {
+				$(this).change();
 			}
-		});
-
-		$('select[name="start_time"]').live('change', function(e) {
-			var $form = $(this).closest('form');
-			var val = moment($(this).val(), 'h::mma').add(1, 'hours').format('h:mma');
-			$('select[name="end_time"]').val(val);
-		});
-
-		$('select[name="repeat_frequency"]').live('change', function(e) {
-			var frequency = $(this).val();
-			var selector = '[data-frequency="' + frequency + '"]';
-
-			var $matches = $(selector);
+		},
+		onRepeatChange: function (e) {
+			var self = this;
+			if (self.isRecurring()) {
+				self.$repeatOpts.slideDown();
+			} else {
+				self.$repeatOpts.slideUp();
+			}
+		},
+		onRemindersEnable: function (e) {
+			var self = this;
+			if (self.hasReminders()) {
+				self.$remindersOpts.slideDown();
+			} else {
+				self.$remindersOpts.slideUp();
+			}
+		},
+		onAllDayChange: function (e) {
+			var self = this;
+			if (self.isAllDay()) {
+				self.$startTimeInput.hide();
+				self.$endTimeInput.hide();
+			} else {
+				self.$startTimeInput.show();
+				self.$endTimeInput.show();
+			}
+		},
+		onStartDateChange: function (e) {
+			var self = this;
+			var startDate = self.getStartDate();
+			var endDate = self.getEndDate();
+			if (moment(startDate).isAfter(endDate)) {
+				self.$endDateInput.val(startDate);
+			}
+			self.$endDateInput.datepicker('option', 'minDate', startDate);
+		},
+		onStartTimeChange: function (e) {
+			var self = this;
+			var startTime = self.getStartTime();
+			var endTime = moment(startTime, 'h::mma').add(1, 'hours').format('h:mma');
+			self.$endTimeInput.val(endTime);
+		},
+		onFrequencyChange: function (e) {
+			var self = this;
+			var frequency = self.getRepeatFrequency();
+			var $matches = $('[data-frequency="' + frequency + '"]', self.$form);
 			$matches.show();
 			$('[data-frequency]').not($matches).hide();
-		}).trigger('change');
-
-		$('#events-ui-dialog .elgg-form-events-edit').live('submit', elgg.events_ui.createEvent);
-
-		$('.events-ui-datepicker[autoinit="1"]').each(function() {
-			elgg.events_ui.initDatePicker($(this));
-		});
-
-		$('.events-ui-repeat').live('change.eventsui', function() {
+		},
+		changeRepeatLabel: function () {
+			var self = this;
 			var text = [];
-			var $form = $(this).closest('form');
-			var frequency = $form.find('select[name="repeat_frequency"]').val();
-			var start_date = $form.find('[name="start_date"]').val();
-
+			var frequency = self.getRepeatFrequency();
+			var startDate = self.getStartDate();
 			text.push(elgg.echo('events_ui:repeat:' + frequency));
-
 			switch (frequency) {
-				case 'monthly' :
-					var monthly_by = $form.find('[name="repeat_monthly_by"]:checked').val();
-					var date = moment(start_date).date();
-
+				case 'monthly':
+					var monthly_by = self.$form.find('[name="repeat_monthly_by"]:checked').val();
+					var date = moment(startDate).date();
 					if (monthly_by === 'day_of_month') {
 						// Monthly on the 15th of the month
-						text.push(elgg.echo('repeat_ui:repeat_monthly_by:day_of_month:date', [moment(start_date).format('Do')]));
+						text.push(elgg.echo('repeat_ui:repeat_monthly_by:day_of_month:date', [moment(startDate).format('Do')]));
 					} else {
 						// Monthly on the 2nd Thursday of the month
 						var weeknum = Math.ceil(date / 7);
-						var weekday = moment(start_date).format('dddd');
+						var weekday = moment(startDate).format('dddd');
 						text.push(elgg.echo('repeat_ui:repeat_monthly_by:day_of_month:weekday', [weeknum, weekday]));
 					}
 					break;
-				case 'weekly' :
+				case 'weekly':
 					// select at least one weekday
-					if (!$('input[name="repeat_weekly_days[]"]:checked', $form).length) {
-						var start_date = $form.find('[name="start_date"]').val();
-						var ddd = moment(start_date).format('ddd');
-						$('input[name="repeat_weekly_days[]"]', $form).prop('checked', false);
-						$('input[name="repeat_weekly_days[]"][value="' + ddd + '"]', $form).prop('checked', true);
+					if (!$('input[name="repeat_weekly_days[]"]:checked', self.$form).length) {
+						var startDate = self.$form.find('[name="startDate"]').val();
+						var ddd = moment(startDate).format('ddd');
+						$('input[name="repeat_weekly_days[]"]', self.$form).prop('checked', false);
+						$('input[name="repeat_weekly_days[]"][value="' + ddd + '"]', self.$form).prop('checked', true);
 					}
 
 					// Weekly on Monday, Friday
 					var weekdays = [];
-					$('input[name="repeat_weekly_days[]"]:checked', $form).each(function() {
+					$('input[name="repeat_weekly_days[]"]:checked', self.$form).each(function () {
 						var weekday = $(this).val();
 						weekdays.push(moment(weekday, 'ddd').format('dddd'));
 					});
@@ -131,222 +567,115 @@
 					break;
 			}
 			$('.events-ui-repeat-text').text(text.join(' '));
-		}).trigger('change');
-
-		$('input,select', '.elgg-form-events-edit').live('change', function(e) {
-			$('.events-ui-repeat').trigger('change');
-		});
-
-		$('.addtocalendar-picker').live('click', function(e) {
+		},
+		addReminder: function (e) {
 			e.preventDefault();
-			
-			var guid = $(this).attr('data-guid');
-
-			var dialogContainer = elgg.events_ui.getDialogContainer();
-			dialogContainer.dialog({
-				width: '550px',
+			var self = this;
+			var tmpl = self.$remindersTmpl.clone(true, true).html();
+			self.$remindersList.append($('<li>').addClass('js-events-ui-reminder').html(tmpl));
+		},
+		removeReminder: function (e) {
+			e.preventDefault();
+			$(this).closest('.js-events-ui-reminder').remove();
+		}
+	};
+	/**
+	 * @constructor
+	 */
+	elgg.events.ui.DialogWindow = function () {
+		var $dialogContainer = $('#events-ui-dialog');
+		if ($dialogContainer.length === 0) {
+			$dialogContainer = $('<div id="events-ui-dialog" />');
+		}
+		this.$dialog = $dialogContainer;
+		this.opened = false;
+	};
+	/**
+	 * Dialog prototype
+	 * @type Object
+	 */
+	elgg.events.ui.DialogWindow.prototype = {
+		constructor: elgg.events.ui.DialogWindow,
+		getDefaults: function () {
+			return {
+				width: '500px',
 				dialogClass: 'events-dialog-window',
-				title: elgg.echo('events:add_to_calendar:multi'),
+				title: '',
 				modal: true,
-				close: function(e, ui) {
+				close: function (e, ui) {
 					$(this).remove();
 				}
-			});
-			
-			dialogContainer.append('<div class="elgg-ajax-loader"></div>');
-			
-			elgg.get('ajax/view/resources/calendar/picker', {
-				data: {
-					guid: guid
-				},
-				success: function (result) {
-					dialogContainer.html(result);
-				}
-			});
-		});
-	};
+			};
+		},
+		open: function (content, options) {
+			var self = this;
+			var options = options || {};
+			var params = $.extend({}, self.getDefaults(), options);
 
-
-	elgg.events_ui.newEvent = function(date) {
-
-		var mdate = moment(date);
-
-		var dialogContainer = elgg.events_ui.getDialogContainer();
-
-		dialogContainer.html('<div class="events-ui-form"></div><div class="elgg-ajax-loader events-ui-loader"></div>');
-		dialogContainer.dialog({
-			width: '550px',
-			dialogClass: 'events-dialog-window',
-			title: elgg.echo('events:new'),
-			modal: true,
-			position: {
-				my: 'center top',
-				at: 'center top',
-				of: '#events-ui-calendar'
-			},
-			close: function(e, ui) {
-				$(this).remove();
-			},
-			open: function(e, ui) {
-				// populate with the form
-				var form = $('.events-ui-add-event-form').html();
-				$('.events-ui-form').html(form);
-				$('.events-ui-loader').addClass('hidden');
-
-				// initialize our datepickers
-				$('.events-ui-form .events-ui-datepicker').each(function() {
-					elgg.events_ui.initDatePicker($(this));
-				});
-
-				// set our dates
-				$('.events-ui-form input[name="start_date"], .events-ui-form input[name="end_date"]').val(mdate.format('YYYY-MM-DD'));
-				// set our times
-				$('.events-ui-form select[name="start_time"], .events-ui-form select[name="end_time"]').val(mdate.format('h:mma'));
-				// reset extras
-				$('select[name="repeat_frequency"]').trigger('change');
+			self.opened = true;
+			if (content) {
+				self.setContent(content);
 			}
-		});
-	};
-
-
-	elgg.events_ui.initDatePicker = function(elem) {
-
-		elem.datepicker({
-			// ISO-8601
-			dateFormat: 'yy-mm-dd',
-			onSelect: function(dateText) {
-				if ($(this).is('.elgg-input-timestamp')) {
-					// convert to unix timestamp
-					var dateParts = dateText.split("-");
-					var timestamp = Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]);
-					timestamp = timestamp / 1000;
-
-					var id = $(this).attr('id');
-					$('input[name="' + id + '"]').val(timestamp);
-				}
-
-				$('.events-ui-repeat').trigger('change');
+			self.$dialog.dialog(params);
+		},
+		isOpen: function () {
+			return this.opened;
+		},
+		close: function () {
+			var self = this;
+			if (self.isOpen()) {
+				self.$dialog.dialog('close');
+				self.opened = false;
 			}
-		});
-
-	};
-
-
-// submits the create event form via ajax
-	elgg.events_ui.createEvent = function(e) {
-		$form = $(this);
-		e.preventDefault();
-
-		var data = {};
-		data['X-Requested-With'] = 'XMLHttpRequest';
-		data['X-PlainText-Response'] = true;
-		$form.ajaxSubmit({
-			dataType: 'json',
-			data: data,
-			iframe: false,
-			beforeSend: function() {
-				$form.find('[type="submit"]').prop('disabled', true).addClass('elgg-state-disabled');
-				$form.hide();
-				$('.events-ui-loader').removeClass('hidden');
-			},
-			success: function(response) {
-				if (response.status >= 0) {
-
-					elgg.events_ui.dialogClose();
-
-					$('#events-ui-calendar').fullCalendar('refetchEvents');
-
-				}
-				if (response.system_messages.success) {
-					elgg.system_message(response.system_messages.success);
-				}
-				if (response.system_messages.error) {
-					elgg.register_error(response.system_messages.error);
-					$form.show();
-					$('.events-ui-loader').addClass('hidden');
-				}
-			},
-			complete: function() {
-				$form.find('[type="submit"]').prop('disabled', false).removeClass('elgg-state-disabled');
+		},
+		setContent: function (content) {
+			var self = this;
+			var content = content || '';
+			if (!self.isOpen()) {
+				self.open();
 			}
-		});
-	};
-
-
-	elgg.events_ui.moveEvent = function(event, dayDelta, minuteDelta, allDay, revertFunc) {
-		// attempt to move the event
-		elgg.action('events/move', {
-			data: {
-				guid: event.id,
-				day_delta: dayDelta,
-				minute_delta: minuteDelta,
-				all_day: allDay ? 1 : 0
-			},
-			success: function(response) {
-				if (response.status != 0) {
-					// some error has occurred
-					revertFunc();
-				}
-			},
-			error: function(response) {
-				revertFunc();
+			self.$dialog.html(content);
+		},
+		showLoader: function () {
+			var self = this;
+			if (!self.isOpen()) {
+				self.open();
 			}
-		});
-	};
-
-	elgg.events_ui.resizeEvent = function(event, dayDelta, minuteDelta, revertFunc) {
-		// attempt to move the event
-		elgg.action('events/resize', {
-			data: {
-				guid: event.id,
-				day_delta: dayDelta,
-				minute_delta: minuteDelta
-			},
-			success: function(response) {
-				if (response.status != 0) {
-					// some error has occurred
-					revertFunc();
-				}
-			},
-			error: function(response) {
-				revertFunc();
+			if (self.$dialog.find('.elgg-ajax-loader').length === 0) {
+				self.$dialog.append('<div class="elgg-ajax-loader"></div>');
 			}
-		});
-	};
-
-
-	elgg.events_ui.getDialogContainer = function() {
-		var dialogContainer = $('#events-ui-dialog');
-		if (dialogContainer.length === 0) {
-			dialogContainer = $('<div id="events-ui-dialog" />');
+		},
+		hideLoader: function () {
+			var self = this;
+			self.$dialog.find('.elgg-ajax-loader').remove();
 		}
-
-		return dialogContainer;
 	};
+	/**
+	 * Dialog windoow
+	 */
+	elgg.events.ui.dialog = new elgg.events.ui.DialogWindow();
+	/**
+	 * An array of all calendars initializedon the page
+	 * @type array
+	 */
+	elgg.events.ui.calendars = [];
+	/**
+	 * Callback function for Elgg's init,system event
+	 * @returns {void}
+	 */
+	elgg.events.ui.init = function () {
 
-	elgg.events_ui.dialogClose = function() {
-		$('#events-ui-dialog').dialog('close');
-	};
-
-	elgg.events_ui.showLoader = function() {
-		var dialogContainer = elgg.events_ui.getDialogContainer();
-		dialogContainer.html('<div class="elgg-ajax-loader"></div>');
-		dialogContainer.dialog({
-			width: '200px',
-			dialogClass: 'no-close',
-			modal: false,
-			draggable: false,
-			resizable: false,
-			title: elgg.echo('loading...'),
-			position: {
-				my: 'center',
-				at: 'center',
-				of: '#events-ui-calendar'
-			},
-			close: function(e, ui) {
-				$(this).remove();
-			}
+		if (typeof $.fullCalendar === 'undefined') {
+			return;
+		}
+		$('.js-events-ui-fullcalendar').each(function () {
+			var guid = $(this).data('guid');
+			var calendar = new elgg.events.ui.Calendar(guid);
+			calendar.init();
+		});
+		$('.elgg-form-events-edit:not(.events-ui-form)').each(function () {
+			var eventForm = new elgg.events.ui.EventForm($(this));
+			eventForm.init();
 		});
 	};
-
-	elgg.register_hook_handler('init', 'system', elgg.events_ui.init);
+	elgg.register_hook_handler('init', 'system', elgg.events.ui.init);

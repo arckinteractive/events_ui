@@ -1,19 +1,21 @@
 <?php
 
+namespace Events\UI;
+
+use Events\API\Calendar;
+
 if (!elgg_is_logged_in()) {
 	return;
 }
 
-$calendars = Events\API\Calendar::getCalendars(elgg_get_logged_in_user_entity());
+$calendars = Calendar::getCalendars(elgg_get_logged_in_user_entity());
 
 $options = array();
 $value = array();
 foreach ($calendars as $c) {
-	$title = $c->title ? $c->title : false;
-	if (!$title) {
-		$title = $c->__public_calendar ? elgg_echo('events_ui:default:calendar') : elgg_echo('Calendar');
-	}
+	/* @var $c Calendar */
 	
+	$title = $c->getDisplayName();
 	$options[$title] = $c->guid;
 	
 	if ($c->hasEvent($vars['entity'])) {
@@ -36,5 +38,6 @@ $body .= '</div>';
 echo elgg_view('input/form', array(
 	'action' => 'action/calendar/add_event',
 	'method' => 'post',
-	'body' => $body
+	'body' => $body,
+	'class' => 'elgg-form-calendar-add-event',
 ));

@@ -117,6 +117,17 @@ function page_handler($page) {
  */
 function event_pagehandler($page) {
 
+	elgg_load_css('events-ui');
+	elgg_load_css('jquery-ui');
+	elgg_load_css('fullcalendar');
+	elgg_load_js('fullcalendar');
+	elgg_load_js('events-ui');
+	elgg_load_js('jquery.form');
+	elgg_load_js('moment.js');
+
+	elgg_load_css('lightbox');
+	elgg_load_js('lightbox');
+	
 	switch ($page[0]) {
 		case 'view':
 			set_input('guid', $page[1]);

@@ -45,6 +45,14 @@ $english = array(
 	'repeat_ui:repeat_monthly_by:day_of_week' => 'Day of the week',
 	'repeat_ui:repeat_weekly_days' => 'Repeat on',
 
+	'events_ui:enable_reminders' => 'Enable Reminders',
+	'events_ui:reminders' => 'Reminders',
+	'events_ui:reminders:add' => 'Add Reminder',
+	
+	'events_ui:minutes' => 'minutes',
+	'events_ui:hours' => 'hours',
+	'events_ui:days' => 'days',
+	
 	'events:feed:range' => 'Events between %s and %s',
 	'events:feed:month' => 'Events in %s',
 
@@ -76,7 +84,13 @@ $english = array(
 	'calendar:groups:autosync' => "Sync group calendar settings",
 	'calendar:groups:autosync:none' => "You are not a member of any groups yet",
 	'calendar:autosync' => "Sync to your default calendar",
-	'events:calendar:settings:saved' => "Calendar settings have been saved"
+	'events:calendar:settings:saved' => "Calendar settings have been saved",
+
+	'events_ui:cancel' => 'Cancel',
+	'events_ui:cancel:all' => 'Cancel All',
+	'events_ui:cancel:confirm' => 'Are you sure you want to cancel this event? This can not be undone',
+	'events_ui:cancel:all:confirm' => 'Are you sure you want to cancel all event in this series? This can not be undone',
+	
 );
 
 add_translation("en", $english);

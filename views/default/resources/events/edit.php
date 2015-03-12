@@ -42,12 +42,14 @@ $vars['dateautoinit'] = 1;
 $content = elgg_view_form('events/edit', array(
 	'enctype' => 'multipart/form-data'
 		), $vars);
+if (elgg_is_xhr()) {
+	echo $content;
+} else {
+	$layout = elgg_view_layout('content', array(
+		'title' => $title,
+		'content' => $content,
+		'filter' => false,
+	));
 
-$layout = elgg_view_layout('content', array(
-	'title' => $title,
-	'content' => $content,
-	'filter' => false,
-		));
-
-echo elgg_view_page($title, $layout);
-
+	echo elgg_view_page($title, $layout);
+}
