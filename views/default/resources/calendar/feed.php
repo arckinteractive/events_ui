@@ -54,7 +54,7 @@ elgg_register_menu_item('title', array(
 ));
 elgg_register_menu_item('title', array(
 	'name' => 'ical_view',
-	'href' => $entity->getIcalURL("calendar/ical/$entity->guid", array(
+	'href' => $entity->getIcalURL("calendar/ical/{$entity->guid}/calendar{$entity->guid}.ics", array(
 			//'start' => $start,
 			//'end' => $end,
 	)),

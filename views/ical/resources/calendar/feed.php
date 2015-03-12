@@ -34,13 +34,10 @@ $end = (int) get_input('end', strtotime('+1 year', $start));
 $start = (int) Util::getDayStart($start);
 $end = (int) Util::getDayEnd($end);
 
-$filename = get_input('filename');
-if ($filename) {
-	header("Content-Disposition: attachment; filename=$filename");
-} else {
-//	header("Content-Disposition: inline");
-//	header("Content-type: text/calendar; charset=utf-8");
-}
+$filename = get_input('filename', 'calendar.ics');
+
+header("Content-Type: text/calendar");
+header("Content-Disposition: attachment; filename=$filename");
 
 echo $entity->getIcalFeed($start, $end);
 

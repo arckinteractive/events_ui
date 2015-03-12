@@ -42,7 +42,7 @@ elgg_register_menu_item('title', array(
 ));
 elgg_register_menu_item('title', array(
 	'name' => 'ical_view',
-	'href' => $entity->getIcalURL("calendar/ical/$entity->guid"),
+	'href' => $entity->getIcalURL("calendar/ical/{$entity->guid}/calendar{$entity->guid}.ics"),
 	'text' => elgg_echo('events:view:ical'), //elgg_view_icon('events-ical'),
 	'title' => elgg_echo('events:view:ical'),
 	'link_class' => 'elgg-button elgg-button-action',
