@@ -35,7 +35,7 @@ $start = (int) Util::getDayStart($start);
 $end = (int) Util::getDayEnd($end);
 
 $filename = get_input('filename', 'calendar.ics');
-$entity->getIcalFeed($start, $end, $filename);
+$entity->toIcal($start, $end, $filename);
 
 if (!$is_logged_in) {
 	logout();
