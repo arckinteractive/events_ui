@@ -81,6 +81,7 @@ function register_event_title_menu($event) {
  * @param type $group_guid
  */
 function autosync_group_event($event_guid, $group_guid) {
+	$ia = elgg_set_ignore_access(true);
 	// note that this function can be called after shutdown with vroom
 	// using guids for params so that we're not performing operations on potentially stale entities
 	$event = get_entity($event_guid);
@@ -108,13 +109,31 @@ function autosync_group_event($event_guid, $group_guid) {
 			$calendar->addEvent($event);
 		}
 	}
+
+	elgg_set_ignore_access($ia);
 }
 
-function register_vroom_function($function, $args) {
+/**
+ * 
+ * @param string $function - the name of the function to be called
+ * @param array $args - an array of arguments to pass to the function
+ * @param bool $runonce - limit the function to only running once with a set of arguments
+ */
+function register_vroom_function($function, $args = array(), $runonce = true) {
 	$vroom_functions = elgg_get_config('event_vroom_functions');
 
 	if (!is_array($vroom_functions)) {
 		$vroom_functions = array();
+	}
+
+	if ($runonce) {
+		foreach ($vroom_functions as $array) {
+			foreach ($array as $f => $a) {
+				if ($f === $function && $a === $args) {
+					return true; // this function is already registered with these args
+				}
+			}
+		}
 	}
 
 	$vroom_functions[] = array($function => $args);
@@ -144,8 +163,85 @@ function get_calendar_notification_methods($user, $notification_name) {
 function get_calendar_notifications() {
 	$calendar_notifications = array(
 		'addtocal',
+		'eventupdate',
 		'eventreminder'
 	);
 
 	return $calendar_notifications;
+}
+
+/**
+ * Send notifications of event updates to users with it on their calendars
+ * 
+ * @param int $event_guid
+ */
+function event_update_notify($event_guid) {
+	$ia = elgg_set_ignore_access(true);
+	$event = get_entity($event_guid);
+
+	if (!($event instanceof Event)) {
+		return false;
+	}
+
+	$dbprefix = elgg_get_config('dbprefix');
+	$options = array(
+		'type' => 'object',
+		'subtype' => 'calendar',
+		'relationship' => Calendar::EVENT_CALENDAR_RELATIONSHIP,
+		'relationship_guid' => $event->guid,
+		'joins' => array(
+			// limit the results to calendars contained by users
+			"JOIN {$dbprefix}users_entity ue ON e.container_guid = ue.guid"
+		),
+		'limit' => false
+	);
+
+	$calendars = new ElggBatch('elgg_get_entities_from_relationship', $options);
+
+	$notified = array(); // users could have multiple calendars
+	foreach ($calendars as $c) {
+		$user = $c->getContainerEntity();
+
+		if (in_array($user->guid, $notified)) {
+			continue;
+		}
+
+		$notify_self = false;
+		// support for notify self
+		if (is_callable('notify_self_should_notify')) {
+			$notify_self = notify_self_should_notify($user);
+		}
+
+		if (elgg_get_logged_in_user_guid() == $user->guid && !$notify_self) {
+			$notified[] = $user->guid;
+			continue;
+		}
+
+		$methods = get_calendar_notification_methods($user, 'eventupdate');
+		if (!$methods) {
+			$notified[] = $user->guid;
+			continue;
+		}
+
+		$subject = elgg_echo('event:notify:eventupdate:subject', array($event->title));
+		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $subject);
+
+		$message = elgg_echo('event:notify:eventupdate:message', array(
+			$event->title,
+			elgg_view('output/events_ui/date_range', array('start' => $event->start_timestamp, 'end' => $event->end_timestamp)),
+			$event->location,
+			$event->description,
+			$event->getURL()
+		));
+
+		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $message);
+		notify_user(
+				$user->guid, $event->container_guid, // user or group
+				$subject, $message, array(), $methods
+		);
+		
+		$notified[] = $user->guid;
+	}
+
+	elgg_set_ignore_access($ia);
 }

@@ -62,6 +62,7 @@ function init() {
 	}
 	
 	elgg_register_event_handler('create', 'object', __NAMESPACE__ . '\\event_create');
+	elgg_register_event_handler('update', 'object', __NAMESPACE__ . '\\event_update');
 	elgg_register_event_handler('events_api', 'add_to_calendar', __NAMESPACE__ . '\\add_to_calendar');
 	elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\vroom_functions');
 	

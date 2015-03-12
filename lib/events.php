@@ -29,7 +29,7 @@ function event_create($event, $type, $event) {
 	if ($container instanceof ElggGroup) {
 		// note that groups could have *lots* of users, it may not be practical
 		// to add them all now, use vroom to do it in the background if possible
-		if (elgg_is_active_plugin('vroom') && !$GLOBALS['shutdown_flag']) {
+		if (!elgg_get_config('shutdown_initiated')) {
 			register_vroom_function(__NAMESPACE__ . '\\autosync_group_event', array(
 				$event->guid,
 				$container->guid
@@ -45,6 +45,8 @@ function event_create($event, $type, $event) {
  * used for background processes
  */
 function vroom_functions() {
+	elgg_set_config('shutdown_initiated', 1);
+	
 	$vroom_functions = elgg_get_config('event_vroom_functions');
 
 	if ($vroom_functions && is_array($vroom_functions)) {
@@ -90,6 +92,7 @@ function add_to_calendar($event, $type, $params) {
 	$message = elgg_echo('event:notify:addtocal:message', array(
 		$event->title,
 		elgg_view('output/events_ui/date_range', array('start' => $event->start_timestamp, 'end' => $event->end_timestamp)),
+		$event->location,
 		$event->description,
 		$event->getURL()
 	));
@@ -103,4 +106,26 @@ function add_to_calendar($event, $type, $params) {
 			array(),
 			$methods
 	);
+}
+
+
+function event_update($event, $type, $event) {
+	if (!($event instanceof Event)) {
+		return true;
+	}
+
+	// we've updated an event, do we need to notify people?
+	if (!get_input('resend_notifications')) {
+		return true;
+	}
+	
+	// note that the event could be on *lots* of calendars, it may not be practical
+	// to notify them all now, use vroom to do it in the background if possible
+	if (!elgg_get_config('shutdown_intiated')) {
+		register_vroom_function(__NAMESPACE__ . '\\event_update_notify', array(
+			$event->guid
+		));
+	} else {
+		event_update_notify($event->guid);
+	}
 }

@@ -88,10 +88,12 @@ $english = array(
 	'calendar:notifications' => "Calendar Notifications",
 	'calendar:notifications:addtocal' => "Receive notifications when events are added to your calendar",
 	'calendar:notifications:eventreminder' => "Receive reminder notifications before events",
+	'calendar:notifications:eventupdate' => "Receive notifications when events get changed/updated",
 	'event:notify:addtocal:subject' => "A new event has been added to your calendar: %s",
 	'event:notify:addtocal:message' => "
 An event has been added to your calendar
 
+%s
 %s
 %s
 
@@ -99,6 +101,17 @@ An event has been added to your calendar
 
 See the full details: %s
 ",
+	'event:notify:eventupdate:subject' => "An event on your calendar has been updated: %s",
+	'event:notify:eventupdate:message' => "
+An event has been updated on your calendar
+
+%s
+%s
+%s
+
+%s
+
+See the full details: %s",
 
 	'events_ui:cancel' => 'Cancel',
 	'events_ui:cancel:all' => 'Cancel All',
