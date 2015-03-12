@@ -91,13 +91,37 @@ function container_permissions_check($hook, $type, $return, $params) {
 	return $return;
 }
 
-
 function entity_icon_url($hook, $type, $return, $params) {
 	$entity = elgg_extract('entity', $params);
 
 	if ($entity instanceof Event) {
 		return 'mod/events_ui/graphics/event-' . $params['size'] . '.jpg';
 	}
-	
+
 	return $return;
+}
+
+function notification_settings_save($h, $t, $r, $p) {
+	$current_user = elgg_get_logged_in_user_entity();
+
+	$guid = (int) get_input('guid', 0);
+	if (!$guid || !($user = get_entity($guid))) {
+		forward();
+	}
+	if (($user->guid != $current_user->guid) && !$current_user->isAdmin()) {
+		forward();
+	}
+
+	$calendar_notifications = get_calendar_notifications();
+	
+	global $NOTIFICATION_HANDLERS;
+	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
+		foreach ($calendar_notifications as $notification_name) {
+			$attr = '__notify_' . $method . '_' . $notification_name;
+			
+			$value = get_input($method . $notification_name, null);
+			
+			$user->$attr = $value;
+		}
+	}
 }

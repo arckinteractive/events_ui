@@ -1,7 +1,9 @@
 <?php
 
 namespace Events\UI;
+
 use ElggGroup;
+use ElggUser;
 use Events\API\Event;
 
 /**
@@ -12,15 +14,14 @@ function pagesetup() {
 		'name' => 'calendar',
 		'href' => 'calendar',
 		'text' => elgg_echo('events:calendar'),
-	));	
+	));
 }
-
 
 function event_create($event, $type, $event) {
 	if (!($event instanceof Event)) {
 		return true;
 	}
-	
+
 	// we've created an event, if it's a group event we need to add it to
 	// members default calendars
 	$container = $event->getContainerEntity();
@@ -33,8 +34,7 @@ function event_create($event, $type, $event) {
 				$event->guid,
 				$container->guid
 			));
-		}
-		else {
+		} else {
 			autosync_group_event($event->guid, $container->guid);
 		}
 	}
@@ -56,4 +56,51 @@ function vroom_functions() {
 			}
 		}
 	}
+}
+
+function add_to_calendar($event, $type, $params) {
+	$event = $params['event'];
+	$calendar = $params['calendar'];
+	
+	$user = $calendar->getContainerEntity();
+	
+	if (!($user instanceof ElggUser)) {
+		return true;
+	}
+
+	// notify the user
+	$notify_self = false;
+	// support for notify self
+	if (is_callable('notify_self_should_notify')) {
+		$notify_self = notify_self_should_notify($user);
+	}
+
+	if (elgg_get_logged_in_user_guid() == $user->guid && !$notify_self) {
+		return true;
+	}
+
+	$methods = get_calendar_notification_methods($user, 'addtocal');
+	if (!$methods) {
+		return true;
+	}
+	
+	$subject = elgg_echo('event:notify:addtocal:subject', array($event->title));
+	$subject = elgg_trigger_plugin_hook('events_ui', 'subject:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $subject);
+
+	$message = elgg_echo('event:notify:addtocal:message', array(
+		$event->title,
+		elgg_view('output/events_ui/date_range', array('start' => $event->start_timestamp, 'end' => $event->end_timestamp)),
+		$event->description,
+		$event->getURL()
+	));
+
+	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
+	notify_user(
+			$user->guid,
+			$event->container_guid, // user or group
+			$subject,
+			$message,
+			array(),
+			$methods
+	);
 }

@@ -4,6 +4,7 @@
 // tried upgrading but too much stuff breaks
 
 namespace Events\UI;
+use Events\API\Calendar;
 
 const UPGRADE_VERSION = 20141215;
 
@@ -16,6 +17,8 @@ elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
 elgg_register_event_handler('pagesetup', 'system', __NAMESPACE__ .'\\pagesetup');
 
 function init() {
+	
+	elgg_extend_view('notifications/subscriptions/personal', 'resources/calendar/notifications');
 
 	elgg_register_css('jquery-ui', 'mod/events_ui/vendors/jquery-ui/jquery-ui.min.css');
 	elgg_register_css('fullcalendar', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.css');
@@ -45,6 +48,7 @@ function init() {
 	elgg_register_plugin_hook_handler('entity:icon:url', 'object', __NAMESPACE__ . '\\entity_icon_url');
 
 	elgg_register_plugin_hook_handler('container_permissions_check', 'object', __NAMESPACE__ . '\\container_permissions_check');
+	elgg_register_plugin_hook_handler('action', 'notificationsettings/save', __NAMESPACE__ . '\\notification_settings_save');
 	
 	if (elgg_is_logged_in()) {
 		elgg_register_menu_item('page', array(
@@ -56,6 +60,7 @@ function init() {
 	}
 	
 	elgg_register_event_handler('create', 'object', __NAMESPACE__ . '\\event_create');
+	elgg_register_event_handler('events_api', 'add_to_calendar', __NAMESPACE__ . '\\add_to_calendar');
 	elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\vroom_functions');
 	
 	

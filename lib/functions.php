@@ -7,6 +7,7 @@ use Events\API\Calendar;
 use Events\API\Event;
 use ElggGroup;
 use ElggBatch;
+use ElggUser;
 
 function register_event_title_menu($event) {
 
@@ -119,4 +120,32 @@ function register_vroom_function($function, $args) {
 	$vroom_functions[] = array($function => $args);
 
 	elgg_set_config('event_vroom_functions', $vroom_functions);
+}
+
+function get_calendar_notification_methods($user, $notification_name) {
+
+	if (!($user instanceof ElggUser)) {
+		return array();
+	}
+
+	$methods = array();
+	global $NOTIFICATION_HANDLERS;
+	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
+		$attr = '__notify_' . $method . '_' . $notification_name;
+
+		if ($user->$attr) {
+			$methods[] = $method;
+		}
+	}
+
+	return $methods;
+}
+
+function get_calendar_notifications() {
+	$calendar_notifications = array(
+		'addtocal',
+		'eventreminder'
+	);
+
+	return $calendar_notifications;
 }
