@@ -98,7 +98,7 @@ An event has been added to your calendar
 %s
 
 See the full details: %s
-"
+",
 
 	'events_ui:cancel' => 'Cancel',
 	'events_ui:cancel:all' => 'Cancel All',
