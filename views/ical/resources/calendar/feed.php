@@ -37,7 +37,7 @@ $end = (int) Util::getDayEnd($end);
 $filename = get_input('filename', 'calendar.ics');
 
 header("Content-Type: text/calendar");
-header("Content-Disposition: attachment; filename=$filename");
+header("Content-Disposition: inline; filename=$filename");
 
 echo $entity->getIcalFeed($start, $end);
 
