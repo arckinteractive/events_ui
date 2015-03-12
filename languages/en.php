@@ -112,12 +112,25 @@ An event has been updated on your calendar
 %s
 
 See the full details: %s",
+	'event:notify:eventreminder:subject' => "Reminder: %s begins %s",
+	'event:notify:eventreminder:message' => "
+An event on your calendar starts soon!
+
+%s
+%s
+%s
+
+%s
+
+See the full details: %s
+",
 
 	'events_ui:cancel' => 'Cancel',
 	'events_ui:cancel:all' => 'Cancel All',
 	'events_ui:cancel:confirm' => 'Are you sure you want to cancel this event? This can not be undone',
 	'events_ui:cancel:all:confirm' => 'Are you sure you want to cancel all event in this series? This can not be undone',
-	
+	'events:settings:reminder:offsettime' => "Reminder Offset Time",
+	'events:settings:reminder:offsettime:help' => "Enter a number of seconds in which to process event reminders ahead of schedule.  This should compensate for the time of processing, email lag, and help for popular events that require a lot of notifications"	
 );
 
 add_translation("en", $english);

@@ -5,6 +5,7 @@ namespace Events\UI;
 use ElggGroup;
 use ElggMenuItem;
 use ElggUser;
+use ElggBatch;
 use Events\API\Calendar;
 use Events\API\Event;
 
@@ -138,4 +139,50 @@ function setup_public_pages($hook, $type, $return) {
 	$return[] = "calendar/feed/.*";
 	$return[] = "calendar/ical/.*";
 	return $return;
+}
+
+
+function event_reminders($hook, $type, $return, $params) {
+	// run our reminders a couple of minutes ahead of schedule
+	// to account for processing time and delivery time
+	$offset = (int) elgg_get_plugin_setting('reminder_offset', 'events_ui');
+	if (!$offset && $offset !== 0) {
+		$offset = 120;
+	}
+	$time = $params['time'] + $offset;
+	
+	$last_time = elgg_get_plugin_setting('last_reminder_cron', 'events_ui');
+	if (!$last_time) {
+		$last_time = $time - 60;
+	}
+
+	elgg_set_plugin_setting('last_reminder_cron', $time, 'events_ui');
+	
+	$ia = elgg_set_ignore_access(true);
+	// get events
+	$options = array(
+		'type' => 'object',
+		'subtype' => 'event',
+		'metadata_name_value_pairs' => array(
+			array(
+				'name' => 'reminder',
+				'value' => $last_time,
+				'operand' => '>'
+			),
+			array(
+				'name' => 'reminder',
+				'value' => $time,
+				'operand' => '<='
+			)
+		),
+		'limit' => false
+	);
+	
+	$events = new ElggBatch('elgg_get_entities_from_metadata', $options);
+
+	foreach ($events as $event) {
+		send_event_reminder($event);
+	}
+	
+	elgg_set_ignore_access($ia);
 }

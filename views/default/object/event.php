@@ -12,7 +12,7 @@ $full = elgg_extract('full_view', $vars, false);
 if (!$entity instanceof Event) {
 	return;
 }
-
+var_dump($entity->reminder);
 $owner = $entity->getOwnerEntity();
 
 $owner_link = elgg_view('output/url', array(
