@@ -15,8 +15,6 @@ if (!$is_logged_in) {
 
 	try {
 		PAM::authenticate();
-		$user = get_entity($user_guid);
-		login($user);
 	} catch (Exception $ex) {
 		register_error($ex->getMessage());
 		forward('', '403');
