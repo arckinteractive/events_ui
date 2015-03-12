@@ -332,7 +332,7 @@
 		this.$remindersChkbx = $('input[type="checkbox"][name="has_reminders"]', this.$form);
 		this.$remindersOpts = $('.events-ui-reminders', this.$form);
 		this.$remindersAddNew = $('.js-events-ui-reminders-add', this.$form);
-		this.$remindersRemove = $('.js-events-ui-reminders-remove', this.$form);
+		this.$remindersRemove = $('.js-events-ui-reminder-remove', this.$form);
 		this.$remindersTmpl = $('.js-events-ui-reminder-tmpl', this.$form);
 		this.$remindersList = $('.js-events-ui-reminders-list', this.$form);
 		this.$repeatFrequencyInput = $('select[name="repeat_frequency"]', this.$form);

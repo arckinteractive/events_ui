@@ -206,6 +206,15 @@ function event_update_notify($event_guid) {
 			continue;
 		}
 
+		$ia = elgg_set_ignore_access(false);
+		if (!has_access_to_entity($event, $user)) {
+			// the user can't see it, lets not notify them
+			$notified[] = $user->guid;
+			elgg_set_ignore_access($ia);
+			continue;
+		}
+		elgg_set_ignore_access($ia);
+
 		$notify_self = false;
 		// support for notify self
 		if (is_callable('notify_self_should_notify')) {
@@ -236,10 +245,14 @@ function event_update_notify($event_guid) {
 
 		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $message);
 		notify_user(
-				$user->guid, $event->container_guid, // user or group
-				$subject, $message, array(), $methods
+				$user->guid,
+				$event->container_guid, // user or group
+				$subject,
+				$message,
+				array(),
+				$methods
 		);
-		
+
 		$notified[] = $user->guid;
 	}
 

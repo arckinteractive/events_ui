@@ -69,6 +69,14 @@ function add_to_calendar($event, $type, $params) {
 	if (!($user instanceof ElggUser)) {
 		return true;
 	}
+	
+	$ia = elgg_set_ignore_access(false);
+	if (!has_access_to_entity($event, $user)) {
+		// the user can't see it, lets not notify them
+		elgg_set_ignore_access($ia);
+		return true;
+	}
+	elgg_set_ignore_access($ia);
 
 	// notify the user
 	$notify_self = false;
