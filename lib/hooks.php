@@ -125,3 +125,17 @@ function notification_settings_save($h, $t, $r, $p) {
 		}
 	}
 }
+
+/**
+ * Add calendar feeds to public pages
+ *
+ * @param string $hook   "public_pages"
+ * @param string $type   "walled_garden"
+ * @param array  $return Public pages
+ * @eturn array
+ */
+function setup_public_pages($hook, $type, $return) {
+	$return[] = "calendar/feed/.*";
+	$return[] = "calendar/ical/.*";
+	return $return;
+}

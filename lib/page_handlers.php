@@ -99,6 +99,7 @@ function page_handler($page) {
 			break;
 		case 'events':
 			return event_pagehandler(array_slice($page, 1));
+			
 	}
 
 	if (isset($page_view)) {

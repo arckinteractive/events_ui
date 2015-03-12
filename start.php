@@ -49,6 +49,8 @@ function init() {
 
 	elgg_register_plugin_hook_handler('container_permissions_check', 'object', __NAMESPACE__ . '\\container_permissions_check');
 	elgg_register_plugin_hook_handler('action', 'notificationsettings/save', __NAMESPACE__ . '\\notification_settings_save');
+
+	elgg_register_plugin_hook_handler('public_pages', 'walled_garden', __NAMESPACE__ . '\\setup_public_pages');
 	
 	if (elgg_is_logged_in()) {
 		elgg_register_menu_item('page', array(
