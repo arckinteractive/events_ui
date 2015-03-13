@@ -265,9 +265,9 @@
 					var $form = $(result);
 					elgg.events.ui.dialog.open($form, {
 						position: {
-							my: 'center top',
-							at: 'center top',
-							of: self.$calendar,
+							my: 'center center',
+							at: 'center center',
+							of: self.$calendar
 						}
 					});
 					var eventForm = new elgg.events.ui.EventForm($form, self.Calendar);
@@ -389,7 +389,7 @@
 			}
 
 			self.$repeatChkbx.bind('change', self.onRepeatChange.bind(self));
-			console.log(self.$remindersChkbx.bind('change', self.onRemindersEnable.bind(self)));
+			self.$remindersChkbx.bind('change', self.onRemindersEnable.bind(self));
 			self.$allDayChkbx.bind('change', self.onAllDayChange.bind(self));
 			self.$startDateInput.bind('change', self.onStartDateChange.bind(self));
 			self.$startTimeInput.bind('change', self.onStartTimeChange.bind(self));
@@ -397,7 +397,8 @@
 			$('input,select', self.$form).bind('change', self.onChange.bind(self));
 
 			self.$remindersAddNew.bind('click', self.addReminder.bind(self));
-			self.$remindersRemove.bind('click', self.removeReminder);
+			//self.$remindersRemove.bind('click', self.removeReminder);
+			$('a.js-events-ui-reminder-remove').live('click', self.removeReminder);
 		},
 		/**
 		 * Submit event form via AJAX

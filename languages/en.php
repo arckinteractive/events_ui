@@ -130,7 +130,14 @@ See the full details: %s
 	'events_ui:cancel:confirm' => 'Are you sure you want to cancel this event? This can not be undone',
 	'events_ui:cancel:all:confirm' => 'Are you sure you want to cancel all event in this series? This can not be undone',
 	'events:settings:reminder:offsettime' => "Reminder Offset Time",
-	'events:settings:reminder:offsettime:help' => "Enter a number of seconds in which to process event reminders ahead of schedule.  This should compensate for the time of processing, email lag, and help for popular events that require a lot of notifications"	
+	'events:settings:reminder:offsettime:help' => "Enter a number of seconds in which to process event reminders ahead of schedule.  This should compensate for the time of processing, email lag, and help for popular events that require a lot of notifications",
+	
+	//widgets
+	'events:widget:name' => "Events",
+	'events:widget:description' => "Upcoming events on your calendars",
+	'events:widget:settings:numresults' => "Number of events to show",
+	'events:widgets:noresults' => "No events to list",
+	'events:widget:settings:upcoming' => "Limit to upcoming events?",
 );
 
 add_translation("en", $english);

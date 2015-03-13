@@ -4,6 +4,7 @@ namespace Events\UI;
 
 use Events\API\Calendar;
 use Events\API\Util;
+use Events\API\PAM;
 
 $is_logged_in = elgg_is_logged_in();
 
