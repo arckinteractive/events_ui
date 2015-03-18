@@ -584,11 +584,6 @@
 	 * @constructor
 	 */
 	elgg.events.ui.DialogWindow = function () {
-		var $dialogContainer = $('#events-ui-dialog');
-		if ($dialogContainer.length === 0) {
-			$dialogContainer = $('<div id="events-ui-dialog" />');
-		}
-		this.$dialog = $dialogContainer;
 		this.opened = false;
 	};
 	/**
@@ -598,22 +593,31 @@
 	elgg.events.ui.DialogWindow.prototype = {
 		constructor: elgg.events.ui.DialogWindow,
 		getDefaults: function () {
+			var self = this;
 			return {
 				width: '500px',
 				dialogClass: 'events-dialog-window',
 				title: '',
 				modal: true,
 				close: function (e, ui) {
+					self.opened = false;
 					$(this).remove();
 				}
 			};
+		},
+		getDialogContainer: function () {
+			var $dialogContainer = $('#events-ui-dialog');
+			if ($dialogContainer.length === 0) {
+				$dialogContainer = $('<div id="events-ui-dialog" />');
+			}
+			return $dialogContainer;
 		},
 		open: function (content, options) {
 			var self = this;
 			var options = options || {};
 			var params = $.extend({}, self.getDefaults(), options);
-
 			self.opened = true;
+			self.$dialog = self.getDialogContainer();
 			if (content) {
 				self.setContent(content);
 			}
@@ -624,16 +628,14 @@
 		},
 		close: function () {
 			var self = this;
-			if (self.isOpen()) {
-				self.$dialog.dialog('close');
-				self.opened = false;
-			}
+			self.opened = false;
+			self.$dialog.dialog('close');
 		},
-		setContent: function (content) {
+		setContent: function (content, options) {
 			var self = this;
 			var content = content || '';
 			if (!self.isOpen()) {
-				self.open();
+				self.open(options);
 			}
 			self.$dialog.html(content);
 		},
@@ -677,6 +679,10 @@
 		$('.elgg-form-events-edit:not(.events-ui-form)').each(function () {
 			var eventForm = new elgg.events.ui.EventForm($(this));
 			eventForm.init();
+		});
+		$('[data-object-event][data-guid]').each(function () {
+			var Event = new elgg.events.ui.Event($(this).data('guid'));
+			Event.init();
 		});
 	};
 	elgg.register_hook_handler('init', 'system', elgg.events.ui.init);
