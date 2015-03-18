@@ -176,7 +176,10 @@ echo elgg_view('events/add/extend');
 <div class="events-ui-row">
 	<label><?php echo elgg_echo('access') ?></label>
 	<?php
-	echo elgg_view('input/access', array('entity' => $entity));
+	echo elgg_view('input/access', array(
+		'name' => 'access_id',
+		'entity' => $entity
+	));
 	?>
 </div>
 
