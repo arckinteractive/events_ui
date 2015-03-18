@@ -36,6 +36,7 @@ $english = array(
 	'events_ui:repeat_ends:on' => "On %s",
 	'events_ui:description' => 'Description',
 	'events_ui:byline' => 'By %s',
+	'events:status:recurring' => 'Recurring Event',
 
 	'repeat_ui:repeat:weekly:weekday' => 'on %s',
 	'repeat_ui:repeat_monthly_by' => 'Repeat by',
@@ -126,8 +127,8 @@ An event on your calendar starts soon!
 See the full details: %s
 ",
 
-	'events_ui:cancel' => 'Cancel',
-	'events_ui:cancel:all' => 'Cancel All',
+	'events_ui:cancel' => 'Delete',
+	'events_ui:cancel:all' => 'Delete all occurences of this event',
 	'events_ui:cancel:confirm' => 'Are you sure you want to cancel this event? This can not be undone',
 	'events_ui:cancel:all:confirm' => 'Are you sure you want to cancel all event in this series? This can not be undone',
 	'events:settings:reminder:offsettime' => "Reminder Offset Time",

@@ -33,34 +33,10 @@ function register_event_title_menu($event) {
 		));
 	}
 
-	if ($event->canEdit()) {
-		elgg_register_menu_item('title', array(
-			'name' => 'edit',
-			'text' => elgg_echo('edit'),
-			'href' => 'calendar/events/edit/' . $event->guid,
-			'link_class' => 'elgg-button elgg-button-action events-ui-event-action-edit',
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'priority' => 200,
-		));
-
-		if ($event->isRecurring() && ($ts = get_input('ts'))) {
-			elgg_register_menu_item('title', array(
-				'name' => 'cancel',
-				'text' => elgg_echo('events_ui:cancel'),
-				'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
-				'is_action' => true,
-				'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel',
-				'data-confirm' => elgg_echo('events_ui:cancel:confirm'),
-				'data-object-event' => true,
-				'data-guid' => $event->guid,
-				'priority' => 300,
-			));
-		}
-
+	if ($event->canEdit() && $event->isRecurring()) {
 		elgg_register_menu_item('title', array(
 			'name' => 'delete',
-			'text' => ($event->isRecurring()) ? elgg_echo('events_ui:cancel:all') : elgg_echo('events_ui:cancel'),
+			'text' => elgg_echo('events_ui:cancel:all'),
 			'href' => 'action/events/delete?guid=' . $event->guid, // add calendar_guid for proper forwarding
 			'is_action' => true,
 			'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel-all',

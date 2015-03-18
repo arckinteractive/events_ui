@@ -31,18 +31,31 @@ $end = $start + $entity->end_delta;
 $date = elgg_view('output/events_ui/date_range', array(
 	'start' => $start,
 	'end' => $end,
-));
+		));
+$recurring = ($entity->isRecurring()) ? elgg_echo('events:status:recurring') : '';
 $location = elgg_view('output/location', array(
 	'value' => $entity->getLocation(),
-));
+		));
 $categories = elgg_view('output/categories', $vars);
 
 $subtitle = '';
-foreach (array($date, $location, $author_text, $categories) as $subtitle_element) {
+foreach (array($date, $recurring, $location, $author_text, $categories) as $subtitle_element) {
 	// reulctant to just implode with <br /> for styling reasons
 	if ($subtitle_element) {
 		$subtitle .= '<div>' . $subtitle_element . '</div>';
 	}
+}
+
+$metadata = '';
+if (!elgg_in_context('widgets')) {
+	$metadata = elgg_view_menu('entity', array(
+		'entity' => $entity,
+		'handler' => 'events',
+		'sort_by' => 'priority',
+		'class' => 'elgg-menu-hz',
+		'full_view' => $full,
+		'ts' => $start,
+	));
 }
 
 if ($full) {
@@ -51,12 +64,6 @@ if ($full) {
 	$content = elgg_view('output/longtext', array(
 		'value' => $entity->description,
 	));
-	$metadata = elgg_view_menu('entity', array(
-		'entity' => $entity,
-		'handler' => 'events',
-		'sort_by' => 'priority',
-		'class' => 'elgg-menu-hz',
-	));
 	$tags = '';
 } else {
 	$title = elgg_view('output/url', array(
@@ -64,7 +71,6 @@ if ($full) {
 		'href' => $entity->getURL($start, $calendar->guid),
 	));
 	$summary = elgg_get_excerpt($entity->description);
-	$metadata = false;
 	$tags = false;
 }
 

@@ -2,10 +2,10 @@
 
 namespace Events\UI;
 
+use ElggBatch;
 use ElggGroup;
 use ElggMenuItem;
 use ElggUser;
-use ElggBatch;
 use Events\API\Calendar;
 use Events\API\Event;
 
@@ -56,10 +56,35 @@ function entity_menu_setup($hook, $type, $return, $params) {
 		if ($entity->isPublicCalendar()) {
 			// Remove Edit and Delete links from public caendar
 			foreach ($return as $key => $item) {
-				if ($item instanceof ElggMenuItem && in_array($item, array('edit', 'delete'))) {
+				if ($item instanceof ElggMenuItem && in_array($item->getName(), array('edit', 'delete'))) {
 					unset($return[$key]);
 				}
 			}
+		}
+	}
+	if ($entity instanceof Event) {
+		if ($entity->canEdit()) {
+			$return[] = ElggMenuItem::factory(array(
+						'name' => 'edit',
+						'text' => elgg_echo('edit'),
+						'href' => 'calendar/events/edit/' . $entity->guid,
+						'link_class' => 'events-ui-event-action-edit',
+						'data-object-event' => true,
+						'data-guid' => $entity->guid,
+						'priority' => 200,
+			));
+			$ts = elgg_extract('ts', $params);
+			$return[] = ElggMenuItem::factory(array(
+						'name' => 'delete',
+						'text' => elgg_view_icon('delete'),
+						'href' => 'action/events/cancel?guid=' . $entity->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
+						'is_action' => true,
+						'link_class' => 'events-ui-event-action-cancel',
+						'data-confirm' => elgg_echo('events_ui:cancel:confirm'),
+						'data-object-event' => true,
+						'data-guid' => $entity->guid,
+						'priority' => 300,
+			));
 		}
 	}
 
@@ -114,14 +139,14 @@ function notification_settings_save($h, $t, $r, $p) {
 	}
 
 	$calendar_notifications = get_calendar_notifications();
-	
+
 	global $NOTIFICATION_HANDLERS;
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		foreach ($calendar_notifications as $notification_name) {
 			$attr = '__notify_' . $method . '_' . $notification_name;
-			
+
 			$value = get_input($method . $notification_name, null);
-			
+
 			$user->$attr = $value;
 		}
 	}
@@ -141,7 +166,6 @@ function setup_public_pages($hook, $type, $return) {
 	return $return;
 }
 
-
 function event_reminders($hook, $type, $return, $params) {
 	// run our reminders a couple of minutes ahead of schedule
 	// to account for processing time and delivery time
@@ -150,14 +174,14 @@ function event_reminders($hook, $type, $return, $params) {
 		$offset = 120;
 	}
 	$time = $params['time'] + $offset;
-	
+
 	$last_time = elgg_get_plugin_setting('last_reminder_cron', 'events_ui');
 	if (!$last_time) {
 		$last_time = $time - 60;
 	}
 
 	elgg_set_plugin_setting('last_reminder_cron', $time, 'events_ui');
-	
+
 	$ia = elgg_set_ignore_access(true);
 	// get events
 	$options = array(
@@ -177,12 +201,12 @@ function event_reminders($hook, $type, $return, $params) {
 		),
 		'limit' => false
 	);
-	
+
 	$events = new ElggBatch('elgg_get_entities_from_metadata', $options);
 
 	foreach ($events as $event) {
 		send_event_reminder($event);
 	}
-	
+
 	elgg_set_ignore_access($ia);
 }
