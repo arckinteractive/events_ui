@@ -17,23 +17,21 @@ function register_event_title_menu($event) {
 	}
 
 	if ($calendar_count) {
-		$calendar_picker = ' events-ui-event-action-addtocalendar';
+		$calendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
+		elgg_register_menu_item('title', array(
+			'name' => 'add_to_calendar',
+			'href' => elgg_http_add_url_query_elements('action/calendar/add_event', array(
+				'event_guid' => $event->guid,
+				'calendars[]' => $calendar->guid
+			)),
+			'is_action' => true,
+			'data-object-event' => true,
+			'data-guid' => $event->guid,
+			'text' => elgg_echo('events:add_to_calendar:default'),
+			'link_class' => 'elgg-button elgg-button-action events-ui-event-action-addtocalendar',
+			'priority' => 100,
+		));
 	}
-
-	$calendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
-	elgg_register_menu_item('title', array(
-		'name' => 'add_to_calendar',
-		'href' => elgg_http_add_url_query_elements('action/calendar/add_event', array(
-			'event_guid' => $event->guid,
-			'calendars[]' => $calendar->guid
-		)),
-		'is_action' => true,
-		'data-object-event' => true,
-		'data-guid' => $event->guid,
-		'text' => elgg_echo('events:add_to_calendar:default'),
-		'link_class' => 'elgg-button elgg-button-action' . $calendar_picker,
-		'priority' => 100,
-	));
 
 	if ($event->canEdit()) {
 		elgg_register_menu_item('title', array(
@@ -245,12 +243,8 @@ function event_update_notify($event_guid) {
 
 		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $message);
 		notify_user(
-				$user->guid,
-				$event->container_guid, // user or group
-				$subject,
-				$message,
-				array(),
-				$methods
+				$user->guid, $event->container_guid, // user or group
+				$subject, $message, array(), $methods
 		);
 
 		$notified[] = $user->guid;
@@ -258,7 +252,6 @@ function event_update_notify($event_guid) {
 
 	elgg_set_ignore_access($ia);
 }
-
 
 /**
  * Send reminder notifications to users based on their notification settings
@@ -281,11 +274,11 @@ function send_event_reminder($event) {
 	);
 
 	$calendars = new ElggBatch('elgg_get_entities_from_relationship', $options);
-	
+
 	$notified = array(); // users could have multiple calendars
 	foreach ($calendars as $calendar) {
 		$user = $calendar->getContainerEntity();
-		
+
 		if (in_array($user->guid, $notified)) {
 			continue;
 		}
@@ -309,13 +302,13 @@ function send_event_reminder($event) {
 			$notified[] = $user->guid;
 			//continue;
 		}
-		
+
 		$methods = get_calendar_notification_methods($user, 'eventreminder');
 		if (!$methods) {
 			$notified[] = $user->guid;
 			continue;
 		}
-		
+
 		$subject = elgg_echo('event:notify:eventreminder:subject', array(
 			$event->title,
 			date('D, F j g:ia', $event->start_timestamp)
@@ -332,12 +325,8 @@ function send_event_reminder($event) {
 
 		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
 		notify_user(
-				$user->guid,
-				$event->container_guid, // user or group
-				$subject,
-				$message,
-				array(),
-				$methods
+				$user->guid, $event->container_guid, // user or group
+				$subject, $message, array(), $methods
 		);
 
 		$notified[] = $user->guid;
