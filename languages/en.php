@@ -35,7 +35,7 @@ $english = array(
 	'events_ui:repeat_ends:after' => "After %s occurrences",
 	'events_ui:repeat_ends:on' => "On %s",
 	'events_ui:description' => 'Description',
-	'events_ui:byline' => 'Hosted by %s',
+	'events_ui:byline' => 'By %s',
 
 	'repeat_ui:repeat:weekly:weekday' => 'on %s',
 	'repeat_ui:repeat_monthly_by' => 'Repeat by',
