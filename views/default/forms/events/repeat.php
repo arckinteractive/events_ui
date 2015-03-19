@@ -92,15 +92,18 @@ $entity = elgg_extract('entity', $vars);
 				'name' => 'repeat_end_after',
 				'value' => $entity ? $entity->repeat_end_after : $vars['repeat_end_after'],
 				'pattern' => '\d+',
-				'class' => 'events-text-small'
+				'class' => 'events-text-small',
+				'data-repeat-end' => Util::REPEAT_END_AFTER,
 			));
 
 			$on_input = elgg_view('input/text', array(
 				'name' => 'repeat_end_on',
 				'value' => $entity ? $entity->repeat_end_on : $vars['repeat_end_on'],
 				'class' => 'events-ui-datepicker events-text-small',
-				'autoinit' => $vars['dateautoinit']
+				'autoinit' => $vars['dateautoinit'],
+				'data-repeat-end' => Util::REPEAT_END_ON,
 			));
+			
 			$repeat_ends_options = array(
 				elgg_echo('events_ui:repeat_ends:never') => Util::REPEAT_END_NEVER,
 				elgg_echo('events_ui:repeat_ends:after', array($after_input)) => Util::REPEAT_END_AFTER,

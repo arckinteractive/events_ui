@@ -338,6 +338,9 @@ elgg.events.ui.EventForm = function ($form, Calendar) {
 	this.$remindersTmpl = $('.js-events-ui-reminder-tmpl', this.$form);
 	this.$remindersList = $('.js-events-ui-reminders-list', this.$form);
 	this.$repeatFrequencyInput = $('select[name="repeat_frequency"]', this.$form);
+	this.$repeatEndType = $('input[name="repeat_end_type"]', this.$form);
+	this.$repeatEndAfter = $('input[name="repeat_end_after"]', this.$form);
+	this.$repeatEndOn = $('input[name="repeat_end_on"]', this.$form);
 	this.$allDayChkbx = $('input[type="checkbox"][name="all_day"]', this.$form);
 	this.$startDateInput = $('input[name="start_date"]', this.$form);
 	this.$startTimeInput = $('select[name="start_time"]', this.$form);
@@ -396,6 +399,9 @@ elgg.events.ui.EventForm.prototype = {
 		self.$startDateInput.bind('change', self.onStartDateChange.bind(self));
 		self.$startTimeInput.bind('change', self.onStartTimeChange.bind(self));
 		self.$repeatFrequencyInput.bind('change', self.onFrequencyChange.bind(self));
+		self.$repeatEndAfter.bind('focus', self.onRepeatEndAfterFocus.bind(self));
+		self.$repeatEndOn.bind('focus', self.onRepeatEndOnFocus.bind(self));
+		
 		$('input,select', self.$form).bind('change', self.onChange.bind(self));
 
 		self.$remindersAddNew.bind('click', self.addReminder.bind(self));
@@ -530,6 +536,16 @@ elgg.events.ui.EventForm.prototype = {
 		var $matches = $('[data-frequency="' + frequency + '"]', self.$form);
 		$matches.show();
 		$('[data-frequency]').not($matches).hide();
+	},
+	onRepeatEndAfterFocus: function(e) {
+		var self = this;
+		var repeatEnd = self.$repeatEndAfter.data('repeatEnd');
+		self.$repeatEndType.filter('[value="' + repeatEnd + '"]').prop('checked', true);
+	},
+	onRepeatEndOnFocus: function(e) {
+		var self = this;
+		var repeatEnd = self.$repeatEndOn.data('repeatEnd');
+		self.$repeatEndType.filter('[value="' + repeatEnd + '"]').prop('checked', true);
 	},
 	changeRepeatLabel: function () {
 		var self = this;
