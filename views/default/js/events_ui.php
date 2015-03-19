@@ -190,11 +190,13 @@
 		},
 		bindUIEvents: function () {
 			var self = this;
-			this.$addToCalendarBtn.unbind('click').bind('click', self.loadAddToCalendarForm.bind(self));
-			this.$editBtn.unbind('click').bind('click', self.loadEditForm.bind(self));
+			self.$addToCalendarBtn.die('click').bind('click', self.loadAddToCalendarForm.bind(self));
+			self.$editBtn.die('click').bind('click', self.loadEditForm.bind(self));
 			if (self.Calendar) {
-				this.$cancelBtn.unbind('click').bind('click', self.cancel.bind(self));
-				this.$cancelAllBtn.unbind('click').bind('click', self.cancelAll.bind(self));
+				self.$cancelBtn.removeClass('elgg-requires-confirmation'); // removes default confirmation dialog
+				self.$cancelAllBtn.removeClass('elgg-requires-confirmation');
+				self.$cancelBtn.die('click').bind('click', self.cancel.bind(self));
+				self.$cancelAllBtn.die('click').bind('click', self.cancelAll.bind(self));
 			}
 		},
 		loadAddToCalendarForm: function (e) {
@@ -281,7 +283,7 @@
 		cancel: function (e) {
 			var self = this;
 			e.preventDefault();
-			var confirmText = self.$cancelBtn.data('confirm') || elgg.echo('question:areyousure');
+			var confirmText = self.$cancelBtn.attr('rel') || elgg.echo('question:areyousure');
 			if (!confirm(confirmText)) {
 				return false;
 			}
@@ -301,7 +303,7 @@
 		cancelAll: function (e) {
 			var self = this;
 			e.preventDefault();
-			var confirmText = self.$cancelAllBtn.data('confirm') || elgg.echo('question:areyousure');
+			var confirmText = self.$cancelAllBtn.attr('rel') || elgg.echo('question:areyousure');
 			if (!confirm(confirmText)) {
 				return false;
 			}
