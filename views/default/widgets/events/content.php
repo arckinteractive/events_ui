@@ -1,6 +1,7 @@
 <?php
 
 namespace Events\UI;
+
 use Events\API\Calendar;
 use Events\API\Util;
 
@@ -20,17 +21,16 @@ if (!$calendars) {
 	return;
 }
 
-$start = (int) Util::getMonthStart((int)get_input('event_widget_start', time()));
+$now = time();
+$start = (int) Util::getMonthStart((int) get_input('event_widget_start', $now));
 $end = (int) Util::getMonthEnd($start);
 
-$now = time();
 if ($start < $now && $vars['entity']->upcoming) {
 	// don't show anything that's passed
 	if ($end >= $now) {
 		// looking at the current month
 		$start = $now;
-	}
-	else {
+	} else {
 		// this is an invalid date for these settings
 		echo elgg_echo('events:widgets:noresults');
 		return;
@@ -38,10 +38,13 @@ if ($start < $now && $vars['entity']->upcoming) {
 }
 
 
+$timezone = Util::getClientTimezone();
+$start_local = $start - Util::getOffset($start, Util::UTC, $timezone);
+$end_local = $end - Util::getOffset($end, Util::UTC, $timezone);
+
 $events = array();
 foreach ($calendars as $c) {
-	$cevents = $c->getAllEventInstances($start, $end);
-	
+	$cevents = $c->getAllEventInstances($start_local, $end_local);
 	$events = array_merge($events, $cevents);
 }
 
@@ -51,12 +54,12 @@ foreach ($calendars as $c) {
 $dupes = array();
 foreach ($events as $key => $instance) {
 	$test = $instance['id'] . ':' . $instance['start_timestamp'];
-	
+
 	if (in_array($test, $dupes)) {
 		unset($events[$key]);
 		continue;
 	}
-	
+
 	$dupes[] = $test;
 }
 
@@ -68,7 +71,6 @@ $limit = $vars['entity']->num_results ? $vars['entity']->num_results : 10;
 if (count($events) > $limit) {
 	$events = array_slice($events, 0, $limit);
 }
-
 
 echo elgg_view('events_ui/feed', array(
 	'events' => $events

@@ -35,7 +35,11 @@ elgg.events.ui.Calendar.prototype = {
 			},
 			editable: self.isEditable(),
 			fixedWeekCount: false,
-			events: self.getDataSrc(),
+			events: {
+				url: self.getDataSrc(),
+				currentTimezone: elgg.config.timezone
+			},
+			ignoreTimezone: false,
 			eventLimit: 3,
 			loading: self.showLoading.bind(self),
 			dayClick: self.dayClick.bind(self),

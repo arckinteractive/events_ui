@@ -65,7 +65,7 @@ $entity = elgg_extract('entity', $vars);
 				$weekdays_options[$label] = $weekday;
 			}
 			if (!$vars['repeat_weekly_days']) {
-				$vars['repeat_weekly_days'] = ($entity) ? date('D', $entity->start_timestamp) : array();
+				$vars['repeat_weekly_days'] = ($entity) ? date('D', $entity->getStartTimestamp()) : array();
 			}
 			$value = $entity ? $entity->repeat_weekly_days : $vars['repeat_weekly_days'];
 			$value = (!is_array($value)) ? array($value) : $value;

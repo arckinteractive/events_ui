@@ -2,7 +2,6 @@
 
 namespace Events\UI;
 
-use Events\API\Event;
 use Events\API\Util;
 
 $reminder = elgg_extract('reminder', $vars);

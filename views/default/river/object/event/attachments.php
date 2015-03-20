@@ -13,8 +13,8 @@ if (!$entity instanceof Event) {
 elgg_push_context('widgets');
 echo elgg_view_entity($entity, array(
 	'full_view' => false,
-//	'instance' => array(
-//		'start_timestamp' => $event->getNextOccurrence(),
-//	),
+	'instance' => array(
+		'start_timestamp' => $entity->getNextOccurrence(),
+	),
 ));
 elgg_pop_context();

@@ -2,7 +2,10 @@
 
 namespace Events\UI;
 
+use DateTime;
+use DateTimeZone;
 use Events\API\Event;
+use Events\API\Util;
 
 $entity = elgg_extract('entity', $vars);
 
@@ -13,25 +16,24 @@ if ($entity && !($entity instanceof Event)) {
 
 $container = elgg_extract('container', $vars, elgg_get_logged_in_user_entity());
 
-$now = time();
-
 $calendar = $vars['calendar'];
 if (!$calendar && $entity) {
 	$calendar = $entity->getContainerEntity();
 }
 
+$dt = new DateTime(null, new DateTimeZone(Util::UTC));
 $hour_options = array();
-$time = mktime(0, 0, 0);
-$count = 0;
-while ($count < 96) {
-	$count++;
-	$hour_options[] = date('g:ia', $time);
-
-	$time += 60 * 15; //add half an hour
+$hour_options_ts = range(0, Util::SECONDS_IN_A_DAY, 900); // step of 15 minutes
+foreach ($hour_options_ts as $ts) {
+	$hour_options[] = $dt->setTimestamp($ts)->format('g:ia');
 }
 
-$start = $vars['start_date'] ? $vars['start_date'] : gmdate('Y-m-d');
-$end = $vars['end_date'] ? $vars['end_date'] : gmdate('Y-m-d');
+$dt->setTimezone(new DateTimeZone(Util::getClientTimezone()));
+$start = $vars['start_date'] ? $vars['start_date'] : $dt->format('Y-m-d');
+$start_time = round(($dt->format('U') + 900 / 2) / 900) * 900;
+
+$end = $vars['end_date'] ? $vars['end_date'] : $dt->modify('+1 hour')->format('Y-m-d');
+$end_time = round(($dt->format('U') + 900 / 2) / 900) * 900;
 
 $recurring = ($entity) ? $entity->isRecurring() : false;
 $has_reminders = ($entity) ? $entity->hasReminders() : false;
@@ -48,10 +50,10 @@ $has_reminders = ($entity) ? $entity->hasReminders() : false;
 <div class="events-ui-row">
 	<label><?php echo elgg_echo('events:edit:label:location') ?></label>
 	<?php
-		echo elgg_view('input/location', array(
-			'name' => 'location',
-			'value' => ($entity) ? $entity->getLocation() : '',
-		));
+	echo elgg_view('input/location', array(
+		'name' => 'location',
+		'value' => ($entity) ? $entity->getLocation() : '',
+	));
 	?>
 </div>
 <div class="events-ui-row">
@@ -69,10 +71,9 @@ $has_reminders = ($entity) ? $entity->hasReminders() : false;
 		</div>
 		<div class="elgg-col elgg-col-1of2">
 			<?php
-			$default_time = round(($now+900/2)/900)*900;
 			echo elgg_view('input/dropdown', array(
 				'name' => 'start_time',
-				'value' => $entity ? $entity->start_time : date('g:ia', $default_time),
+				'value' => $entity ? $entity->start_time : $start_time,
 				'options' => $hour_options,
 				'class' => 'events-ui-time',
 			));
@@ -95,7 +96,7 @@ $has_reminders = ($entity) ? $entity->hasReminders() : false;
 			<?php
 			echo elgg_view('input/dropdown', array(
 				'name' => 'end_time',
-				'value' => $entity ? $entity->end_time : date('g:ia', $default_time + 3600),
+				'value' => $entity ? $entity->end_time : $end_time,
 				'options' => $hour_options,
 				'class' => 'events-ui-time',
 			));
@@ -103,6 +104,26 @@ $has_reminders = ($entity) ? $entity->hasReminders() : false;
 		</div>
 	</div>
 </div>
+<?php
+if (elgg_get_plugin_setting('timezone_picker', 'events_ui')) {
+	?>
+	<div class="events-ui-row">
+		<label><?php echo elgg_echo('events:edit:label:timezone') ?></label>
+		<?php
+		echo elgg_view('input/timezone', array(
+			'name' => 'timezone',
+			'value' => ($entity->timezone) ? : Util::getClientTimezone(),
+		));
+		?>
+	</div>
+	<?php
+} else {
+	elgg_echo('input/hidden', array(
+		'name' => 'timezone',
+		'value' => Util::getClientTimezone(),
+	));
+}
+?>
 <div class="events-ui-row">
 	<ul class="elgg-menu elgg-menu-hz">
 		<li>
@@ -185,19 +206,19 @@ echo elgg_view('events/add/extend');
 
 <?php
 if ($entity):
-?>
-<div class="events-ui-row">
-	<label>
-	<?php
-		echo elgg_view('input/checkbox', array(
-			'name' => 'resend_notifications',
-			'value' => 1
-		));
-		echo elgg_echo('events_ui:resend:notifications');
 	?>
-	</label>
-</div>
-<?php
+	<div class="events-ui-row">
+		<label>
+			<?php
+			echo elgg_view('input/checkbox', array(
+				'name' => 'resend_notifications',
+				'value' => 1
+			));
+			echo elgg_echo('events_ui:resend:notifications');
+			?>
+		</label>
+	</div>
+	<?php
 endif;
 ?>
 

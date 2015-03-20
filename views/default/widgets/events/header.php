@@ -1,12 +1,16 @@
 <?php
 
 namespace Events\UI;
+
+use DateTime;
+use DateTimeZone;
 use Events\API\Util;
 
 $start = (int) Util::getMonthStart((int) get_input('event_widget_start', time()));
 
-$prev_start = strtotime('-1 month', $start);
-$next_start = strtotime('+1 month', $start);
+$dt = new DateTime(null, new DateTimeZone(Util::UTC));
+$prev_start = $dt->setTimestamp($start)->modify('-1 month')->getTimestamp();
+$next_start = $dt->setTimestamp($start)->modify('+1 month')->getTimestamp();
 
 $prev = elgg_view('output/url', array(
 	'text' => '<<',
@@ -16,8 +20,7 @@ $prev = elgg_view('output/url', array(
 	'data-start' => $prev_start
 ));
 
-
-if ($prev_start < time() && $start < time() && $vars['entity']->upcoming) {
+if ($prev_start < $now && $start < $now && $vars['entity']->upcoming) {
 	$prev = '&nbsp;';
 }
 
@@ -29,8 +32,7 @@ $next = elgg_view('output/url', array(
 	'data-start' => $next_start
 ));
 
-
-$current = date('F', $start);
+$current = $dt->setTimestamp($start)->format('F');
 
 ?>
 <div class="row clearfix mbm">

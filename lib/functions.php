@@ -2,14 +2,23 @@
 
 namespace Events\UI;
 
-use ElggEntity;
+use ElggBatch;
+use ElggGroup;
+use ElggUser;
 use Events\API\Calendar;
 use Events\API\Event;
-use ElggGroup;
-use ElggBatch;
-use ElggUser;
 
+/**
+ * Register title menu items for an event
+ *
+ * @param Event $event
+ * @return void
+ */
 function register_event_title_menu($event) {
+
+	if (!$event instanceof Event) {
+		return;
+	}
 
 	$calendar_count = 0;
 	if (elgg_is_logged_in()) {
@@ -49,10 +58,11 @@ function register_event_title_menu($event) {
 }
 
 /**
- * adds group events to the default calendar of interested members
+ * Adds group events to the default calendar of interested members
  * 
- * @param type $event_guid
- * @param type $group_guid
+ * @param int $event_guid GUID of the event
+ * @param int $group_guid GUID of the group
+ * @return void
  */
 function autosync_group_event($event_guid, $group_guid) {
 	$ia = elgg_set_ignore_access(true);
@@ -88,10 +98,12 @@ function autosync_group_event($event_guid, $group_guid) {
 }
 
 /**
- * 
- * @param string $function - the name of the function to be called
- * @param array $args - an array of arguments to pass to the function
- * @param bool $runonce - limit the function to only running once with a set of arguments
+ * Registered a deferred function
+ *
+ * @param string $function the name of the function to be called
+ * @param array  $args     an array of arguments to pass to the function
+ * @param bool   $runonce  limit the function to only running once with a set of arguments
+ * @return void
  */
 function register_vroom_function($function, $args = array(), $runonce = true) {
 	$vroom_functions = elgg_get_config('event_vroom_functions');
@@ -115,6 +127,14 @@ function register_vroom_function($function, $args = array(), $runonce = true) {
 	elgg_set_config('event_vroom_functions', $vroom_functions);
 }
 
+/**
+ * Returns preferred calendar notifications methods for the user
+ *
+ * @global array $NOTIFICATION_HANDLERS
+ * @param ElggUser $user              User
+ * @param string   $notification_name Notification name
+ * @return type
+ */
 function get_calendar_notification_methods($user, $notification_name) {
 
 	if (!($user instanceof ElggUser)) {
@@ -134,6 +154,10 @@ function get_calendar_notification_methods($user, $notification_name) {
 	return $methods;
 }
 
+/**
+ * Returns calendar  notification types
+ * @return string[]
+ */
 function get_calendar_notifications() {
 	$calendar_notifications = array(
 		'addtocal',
@@ -145,9 +169,11 @@ function get_calendar_notifications() {
 }
 
 /**
- * Send notifications of event updates to users with it on their calendars
+ * Send notifications about event updates to those users that have added the event
+ * to their calendar
  * 
- * @param int $event_guid
+ * @param int $event_guid GUID of the event
+ * @return void
  */
 function event_update_notify($event_guid) {
 	$ia = elgg_set_ignore_access(true);
@@ -211,7 +237,7 @@ function event_update_notify($event_guid) {
 
 		$message = elgg_echo('event:notify:eventupdate:message', array(
 			$event->title,
-			elgg_view('output/events_ui/date_range', array('start' => $event->start_timestamp, 'end' => $event->end_timestamp)),
+			elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp())),
 			$event->location,
 			$event->description,
 			$event->getURL()
@@ -233,7 +259,8 @@ function event_update_notify($event_guid) {
  * Send reminder notifications to users based on their notification settings
  * @todo if there are a *lot* of recipients we should somehow break this off into parallel threads
  * 
- * @param type $event
+ * @param Event $event Event
+ * @return void
  */
 function send_event_reminder($event) {
 	$dbprefix = elgg_get_config('dbprefix');
@@ -287,13 +314,13 @@ function send_event_reminder($event) {
 
 		$subject = elgg_echo('event:notify:eventreminder:subject', array(
 			$event->title,
-			date('D, F j g:ia', $event->start_timestamp)
+			date('D, F j g:ia T', $event->getStartTimestamp())
 		));
 		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventreminder', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $subject);
 
 		$message = elgg_echo('event:notify:eventupdate:message', array(
 			$event->title,
-			elgg_view('output/events_ui/date_range', array('start' => $event->start_timestamp, 'end' => $event->end_timestamp)),
+			elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp())),
 			$event->location,
 			$event->description,
 			$event->getURL()

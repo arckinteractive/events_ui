@@ -3,11 +3,13 @@
 namespace Events\UI;
 
 use ElggGroup;
+use ElggObject;
 use ElggUser;
 use Events\API\Event;
 
 /**
  * Registers menu items on page setup
+ * @return void
  */
 function pagesetup() {
 	elgg_register_menu_item('site', array(
@@ -17,6 +19,14 @@ function pagesetup() {
 	));
 }
 
+/**
+ * Callback that fires when event is created
+ *
+ * @param string      $event "create"
+ * @param string      $type  "object"
+ * @param ElggObject $event Object
+ * @return boolean
+ */
 function event_create($event, $type, $event) {
 	if (!($event instanceof Event)) {
 		return true;
@@ -41,12 +51,13 @@ function event_create($event, $type, $event) {
 }
 
 /**
- * called on shutdown event after vroom has flushed to browser
+ * Called on shutdown event after vroom has flushed to browser
  * used for background processes
+ * @return void
  */
 function vroom_functions() {
 	elgg_set_config('shutdown_initiated', 1);
-	
+
 	$vroom_functions = elgg_get_config('event_vroom_functions');
 
 	if ($vroom_functions && is_array($vroom_functions)) {
@@ -60,16 +71,28 @@ function vroom_functions() {
 	}
 }
 
+/**
+ * Callback that fires on add_to_calendar event
+ *
+ * @param string $event  "events_api"
+ * @param string $type   "add_to_calendar"
+ * @param array  $params Event params
+ * @return boolean
+ */
 function add_to_calendar($event, $type, $params) {
 	$event = $params['event'];
 	$calendar = $params['calendar'];
-	
-	$user = $calendar->getContainerEntity();
-	
-	if (!($user instanceof ElggUser)) {
+
+	if (!$event instanceof Event || !$calendar instanceof $calendar) {
 		return true;
 	}
-	
+
+	$user = $calendar->getContainerEntity();
+
+	if (!$user instanceof ElggUser) {
+		return true;
+	}
+
 	$ia = elgg_set_ignore_access(false);
 	if (!has_access_to_entity($event, $user)) {
 		// the user can't see it, lets not notify them
@@ -93,13 +116,13 @@ function add_to_calendar($event, $type, $params) {
 	if (!$methods) {
 		return true;
 	}
-	
+
 	$subject = elgg_echo('event:notify:addtocal:subject', array($event->title));
 	$subject = elgg_trigger_plugin_hook('events_ui', 'subject:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $subject);
 
 	$message = elgg_echo('event:notify:addtocal:message', array(
 		$event->title,
-		elgg_view('output/events_ui/date_range', array('start' => $event->start_timestamp, 'end' => $event->end_timestamp)),
+		elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp())),
 		$event->location,
 		$event->description,
 		$event->getURL()
@@ -107,16 +130,19 @@ function add_to_calendar($event, $type, $params) {
 
 	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
 	notify_user(
-			$user->guid,
-			$event->container_guid, // user or group
-			$subject,
-			$message,
-			array(),
-			$methods
+			$user->guid, $event->container_guid, // user or group
+			$subject, $message, array(), $methods
 	);
 }
 
-
+/**
+ * Callback that fires when event is updated
+ *
+ * @param string     $event "update"
+ * @param string     $type  "object"
+ * @param ElggObject $event Object
+ * @return boolean
+ */
 function event_update($event, $type, $event) {
 	if (!($event instanceof Event)) {
 		return true;
@@ -126,7 +152,7 @@ function event_update($event, $type, $event) {
 	if (!get_input('resend_notifications')) {
 		return true;
 	}
-	
+
 	// note that the event could be on *lots* of calendars, it may not be practical
 	// to notify them all now, use vroom to do it in the background if possible
 	if (!elgg_get_config('shutdown_intiated')) {

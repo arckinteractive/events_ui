@@ -28,7 +28,8 @@ if (!$entity instanceof Calendar) {
 	forward('', '404');
 }
 
-$start = (int) get_input('start', time());
+$now = time();
+$start = (int) get_input('start', $now);
 $end = (int) get_input('end', strtotime('+1 year', $start));
 
 $start = (int) Util::getDayStart($start);

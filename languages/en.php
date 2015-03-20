@@ -20,6 +20,7 @@ $english = array(
 	'events:edit:label:location' => 'Location',
 	'events:edit:label:start' => "Start",
 	'events:edit:label:end' => "End",
+	'events:edit:label:timezone' => 'Timezone',
 	'events_ui:allday' => "All Day",
 	'events_ui:repeat' => "Repeat",
 	'events_ui:repeats' => "Repeats",
@@ -77,6 +78,7 @@ $english = array(
 	'events:calendars:orphan:added' => "Orphaned event has been restored to the default calendar",
 	
 	'river:event:create' => "%s created a new event %s",
+	'river:event:create:recurring' => "%s created a new recurring event %s",
 	'events:start:time' => "Start Time",
 	'events:end:time' => "End Time",
 	'events:error:empty_title' => "You must enter a title for the event",
@@ -140,6 +142,18 @@ See the full details: %s
 	'events:widget:settings:numresults' => "Number of events to show",
 	'events:widgets:noresults' => "No events to list",
 	'events:widget:settings:upcoming' => "Limit to upcoming events?",
+
+	// Timezones
+	'events:settings:timezone' => 'Timezone',
+	'events:settings:timezone:help' => 'All timestamps are stored in UTC. If you disable timezone pickers, 
+		please specify what timezone inputs should fall back to, if the user does not have timezone defined in their settings',
+	'events:settings:timezone:picker' => 'Display timezone picker in event forms',
+	'events:settings:timezone:default' => 'Default (fallback) timezone of the site',
+	'events:settings:timezone:config' => 'A list of timezones to include in timezone pickers',
+	'user:set:timezone' => "Timezone settings",
+	'user:timezone:label' => "Your timezone",
+	'user:timezone:success' => "Your timezone settings have been updated.",
+	'user:timezone:fail' => "Your timezone settings could not be saved.",
 );
 
 add_translation("en", $english);

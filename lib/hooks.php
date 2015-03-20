@@ -8,6 +8,7 @@ use ElggMenuItem;
 use ElggUser;
 use Events\API\Calendar;
 use Events\API\Event;
+use Events\API\Util;
 
 /**
  * Sets up owner block menu
@@ -166,6 +167,15 @@ function setup_public_pages($hook, $type, $return) {
 	return $return;
 }
 
+/**
+ * Minutely cron callback
+ *
+ * @param string $hook   "cron"
+ * @param string $type   "minute"
+ * @param mixed  $return Previous callback return
+ * @param array  $params Hook params
+ * @return void
+ */
 function event_reminders($hook, $type, $return, $params) {
 	// run our reminders a couple of minutes ahead of schedule
 	// to account for processing time and delivery time
@@ -210,3 +220,60 @@ function event_reminders($hook, $type, $return, $params) {
 
 	elgg_set_ignore_access($ia);
 }
+
+/**
+ * Filter default timezones to only include those specified in plugin settings
+ *
+ * @param string $hook   "timezones"
+ * @param string $type   "events_api"
+ * @param array  $return Current list of timezones
+ * @param array  $params Additional params
+ * @return array Filtered list
+ */
+function filter_timezones($hook, $type, $return, $params) {
+
+	$setting = elgg_get_plugin_setting('custom_timezones', 'events_ui');
+	$custom = ($setting) ? json_decode($setting) : false;
+
+	if (!empty($custom)) {
+		$default = Util::getClientTimezone();
+		foreach ($return as $key => $value) {
+			if (!in_array($key, $custom) && $key !== $default) {
+				unset($return[$key]);
+			}
+		}
+	}
+
+	return $return;
+}
+
+/**
+ * Sets default user timezone
+ * Called when 'usersettings:save','user' hook is triggered
+ * @return void
+ */
+function save_default_user_timezone() {
+
+	$timezone = get_input('timezone');
+	
+	$user_guid = get_input('guid');
+	$user = get_entity($user_guid);
+
+	if (($user) && ($timezone)) {
+		if (strcmp($timezone, $user->timezone) != 0) {
+			$user->timezone = $timezone;
+			if ($user->save()) {
+				system_message(elgg_echo('user:timezone:success'));
+				return true;
+			} else {
+				register_error(elgg_echo('user:timezone:fail'));
+			}
+		} else {
+			// no change
+			return null;
+		}
+	} else {
+		register_error(elgg_echo('user:timezone:fail'));
+	}
+}
+

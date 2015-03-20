@@ -4,9 +4,14 @@
 // tried upgrading but too much stuff breaks
 
 namespace Events\UI;
+
 use Events\API\Calendar;
 
 const UPGRADE_VERSION = 20141215;
+
+if (!defined('ELGG_SITE_TIMEZONE')) {
+	define('ELGG_SITE_TIMEZONE', elgg_get_plugin_setting('default_timezone', 'events_ui'));
+}
 
 require_once __DIR__ . '/lib/functions.php';
 require_once __DIR__ . '/lib/events.php';
@@ -14,10 +19,10 @@ require_once __DIR__ . '/lib/hooks.php';
 require_once __DIR__ . '/lib/page_handlers.php';
 
 elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
-elgg_register_event_handler('pagesetup', 'system', __NAMESPACE__ .'\\pagesetup');
+elgg_register_event_handler('pagesetup', 'system', __NAMESPACE__ . '\\pagesetup');
 
 function init() {
-	
+
 	elgg_extend_view('notifications/subscriptions/personal', 'resources/calendar/notifications');
 
 	elgg_register_css('jquery-ui', 'mod/events_ui/vendors/jquery-ui/jquery-ui.min.css');
@@ -43,6 +48,8 @@ function init() {
 	elgg_register_entity_url_handler('object', 'calendar', __NAMESPACE__ . '\\url_handler');
 	elgg_register_entity_url_handler('object', 'event', __NAMESPACE__ . '\\url_handler');
 
+	elgg_register_action('events_ui/settings/save', __DIR__ . '/actions/plugins/settings/save.php', 'admin');
+
 	elgg_register_plugin_hook_handler('register', 'menu:owner_block', __NAMESPACE__ . '\\owner_block_menu_setup');
 	elgg_register_plugin_hook_handler('register', 'menu:entity', __NAMESPACE__ . '\\entity_menu_setup');
 	elgg_register_plugin_hook_handler('entity:icon:url', 'object', __NAMESPACE__ . '\\entity_icon_url');
@@ -52,7 +59,7 @@ function init() {
 	elgg_register_plugin_hook_handler('cron', 'minute', __NAMESPACE__ . '\\event_reminders');
 
 	elgg_register_plugin_hook_handler('public_pages', 'walled_garden', __NAMESPACE__ . '\\setup_public_pages');
-	
+
 	if (elgg_is_logged_in()) {
 		elgg_register_menu_item('page', array(
 			'name' => 'calendar_settings',
@@ -61,19 +68,24 @@ function init() {
 			'context' => array('settings')
 		));
 	}
-	
+
 	elgg_register_event_handler('create', 'object', __NAMESPACE__ . '\\event_create');
 	elgg_register_event_handler('update', 'object', __NAMESPACE__ . '\\event_update');
 	elgg_register_event_handler('events_api', 'add_to_calendar', __NAMESPACE__ . '\\add_to_calendar');
 	elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\vroom_functions');
-	
-	
+
 	elgg_register_action('calendar/settings', __DIR__ . '/actions/calendar/settings.php');
-	
+
 	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
-	
+
 	elgg_register_widget_type('events', elgg_echo('events:widget:name'), 'events:widget:description', 'profile,dashboard,group');
 
 	elgg_register_ajax_view('events_ui/ajax/picker');
 	elgg_register_ajax_view('widgets/events/content');
+
+	// Timezone logic
+	elgg_extend_view('forms/account/settings', 'core/settings/account/timezone', 100);
+	elgg_register_plugin_hook_handler('usersettings:save', 'user', __NAMESPACE__ . '\\save_default_user_timezone');
+	elgg_register_plugin_hook_handler('timezones', 'events_api', __NAMESPACE__ . '\\filter_timezones');
+	elgg_extend_view('js/initialize_elgg', 'js/events_ui/config');
 }

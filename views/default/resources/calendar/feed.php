@@ -2,9 +2,12 @@
 
 namespace Events\UI;
 
+use DateTime;
+use DateTimeZone;
 use Events\API\Calendar;
-use Events\API\Util;
 use Events\API\PAM;
+use Events\API\Util;
+use Exception;
 
 $is_logged_in = elgg_is_logged_in();
 
@@ -37,7 +40,11 @@ $start = (int) get_input('start', time());
 $start = (int) Util::getMonthStart($start);
 $end = (int) Util::getMonthEnd($start);
 
-$events = $entity->getAllEventInstances($start, $end);
+$timezone = Util::getClientTimezone();
+$start_local = $start - Util::getOffset($start, Util::UTC, $timezone);
+$end_local = $end - Util::getOffset($end, Util::UTC, $timezone);
+
+$events = $entity->getAllEventInstances($start_local, $end_local);
 
 if (!$is_logged_in) {
 	logout();
@@ -63,12 +70,14 @@ elgg_register_menu_item('title', array(
 	'title' => elgg_echo('events:view:ical'),
 	'link_class' => 'elgg-button elgg-button-action',
 ));
-$prev_start = strtotime('-1 month', $start);
-$next_start = strtotime('+1 month', $start);
+
+$dt = new DateTime(null, new DateTimeZone(Util::UTC));
+$prev_start = $dt->setTimestamp($start)->modify('-1 month')->getTimestamp();
+$next_start = $dt->setTimestamp($start)->modify('+1 month')->getTimestamp();
 
 elgg_register_menu_item('title', array(
 	'name' => 'prev_month',
-	'text' => "&laquo;&nbsp;" . date('F', $prev_start),
+	'text' => "&laquo;&nbsp;" . $dt->setTimestamp($prev_start)->format('F'),
 	'href' => elgg_http_add_url_query_elements("calendar/feed/$entity->guid", array(
 		'start' => $prev_start,
 	)),
@@ -77,7 +86,7 @@ elgg_register_menu_item('title', array(
 ));
 elgg_register_menu_item('title', array(
 	'name' => 'next_month',
-	'text' => date('F', $next_start) . "&nbsp;&raquo;",
+	'text' => $dt->setTimestamp($next_start)->format('F') . "&nbsp;&raquo;",
 	'href' => elgg_http_add_url_query_elements("calendar/feed/$entity->guid", array(
 		'start' => $next_start,
 	)),
@@ -85,7 +94,7 @@ elgg_register_menu_item('title', array(
 	'priority' => 101,
 ));
 
-$title = elgg_echo('events:feed:month', array(date('F', $start)));
+$title = elgg_echo('events:feed:month', array($dt->setTimestamp($start)->format('F')));
 $content = elgg_view('events_ui/feed', array(
 	'events' => $events
 		));
