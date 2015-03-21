@@ -11,7 +11,7 @@ if (!$user || !$user->canEdit()) {
 elgg_set_page_owner_guid($user->guid);
 
 $title = elgg_echo('calendar:settings');
-$content = elgg_view('core/settings/calendar/notifications');
+$content = '';
 
 $layout = elgg_view_layout('one_sidebar', array(
 	'title' => $title,
