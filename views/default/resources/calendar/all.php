@@ -1,8 +1,8 @@
 <?php
 
-use Events\API\Calendar;
-
 namespace Events\UI;
+
+use Events\API\Calendar;
 
 elgg_push_breadcrumb(elgg_echo('events:calendars'), Calendar::SUBTYPE);
 
@@ -13,7 +13,7 @@ $content = elgg_list_entities(array(
 	'types' => 'object',
 	'subtypes' => Calendar::SUBTYPE,
 	'no_results' => elgg_echo('events:calendar:none'),
-));
+		));
 
 $layout = elgg_view_layout('content', array(
 	'title' => $title,
