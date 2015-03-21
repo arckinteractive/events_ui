@@ -89,12 +89,8 @@ function page_handler($page) {
 			break;
 
 		case 'settings':
-			$user = get_user_by_username($page[1]);
-			if (!$user || !$user->canEdit()) {
-				forward('404');
-			}
-			elgg_set_page_owner_guid($user->guid);
 			elgg_set_context('settings');
+			set_input('username', $page[1]);
 			$page_view = elgg_view('resources/calendar/settings');
 			break;
 		case 'events':
