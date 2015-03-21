@@ -8,6 +8,7 @@ use Events\API\Util;
 $is_logged_in = elgg_is_logged_in();
 
 $guid = get_input('guid');
+$consumer = get_input('consumer');
 
 if (!$is_logged_in) {
 	$token = get_input('token');
@@ -33,7 +34,7 @@ $end = (int) get_input('end', strtotime('+1 month', $start));
 $start = (int) Util::getDayStart($start);
 $end = (int) Util::getDayEnd($end);
 
-$events = $entity->getAllEventInstances($start, $end);
+$events = $entity->getAllEventInstances($start, $end, true, $consumer);
 
 echo json_encode($events);
 

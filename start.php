@@ -60,6 +60,8 @@ function init() {
 
 	elgg_register_plugin_hook_handler('public_pages', 'walled_garden', __NAMESPACE__ . '\\setup_public_pages');
 
+	elgg_register_plugin_hook_handler('export:instance', 'events_api', __NAMESPACE__ . '\\export_event_instance');
+	
 	if (elgg_is_logged_in()) {
 		elgg_register_menu_item('page', array(
 			'name' => 'calendar_settings',

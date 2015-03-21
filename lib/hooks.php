@@ -8,6 +8,7 @@ use ElggMenuItem;
 use ElggUser;
 use Events\API\Calendar;
 use Events\API\Event;
+use Events\API\EventInstance;
 use Events\API\Util;
 
 /**
@@ -277,3 +278,33 @@ function save_default_user_timezone() {
 	}
 }
 
+/**
+ * Filters instance export values for fullcalendar views
+ *
+ * @param string $hook   "export:instance"
+ * @param string $type   "events_api"
+ * @param array  $return Exported values
+ * @param array  $params Hook params
+ * @return array
+ */
+function export_event_instance($hook, $type, $return, $params) {
+
+	$instance = elgg_extract('instance', $params);
+	$consumer = elgg_extract('consumer', $params);
+
+	if (!$instance instanceof EventInstance) {
+		return $return;
+	}
+
+	if ($consumer == 'fullcalendar') {
+		$event = $instance->getEvent();
+		$export = array(
+			'id' => $event->guid,
+			'allDay' => $event->isAllDay(),
+			//'color' => sprintf('#%06X', mt_rand(0, 0xFFFFFF)),
+		);
+		$return = array_merge($return, $export);
+	}
+
+	return $return;
+}

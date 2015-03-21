@@ -19,7 +19,7 @@ elgg.events.ui.Calendar.prototype = {
 	constructor: elgg.events.ui.Calendar,
 	getDataSrc: function () {
 		var self = this;
-		return elgg.normalize_url('calendar/feed/' + self.guid + '?view=json');
+		return elgg.normalize_url('calendar/feed/' + self.guid + '?view=json&consumer=fullcalendar');
 	},
 	isEditable: function () {
 		var self = this;
