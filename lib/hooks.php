@@ -192,7 +192,7 @@ function event_reminders($hook, $type, $return, $params) {
 	}
 
 	elgg_set_plugin_setting('last_reminder_cron', $time, 'events_ui');
-$last_time = 1427600600;
+
 	$ia = elgg_set_ignore_access(true);
 	
 	$options = array(
