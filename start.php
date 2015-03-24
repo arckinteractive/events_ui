@@ -22,7 +22,7 @@ elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
 elgg_register_event_handler('pagesetup', 'system', __NAMESPACE__ . '\\pagesetup');
 
 function init() {
-
+	
 	elgg_extend_view('notifications/subscriptions/personal', 'core/settings/calendar/notifications');
 
 	elgg_register_css('jquery-ui', 'mod/events_ui/vendors/jquery-ui/jquery-ui.min.css');

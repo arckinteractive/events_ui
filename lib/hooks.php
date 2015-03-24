@@ -192,30 +192,22 @@ function event_reminders($hook, $type, $return, $params) {
 	}
 
 	elgg_set_plugin_setting('last_reminder_cron', $time, 'events_ui');
-
+$last_time = 1427600600;
 	$ia = elgg_set_ignore_access(true);
-	// get events
+	
 	$options = array(
 		'type' => 'object',
 		'subtype' => 'event',
-		'metadata_name_value_pairs' => array(
-			array(
-				'name' => 'reminder',
-				'value' => $last_time,
-				'operand' => '>'
-			),
-			array(
-				'name' => 'reminder',
-				'value' => $time,
-				'operand' => '<='
-			)
-		),
-		'limit' => false
+		'annotation_name' => 'reminder',
+		'wheres' => array(
+			"CAST(v.string AS SIGNED) BETWEEN {$last_time} AND {$time}"
+		)
 	);
 
-	$events = new ElggBatch('elgg_get_entities_from_metadata', $options);
+	$reminders = new ElggBatch('elgg_get_annotations', $options, null, 50, false);
 
-	foreach ($events as $event) {
+	foreach ($reminders as $reminder) {
+		$event = get_entity($reminder->entity_guid);
 		send_event_reminder($event);
 	}
 

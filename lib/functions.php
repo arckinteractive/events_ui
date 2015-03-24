@@ -262,7 +262,12 @@ function event_update_notify($event_guid) {
  * @param Event $event Event
  * @return void
  */
-function send_event_reminder($event) {
+function send_event_reminder($event, $remindertime = null) {
+	
+	if ($remindertime === null) {
+		$remindertime = time();
+	}
+	
 	$dbprefix = elgg_get_config('dbprefix');
 	$options = array(
 		'type' => 'object',
@@ -277,6 +282,22 @@ function send_event_reminder($event) {
 	);
 
 	$calendars = new ElggBatch('elgg_get_entities_from_relationship', $options);
+	
+	$starttimestamp = $event->getNextOccurrence($remindertime);
+	$endtimestamp = $starttimestamp + $event->delta;
+	
+	$original_subject = elgg_echo('event:notify:eventreminder:subject', array(
+		$event->title,
+		date('D, F j g:ia T', $starttimestamp)
+	));
+	
+	$original_message = elgg_echo('event:notify:eventupdate:message', array(
+		$event->title,
+		elgg_view('output/events_ui/date_range', array('start' => $starttimestamp, 'end' => $endtimestamp)),
+		$event->location,
+		$event->description,
+		$event->getURL()
+	));
 
 	$notified = array(); // users could have multiple calendars
 	foreach ($calendars as $calendar) {
@@ -312,24 +333,12 @@ function send_event_reminder($event) {
 			continue;
 		}
 
-		$subject = elgg_echo('event:notify:eventreminder:subject', array(
-			$event->title,
-			date('D, F j g:ia T', $event->getStartTimestamp())
-		));
-		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventreminder', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $subject);
+		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventreminder', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $original_subject);
+		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $original_message);
 
-		$message = elgg_echo('event:notify:eventupdate:message', array(
-			$event->title,
-			elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp())),
-			$event->location,
-			$event->description,
-			$event->getURL()
-		));
-
-		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
 		notify_user(
-				$user->guid, $event->container_guid, // user or group
-				$subject, $message, array(), $methods
+			$user->guid, $event->container_guid, // user or group
+			$subject, $message, array(), $methods
 		);
 
 		$notified[] = $user->guid;
