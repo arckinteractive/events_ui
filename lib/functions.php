@@ -333,8 +333,15 @@ function send_event_reminder($event, $remindertime = null) {
 			continue;
 		}
 
-		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventreminder', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $original_subject);
-		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $original_message);
+		$params = array(
+			'event' => $event,
+			'calendar' => $calendar,
+			'user' => $user,
+			'starttime' => $starttimestamp,
+			'endtime' => $endtimestamp
+		);
+		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventreminder', $params, $original_subject);
+		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventreminder', $params, $original_message);
 
 		notify_user(
 			$user->guid, $event->container_guid, // user or group
