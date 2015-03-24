@@ -291,7 +291,7 @@ function send_event_reminder($event, $remindertime = null) {
 		date('D, F j g:ia T', $starttimestamp)
 	));
 	
-	$original_message = elgg_echo('event:notify:eventupdate:message', array(
+	$original_message = elgg_echo('event:notify:eventreminder:message', array(
 		$event->title,
 		elgg_view('output/events_ui/date_range', array('start' => $starttimestamp, 'end' => $endtimestamp)),
 		$event->location,
