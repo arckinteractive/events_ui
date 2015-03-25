@@ -2,7 +2,6 @@
 
 namespace Events\UI;
 
-use Events\API\Event;
 use Events\API\Util;
 
 $entity = elgg_extract('entity', $vars);
@@ -103,7 +102,7 @@ $entity = elgg_extract('entity', $vars);
 				'autoinit' => $vars['dateautoinit'],
 				'data-repeat-end' => Util::REPEAT_END_ON,
 			));
-			
+
 			$repeat_ends_options = array(
 				elgg_echo('events_ui:repeat_ends:never') => Util::REPEAT_END_NEVER,
 				elgg_echo('events_ui:repeat_ends:after', array($after_input)) => Util::REPEAT_END_AFTER,
@@ -112,11 +111,24 @@ $entity = elgg_extract('entity', $vars);
 			if (!$vars['repeat_end_type']) {
 				$vars['repeat_end_type'] = Util::REPEAT_END_NEVER;
 			}
-			echo elgg_view('input/radio', array(
-				'name' => 'repeat_end_type',
-				'value' => $entity ? $entity->repeat_end_type : $vars['repeat_end_type'],
-				'options' => $repeat_ends_options,
-			));
+
+			// Two input fields wrapped in one label are causing trouble in firefox
+			// Building the radio inputs without label as it's done in input/radio
+			echo '<ul class="elgg-input-radio">';
+			$repeat_end_value = $entity ? $entity->repeat_end_type : $vars['repeat_end_type'];
+			foreach ($repeat_ends_options as $label => $option) {
+				$radio_attrs = elgg_format_attributes(array(
+					'type' => 'radio',
+					'name' => 'repeat_end_type',
+					'value' => $options,
+					'checked' => ($option == $repeat_end_value),
+				));
+
+				echo '<li>';
+				echo "<input $radio_attrs / >$label";
+				echo '</li>';
+			}
+			echo '</ul>';
 			?>
 		</div>
 	</div>
