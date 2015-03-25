@@ -120,12 +120,12 @@ $entity = elgg_extract('entity', $vars);
 				$radio_attrs = elgg_format_attributes(array(
 					'type' => 'radio',
 					'name' => 'repeat_end_type',
-					'value' => $options,
+					'value' => $option,
 					'checked' => ($option == $repeat_end_value),
 				));
 
 				echo '<li>';
-				echo "<input $radio_attrs / >$label";
+				echo "<input $radio_attrs />$label";
 				echo '</li>';
 			}
 			echo '</ul>';

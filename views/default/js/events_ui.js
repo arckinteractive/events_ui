@@ -403,8 +403,8 @@ elgg.events.ui.EventForm.prototype = {
 		self.$startDateInput.bind('change', self.onStartDateChange.bind(self));
 		self.$startTimeInput.bind('change', self.onStartTimeChange.bind(self));
 		self.$repeatFrequencyInput.bind('change', self.onFrequencyChange.bind(self));
-		self.$repeatEndAfter.bind('click', self.onRepeatEndAfterFocus.bind(self));
-		self.$repeatEndOn.bind('click', self.onRepeatEndOnFocus.bind(self));
+		self.$repeatEndAfter.bind('focus', self.onRepeatEndAfterFocus.bind(self));
+		self.$repeatEndOn.bind('focus', self.onRepeatEndOnFocus.bind(self));
 		
 		$('input,select', self.$form).bind('change', self.onChange.bind(self));
 
