@@ -9,6 +9,7 @@ use Events\API\Calendar;
 use Events\API\Event;
 use Events\API\Util;
 use DateTime;
+use DateTimeZone;
 
 /**
  * Register title menu items for an event
