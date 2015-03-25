@@ -7,6 +7,7 @@ use ElggGroup;
 use ElggUser;
 use Events\API\Calendar;
 use Events\API\Event;
+use Events\API\Util;
 
 /**
  * Register title menu items for an event
