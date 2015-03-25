@@ -226,8 +226,8 @@ function event_reminders($hook, $type, $return, $params) {
 function filter_timezones($hook, $type, $return, $params) {
 
 	$setting = elgg_get_plugin_setting('custom_timezones', 'events_ui');
-	$custom = ($setting) ? json_decode($setting) : false;
-
+	$custom = ($setting) ? unserialize($setting) : false;
+	
 	if (!empty($custom)) {
 		$default = Util::getClientTimezone();
 		foreach ($return as $key => $value) {
