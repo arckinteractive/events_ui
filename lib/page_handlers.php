@@ -88,11 +88,18 @@ function page_handler($page) {
 			$page_view = elgg_view('resources/calendar/feed');
 			break;
 
+		case 'timezones' :
+			set_input('country', $page[1]);
+			elgg_set_viewtype('json');
+			$page_view = elgg_view('resources/calendar/timezones');
+			break;
+
 		case 'settings':
 			elgg_set_context('settings');
 			set_input('username', $page[1]);
 			$page_view = elgg_view('resources/calendar/settings');
 			break;
+
 		case 'events':
 			return event_pagehandler(array_slice($page, 1));
 			

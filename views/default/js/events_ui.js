@@ -352,6 +352,9 @@ elgg.events.ui.EventForm = function ($form, Calendar) {
 	this.$endTimeInput = $('select[name="end_time"]', this.$form);
 	this.$datePickers = $('.events-ui-datepicker', this.$form);
 	this.$submitBtn = $('input[type="submit"]', this.$form);
+	this.$tzCountryPicker = $('select[data-timezone-country]', this.$form);
+	this.$tzIdPicker = $('select[data-timezone-id]', this.$form);
+	this.tzCache = [];
 };
 /**
  * EventForm prototype
@@ -389,9 +392,9 @@ elgg.events.ui.EventForm.prototype = {
 	},
 	bindUIEvents: function () {
 		var self = this;
-		if (self.initialized) {
-			return;
-		}
+//		if (self.initialized) {
+//			return;
+//		}
 
 		if (self.Calendar) {
 			self.$form.bind('submit', self.saveEvent.bind(self));
@@ -405,12 +408,14 @@ elgg.events.ui.EventForm.prototype = {
 		self.$repeatFrequencyInput.bind('change', self.onFrequencyChange.bind(self));
 		self.$repeatEndAfter.bind('focus', self.onRepeatEndAfterFocus.bind(self));
 		self.$repeatEndOn.bind('focus', self.onRepeatEndOnFocus.bind(self));
-		
+
 		$('input,select', self.$form).bind('change', self.onChange.bind(self));
 
 		self.$remindersAddNew.bind('click', self.addReminder.bind(self));
 		//self.$remindersRemove.bind('click', self.removeReminder);
-		$('a.js-events-ui-reminder-remove').live('click', self.removeReminder);
+		$('a.js-events-ui-reminder-remove').bind('click', self.removeReminder);
+
+		self.$tzCountryPicker.bind('change', self.onTzCountryPickerChange.bind(self));
 	},
 	/**
 	 * Submit event form via AJAX
@@ -444,6 +449,7 @@ elgg.events.ui.EventForm.prototype = {
 				if (response.system_messages.error) {
 					elgg.register_error(response.system_messages.error);
 				}
+				self.$form[0].reset();
 			},
 			complete: function () {
 				self.$submitBtn.prop('disabled', false).removeClass('elgg-state-disabled');
@@ -541,15 +547,42 @@ elgg.events.ui.EventForm.prototype = {
 		$matches.show();
 		$('[data-frequency]').not($matches).hide();
 	},
-	onRepeatEndAfterFocus: function(e) {
+	onRepeatEndAfterFocus: function (e) {
 		var self = this;
 		var repeatEnd = self.$repeatEndAfter.data('repeatEnd');
 		self.$repeatEndType.filter('[value="' + repeatEnd + '"]').prop('checked', true);
 	},
-	onRepeatEndOnFocus: function(e) {
+	onRepeatEndOnFocus: function (e) {
 		var self = this;
 		var repeatEnd = self.$repeatEndOn.data('repeatEnd');
 		self.$repeatEndType.filter('[value="' + repeatEnd + '"]').prop('checked', true);
+	},
+	onTzCountryPickerChange: function (e) {
+		var self = this;
+		var country = self.$tzCountryPicker.val();
+
+		if (self.tzCache[country]) {
+			self.setTzIdOptions(self.tzCache[country]);
+		} else {
+			elgg.getJSON('calendar/timezones/' + country, {
+				cache: true,
+				success: function (data) {
+					self.tzCache[country] = data;
+					self.setTzIdOptions(data);
+				}
+			});
+		}
+	},
+	setTzIdOptions: function(options) {
+		var options = options || [];
+		var self = this;
+		self.$tzIdPicker.children('option').not(':selected').remove();
+		$.each(options, function(index, tz) {
+			if (self.$tzIdPicker.find('[value="' + tz.id + '"]').length === 0) {
+				var $option = $('<option>').attr({ value: tz.id }).text(tz.label);
+				$option.appendTo(self.$tzIdPicker);
+			}
+		});
 	},
 	changeRepeatLabel: function () {
 		var self = this;

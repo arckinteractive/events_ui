@@ -97,3 +97,7 @@ input.events-text-small {
 	background-position: 50%;
 	background-repeat: no-repeat;
 }
+
+.elgg-input-timezone select {
+	width: 100%;
+}
