@@ -8,6 +8,7 @@ use ElggUser;
 use Events\API\Calendar;
 use Events\API\Event;
 use Events\API\Util;
+use DateTime;
 
 /**
  * Register title menu items for an event
