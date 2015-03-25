@@ -374,14 +374,21 @@ elgg.events.ui.EventForm.prototype = {
 	},
 	initNew: function (date) {
 		var self = this,
-				date = moment(date);
+				date = moment(date),
+				now = moment();
+
+		if (date.isBefore(now)) {
+			date.add(1, 'days').set('hour', 8).set('minute', 0);
+		}
+		
 		self.init();
 		// Reset start and end dates
 		self.$startDateInput.val(date.format('YYYY-MM-DD'));
-		self.$endDateInput.val(date.format('YYYY-MM-DD'));
+		self.$endDateInput.val(date.add(1, 'hours').format('YYYY-MM-DD'));
+
 		// Reset start and end times
-		self.$startTimeInput.val(date.add(1, 'hours').startOf('hour').format('h:mma'));
-		self.$startTimeInput.val(date.add(2, 'hours').startOf('hour').format('h:mma'));
+		self.$startTimeInput.val(date.startOf('hour').format('h:mma'));
+		self.$endTimeInput.val(date.add(1, 'hours').startOf('hour').format('h:mma'));
 	},
 	initDatePickers: function ($datepicker) {
 		var self = this;
@@ -739,5 +746,30 @@ elgg.events.ui.init = function () {
 		var Event = new elgg.events.ui.Event($(this).data('guid'));
 		Event.init();
 	});
+
+	$('.js-events-ui-ical-modal-trigger').live('click', function(e) {
+		e.preventDefault();
+		var feed_url = $(this).attr('href');
+		elgg.ajax('ajax/view/events_ui/ajax/ical_modal', {
+			data: {
+				feed_url: feed_url,
+			},
+			beforeSend: function() {
+				elgg.events.ui.dialog.showLoader();
+			},
+			success: function(response) {
+				elgg.events.ui.dialog.setContent(response);
+				$('.js-events-autoselect').live('click keydown keyup focus', function(e) {
+					$(this).select();
+					return false;
+				});
+			},
+			complete: function() {
+				elgg.events.ui.dialog.hideLoader();
+			}
+		});
+	});
+
+
 };
 elgg.register_hook_handler('init', 'system', elgg.events.ui.init);

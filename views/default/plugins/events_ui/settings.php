@@ -41,3 +41,11 @@ echo elgg_view('input/checkboxes', array(
 	'value' => (isset($entity->custom_timezones)) ? unserialize($entity->custom_timezones) : array_keys($timezones),
 ));
 echo '</div>';
+
+echo '<div>';
+echo '<label>' . elgg_echo('events:settings:ical:help_page_url') . '</label>';
+echo elgg_view('input/text', array(
+	'name' => "params[ical_help_page_url]",
+	'value' => $entity->ical_help_page_url,
+));
+echo '</div>';

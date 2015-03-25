@@ -68,7 +68,7 @@ elgg_register_menu_item('title', array(
 	)),
 	'text' => elgg_echo('events:view:ical'), //elgg_view_icon('events-ical'),
 	'title' => elgg_echo('events:view:ical'),
-	'link_class' => 'elgg-button elgg-button-action',
+	'link_class' => 'elgg-button elgg-button-action js-events-ui-ical-modal-trigger',
 ));
 
 $dt = new DateTime(null, new DateTimeZone(Util::UTC));

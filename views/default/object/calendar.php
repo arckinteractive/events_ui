@@ -32,12 +32,6 @@ if ($full) {
 	$summary = elgg_view('output/longtext', array(
 		'value' => $entity->description,
 	));
-	$summary .= '<div class="events-ui-ical-url">';
-	$summary .= '<label>' . elgg_echo('events:ical:url') . '</label>';
-	$summary .= elgg_view('output/url', array(
-				'href' => $entity->getIcalURL("calendar/ical/{$entity->guid}/calendar{$entity->guid}.ics"),
-	));
-	$summary .= '</div>';
 } else {
 	$title = elgg_view('output/url', array(
 		'text' => $entity->getDisplayName(),

@@ -30,10 +30,8 @@ foreach ($hour_options_ts as $ts) {
 
 $dt->setTimezone(new DateTimeZone(Util::getClientTimezone()));
 $start = $vars['start_date'] ? $vars['start_date'] : $dt->format('Y-m-d');
-$start_time = round(($dt->format('U') + 900 / 2) / 900) * 900;
 
 $end = $vars['end_date'] ? $vars['end_date'] : $dt->modify('+1 hour')->format('Y-m-d');
-$end_time = round(($dt->format('U') + 900 / 2) / 900) * 900;
 
 $recurring = ($entity) ? $entity->isRecurring() : false;
 $has_reminders = ($entity) ? $entity->hasReminders() : false;
@@ -73,7 +71,7 @@ $has_reminders = ($entity) ? $entity->hasReminders() : false;
 			<?php
 			echo elgg_view('input/dropdown', array(
 				'name' => 'start_time',
-				'value' => $entity ? $entity->start_time : $start_time,
+				'value' => $entity ? $entity->start_time : '8:00am',
 				'options' => $hour_options,
 				'class' => 'events-ui-time',
 			));
@@ -96,7 +94,7 @@ $has_reminders = ($entity) ? $entity->hasReminders() : false;
 			<?php
 			echo elgg_view('input/dropdown', array(
 				'name' => 'end_time',
-				'value' => $entity ? $entity->end_time : $end_time,
+				'value' => $entity ? $entity->end_time : '9:00am',
 				'options' => $hour_options,
 				'class' => 'events-ui-time',
 			));

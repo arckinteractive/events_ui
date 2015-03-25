@@ -62,8 +62,6 @@ $english = array(
 	'events:view:calendar:switch' => 'Switch to calendar view',
 	'events:view:feed' => 'Feed view',
 	'events:view:feed:switch' => 'Switch to feed view',
-	'events:view:ical' => 'iCal',
-	'events:ical:url' => 'iCal Feed: ',
 
 	'events:no_results' => 'There are no events to display',
 
@@ -154,6 +152,14 @@ See the full details: %s
 	'user:timezone:label' => "Your timezone",
 	'user:timezone:success' => "Your timezone settings have been updated.",
 	'user:timezone:fail' => "Your timezone settings could not be saved.",
+
+	// iCal
+	'events:settings:ical:help_page_url' => 'URL of the iCal help page shown in an iCal modal',
+	'events:view:ical' => 'iCal',
+	'events:ical:feed' => 'Subscribe to Calendar via iCal Feed',
+	'events:ical:url' => 'Feed URL',
+	'events:ical:help' => 'iCal feeds allow you to stay up to date with the updates to this calendar in your favorite calendaring software, such as Google Calendar. The URL below is permanent: you can add it to your calendar tool, and share it with friends. %s',
+	'events:ical:learn_more' => 'Learn more',
 );
 
 add_translation("en", $english);
