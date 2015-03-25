@@ -4,6 +4,7 @@
  * Outputs a formatted date range
  * @uses $vars['start'] Start timestamp
  * @uses $vars['end'] End timestamp
+ * @uses $vars['user'] ElggUser - defaults to logged in user
  * @uses $vars['timezone'] Original timezone, if not UTC
  */
 namespace Events\UI;
@@ -20,7 +21,11 @@ if (!$start || !$end) {
 	return;
 }
 
-$client_tz = Util::getClientTimezone();
+if (!$vars['user']) {
+	$vars['user'] = elgg_get_logged_in_user_entity();
+}
+
+$client_tz = Util::getClientTimezone($vars['user']);
 $dt_start = new DateTime("@$start", new DateTimeZone($timezone));
 $start_at_org_tz = $dt_start->format('D, F j, Y H:ia T');
 
