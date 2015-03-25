@@ -53,7 +53,7 @@ foreach ($calendars as $c) {
 // $events = array_map('unserialize', array_unique(array_map('serialize', $events))); // calendar param on urls makes this not work :(
 $dupes = array();
 foreach ($events as $key => $instance) {
-	$test = $instance['id'] . ':' . $instance['start_timestamp'];
+	$test = $instance['guid'] . ':' . $instance['start_timestamp'];
 
 	if (in_array($test, $dupes)) {
 		unset($events[$key]);

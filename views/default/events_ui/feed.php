@@ -13,7 +13,7 @@ if (empty($events)) {
 
 echo '<ul class="elgg-list">';
 foreach ($events as $instance) {
-	$event = get_entity($instance['id']);
+	$event = get_entity($instance['guid']);
 	if (!$event instanceof ElggEntity) {
 		continue;
 	}
