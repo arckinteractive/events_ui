@@ -739,5 +739,30 @@ elgg.events.ui.init = function () {
 		var Event = new elgg.events.ui.Event($(this).data('guid'));
 		Event.init();
 	});
+
+	$('.js-events-ui-ical-modal-trigger').live('click', function(e) {
+		e.preventDefault();
+		var feed_url = $(this).attr('href');
+		elgg.ajax('ajax/view/events_ui/ajax/ical_modal', {
+			data: {
+				feed_url: feed_url,
+			},
+			beforeSend: function() {
+				elgg.events.ui.dialog.showLoader();
+			},
+			success: function(response) {
+				elgg.events.ui.dialog.setContent(response);
+				$('.js-events-autoselect').live('click keydown keyup focus', function(e) {
+					$(this).select();
+					return false;
+				});
+			},
+			complete: function() {
+				elgg.events.ui.dialog.hideLoader();
+			}
+		});
+	});
+
+
 };
 elgg.register_hook_handler('init', 'system', elgg.events.ui.init);

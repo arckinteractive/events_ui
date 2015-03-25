@@ -83,6 +83,7 @@ function init() {
 	elgg_register_widget_type('events', elgg_echo('events:widget:name'), 'events:widget:description', 'profile,dashboard,group');
 
 	elgg_register_ajax_view('events_ui/ajax/picker');
+	elgg_register_ajax_view('events_ui/ajax/ical_modal');
 	elgg_register_ajax_view('widgets/events/content');
 
 	// Timezone logic

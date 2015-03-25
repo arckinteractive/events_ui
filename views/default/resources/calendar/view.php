@@ -45,7 +45,7 @@ elgg_register_menu_item('title', array(
 	'href' => $entity->getIcalURL("calendar/ical/{$entity->guid}/calendar{$entity->guid}.ics"),
 	'text' => elgg_echo('events:view:ical'), //elgg_view_icon('events-ical'),
 	'title' => elgg_echo('events:view:ical'),
-	'link_class' => 'elgg-button elgg-button-action',
+	'link_class' => 'elgg-button elgg-button-action js-events-ui-ical-modal-trigger',
 ));
 
 $sidebar = elgg_view('events_ui/sidebar', array(
