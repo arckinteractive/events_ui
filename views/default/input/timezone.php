@@ -25,7 +25,7 @@ foreach ($timezones as $country_code => $country_timezones) {
 		}
 	}
 }
-ksort($country_options);
+asort($country_options);
 ?>
 <div class="elgg-input-timezone clearfix">
 	<div class="elgg-col elgg-col-1of3">
