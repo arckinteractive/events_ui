@@ -28,6 +28,16 @@ foreach ($calendars as $calendar) {
 	));
 }
 
+$priority += 10;
+if ($page_owner->canEdit()) {
+	elgg_register_menu_item('page_owner_calendars', array(
+		'name' => 'addcalendar',
+		'text' => '[+] ' . elgg_echo('events:calendar:add'),
+		'href' => 'calendar/add/' . $page_owner->guid,
+		'priority' => $priority,
+	));
+}
+
 $menu = elgg_view_menu('page_owner_calendars', array(
 	'entity' => $entity,
 	'sort_by' => 'priority',

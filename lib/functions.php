@@ -17,7 +17,7 @@ use DateTimeZone;
  * @param Event $event
  * @return void
  */
-function register_event_title_menu($event) {
+function register_event_title_menu($event, $ts = null, $calendar = null) {
 
 	if (!$event instanceof Event) {
 		return;
@@ -27,27 +27,50 @@ function register_event_title_menu($event) {
 	if (elgg_is_logged_in()) {
 		$calendar_count = Calendar::getCalendars(elgg_get_logged_in_user_entity(), true);
 	}
-
+	
 	if ($calendar_count) {
-		$calendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
+		// may be different than the calendar being viewed
+		$mycalendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
+		
+		$text = elgg_echo('events:add_to_calendar:default');
+		$add_remove_calendar = $mycalendar->guid;
+		if ($mycalendar->hasEvent($event)) {
+			$text = elgg_echo('events:remove_from_calendar:default');
+			$add_remove_calendar = '';
+		}
+		
 		elgg_register_menu_item('title', array(
 			'name' => 'add_to_calendar',
 			'href' => elgg_http_add_url_query_elements('action/calendar/add_event', array(
 				'event_guid' => $event->guid,
-				'calendars[]' => $calendar->guid
+				'calendars[]' => $add_remove_calendar
 			)),
 			'is_action' => true,
 			'data-object-event' => true,
 			'data-guid' => $event->guid,
-			'text' => elgg_echo('events:add_to_calendar:default'),
+			'text' => $text,
+			'data-calendar-count' => $calendar_count,
 			'link_class' => 'elgg-button elgg-button-action events-ui-event-action-addtocalendar',
 			'priority' => 100,
+		));
+	}
+	
+	if ($event->canEdit()) {
+		elgg_register_menu_item('title', array(
+			'name' => 'delete',
+			'text' => elgg_echo('events_ui:cancel'),
+			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
+			'is_action' => true,
+			'link_class' => 'elgg-button elgg-requires-confirmation events-ui-event-action-cancel-all',
+			'data-object-event' => true,
+			'data-guid' => $event->guid,
+			'priority' => 300,
 		));
 	}
 
 	if ($event->canEdit() && $event->isRecurring()) {
 		elgg_register_menu_item('title', array(
-			'name' => 'delete',
+			'name' => 'delete_all',
 			'text' => elgg_echo('events_ui:cancel:all'),
 			'href' => 'action/events/delete?guid=' . $event->guid, // add calendar_guid for proper forwarding
 			'is_action' => true,

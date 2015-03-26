@@ -33,7 +33,8 @@ $date = elgg_view('output/events_ui/date_range', array(
 	'start' => $start,
 	'end' => $end,
 		));
-$recurring = ($entity->isRecurring()) ? elgg_echo('events:status:recurring') : '';
+//$recurring = ($entity->isRecurring()) ? elgg_echo('events:status:recurring') : '';
+$recurring = ($entity->isRecurring()) ? $entity->getRecurringDescription() : '';
 $location = elgg_view('output/location', array(
 	'value' => $entity->getLocation(),
 		));

@@ -23,7 +23,11 @@ foreach ($calendars as $c) {
 	}
 }
 
-$body = elgg_view('input/checkboxes', array(
+$body .= elgg_view('output/longtext', array(
+	'value' => elgg_echo('events:calendar:picker:help'),
+	'class' => 'elgg-subtext'
+));
+$body .= elgg_view('input/checkboxes', array(
 	'name' => 'calendars',
 	'value' => $value,
 	'options' => $options
@@ -35,9 +39,12 @@ $body .= elgg_view('input/hidden', array('name' => 'event_guid', 'value' => $var
 $body .= elgg_view('input/submit', array('value' => elgg_echo('submit')));
 $body .= '</div>';
 
-echo elgg_view('input/form', array(
+$form = elgg_view('input/form', array(
 	'action' => 'action/calendar/add_event',
 	'method' => 'post',
 	'body' => $body,
 	'class' => 'elgg-form-calendar-add-event',
 ));
+
+$title = elgg_echo('events:calendar:picker:title');
+echo elgg_view_module('info', $title, $form);

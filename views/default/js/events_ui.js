@@ -194,7 +194,9 @@ elgg.events.ui.Event.prototype = {
 	},
 	bindUIEvents: function () {
 		var self = this;
-		self.$addToCalendarBtn.die('click').bind('click', self.loadAddToCalendarForm.bind(self));
+                if (self.$addToCalendarBtn.data('calendarCount') > 1) {
+                    self.$addToCalendarBtn.die('click').bind('click', self.loadAddToCalendarForm.bind(self));
+                }
 		self.$editBtn.die('click').bind('click', self.loadEditForm.bind(self));
 		if (self.Calendar) {
 			self.$cancelBtn.removeClass('elgg-requires-confirmation'); // removes default confirmation dialog
@@ -404,7 +406,7 @@ elgg.events.ui.EventForm.prototype = {
 //		}
 
 		if (self.Calendar) {
-			self.$form.bind('submit', self.saveEvent.bind(self));
+                    self.$form.bind('submit', self.saveEvent.bind(self));
 		}
 
 		self.$repeatChkbx.bind('change', self.onRepeatChange.bind(self));
@@ -433,7 +435,7 @@ elgg.events.ui.EventForm.prototype = {
 
 		e.preventDefault();
 		var self = this,
-				data = self.$form.data();
+		data = self.$form.data();
 
 		data['X-Requested-With'] = 'XMLHttpRequest';
 		data['X-PlainText-Response'] = true;
@@ -608,7 +610,8 @@ elgg.events.ui.EventForm.prototype = {
 					// Monthly on the 2nd Thursday of the month
 					var weeknum = Math.ceil(date / 7);
 					var weekday = moment(startDate).format('dddd');
-					text.push(elgg.echo('repeat_ui:repeat_monthly_by:day_of_month:weekday', [weeknum, weekday]));
+                                        var suffix = moment('2015-04-'+weeknum, "YYYY MM DD").format('Do').replace(weeknum, '');
+					text.push(elgg.echo('repeat_ui:repeat_monthly_by:day_of_month:weekday', [weeknum+suffix, weekday]));
 				}
 				break;
 			case 'weekly':
