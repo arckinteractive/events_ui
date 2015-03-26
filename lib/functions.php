@@ -179,7 +179,8 @@ function get_calendar_notification_methods($user, $notification_name) {
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		$attr = '__notify_' . $method . '_' . $notification_name;
 
-		if ($user->$attr) {
+		// default to on if not set
+		if (!isset($user->$attr) || $user->attr) {
 			$methods[] = $method;
 		}
 	}

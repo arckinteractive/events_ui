@@ -61,15 +61,7 @@ function init() {
 	elgg_register_plugin_hook_handler('public_pages', 'walled_garden', __NAMESPACE__ . '\\setup_public_pages');
 
 	elgg_register_plugin_hook_handler('export:instance', 'events_api', __NAMESPACE__ . '\\export_event_instance');
-	
-	if (elgg_is_logged_in()) {
-		elgg_register_menu_item('page', array(
-			'name' => 'calendar_settings',
-			'text' => elgg_echo('calendar:settings'),
-			'href' => 'calendar/settings/' . elgg_get_logged_in_user_entity()->username,
-			'context' => array('settings')
-		));
-	}
+
 
 	elgg_register_event_handler('create', 'object', __NAMESPACE__ . '\\event_create');
 	elgg_register_event_handler('update', 'object', __NAMESPACE__ . '\\event_update');
