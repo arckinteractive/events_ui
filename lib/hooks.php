@@ -30,7 +30,7 @@ function owner_block_menu_setup($hook, $type, $return, $params) {
 					'href' => "calendar/view/$entity->guid",
 					'text' => elgg_echo('events:calendar'),
 		));
-	} else if ($entity instanceof ElggGroup && $entity->calendar_enable == 'yes') {
+	} else if ($entity instanceof ElggGroup && $entity->calendar_enable != 'no') {
 		$return[] = ElggMenuItem::factory(array(
 					'name' => 'calendar',
 					'href' => "calendar/view/$entity->guid",

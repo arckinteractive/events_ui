@@ -53,7 +53,8 @@ $calendar_notifications = get_calendar_notifications();
 				foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 					$attr = '__notify_' . $method . '_' . $notification_name;
 					$checked = '';
-					if (!isset($user->$attr) || $user->$attr) {
+					$user_notification_settings = get_calendar_notification_methods($user, $notification_name);
+					if (in_array($method, $user_notification_settings)) {
 						$checked = 'checked="checked"';
 					}
 

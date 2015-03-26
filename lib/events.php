@@ -6,6 +6,7 @@ use ElggGroup;
 use ElggObject;
 use ElggUser;
 use Events\API\Event;
+use Events\API\Util;
 
 /**
  * Registers menu items on page setup
@@ -112,7 +113,7 @@ function add_to_calendar($event, $type, $params) {
 		return true;
 	}
 
-	$methods = get_calendar_notification_methods($user, 'addtocal');
+	$methods = get_calendar_notification_methods($user, 'addtocal'); error_log(print_r($methods,1));
 	if (!$methods) {
 		return true;
 	}
@@ -131,8 +132,8 @@ function add_to_calendar($event, $type, $params) {
 		'href' => $container->getURL()
 	));
 	if ($container instanceof \ElggGroup) {
-		$in_group = elgg_echo('events_ui:subject:ingroup', array($container->name));
-		$in_group_link = elgg_echo('events_ui:subject:ingroup', array($container_link));
+		$in_group = elgg_echo('events:notify:subject:ingroup', array($container->name));
+		$in_group_link = elgg_echo('events:notify:subject:ingroup', array($container_link));
 	}
 	
 	$event_link = elgg_view('output/url', array(
