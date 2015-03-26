@@ -116,16 +116,46 @@ function add_to_calendar($event, $type, $params) {
 	if (!$methods) {
 		return true;
 	}
+	
+	$owner = $event->getOwnerEntity();
+	$owner_link = elgg_view('output/url', array(
+		'text' => $owner->name,
+		'href' => $owner->getURL()
+	));
+	
+	$in_group = '';
+	$in_group_link = '';
+	$container = $event->getContainerEntity();
+	$container_link = elgg_view('output/url', array(
+		'text' => $container->name,
+		'href' => $container->getURL()
+	));
+	if ($container instanceof \ElggGroup) {
+		$in_group = elgg_echo('events_ui:subject:ingroup', array($container->name));
+		$in_group_link = elgg_echo('events_ui:subject:ingroup', array($container_link));
+	}
+	
+	$event_link = elgg_view('output/url', array(
+		'text' => $event->title,
+		'href' => $event->getURL()
+	));
 
-	$subject = elgg_echo('event:notify:addtocal:subject', array($event->title));
+	$subject = elgg_echo('event:notify:addtocal:subject', array(
+		$event->title,
+		$in_group,
+		$owner->name
+	));
 	$subject = elgg_trigger_plugin_hook('events_ui', 'subject:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $subject);
+	
+	$timezone = Util::getClientTimezone($user);
 
 	$message = elgg_echo('event:notify:addtocal:message', array(
-		$event->title,
-		elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp())),
+		$owner_link,
+		$event_link,
+		$in_group_link,
+		elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp(), 'timezone' => $timezone)),
 		$event->location,
 		$event->description,
-		$event->getURL()
 	));
 
 	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
