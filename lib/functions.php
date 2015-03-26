@@ -30,7 +30,14 @@ function register_event_title_menu($event, $ts = null, $calendar = null) {
 	
 	if ($calendar_count) {
 		// may be different than the calendar being viewed
-		$mycalendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
+		// make the add/remove button work for the current calendar if they own it
+		// or their default calendar if they're viewing another calendar
+		if ($calendar->owner_guid == elgg_get_logged_in_user_guid()) {
+			$mycalendar = $calendar;
+		}
+		else {
+			$mycalendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
+		}
 		
 		$text = elgg_echo('events:add_to_calendar:default');
 		$add_remove_calendar = $mycalendar->guid;
