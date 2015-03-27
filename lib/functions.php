@@ -265,13 +265,18 @@ function event_update_notify($event_guid) {
 			$notified[] = $user->guid;
 			continue;
 		}
+		
+		$starttimestamp = $event->getNextOccurrence();
+		$endtimestamp = $starttimestamp + $event->delta;
+		
+		$timezone = Util::getClientTimezone($user);
 
 		$subject = elgg_echo('event:notify:eventupdate:subject', array($event->title));
 		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $subject);
 
 		$message = elgg_echo('event:notify:eventupdate:message', array(
 			$event->title,
-			elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp())),
+			elgg_view('output/events_ui/date_range', array('start' => $starttimestamp, 'end' => $endtimestamp, 'timezone' => $timezone)),
 			$event->location,
 			$event->description,
 			$event->getURL()

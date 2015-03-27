@@ -194,3 +194,10 @@ function event_update($event, $type, $event) {
 		event_update_notify($event->guid);
 	}
 }
+
+
+function upgrades() {
+	if (elgg_is_admin_logged_in()) {
+		elgg_load_library('events:upgrades');
+	}
+}

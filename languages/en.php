@@ -141,6 +141,15 @@ See the full details: %s
 	'events:ical:url' => 'Feed URL',
 	'events:ical:help' => 'iCal feeds allow you to stay up to date with the updates to this calendar in your favorite calendaring software, such as Google Calendar. The URL below is permanent: you can add it to your calendar tool, and share it with friends. %s',
 	'events:ical:learn_more' => 'Learn more',
+	
+	// misc
+	'admin:administer_utilities:events_migrate' => "Migrate Events",
+	'events:migrate:title' => "Migrate events from event_calendar",
+	'events:import:count:none' => "Congratulations, there are no event_calendar events to migrate!",
+	'events:migrate:run' => "Run the migration",
+	'events:migrate:count' => "There are %s event_calendar entities that can be migrated",
+	'events:migrate:system_message' => "The migration upgrade is running in the background, if there are a lot of events to migrate it may take a while.  Please check back later to see the progress.",
+	'events:migrate:inprogress' => "The migration is still in progress, %s left to go, please check back later",
 );
 
 add_translation("en", $english);

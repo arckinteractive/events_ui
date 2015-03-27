@@ -22,6 +22,7 @@ elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
 elgg_register_event_handler('pagesetup', 'system', __NAMESPACE__ . '\\pagesetup');
 
 function init() {
+	elgg_register_library('events:upgrades', __DIR__ . '/lib/upgrades.php');
 	
 	elgg_extend_view('notifications/subscriptions/personal', 'core/settings/calendar/notifications');
 
@@ -68,8 +69,6 @@ function init() {
 	elgg_register_event_handler('events_api', 'add_to_calendar', __NAMESPACE__ . '\\add_to_calendar');
 	elgg_register_event_handler('shutdown', 'system', __NAMESPACE__ . '\\vroom_functions');
 
-	elgg_register_action('calendar/settings', __DIR__ . '/actions/calendar/settings.php');
-
 	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
 
 	elgg_register_widget_type('events', elgg_echo('events:widget:name'), 'events:widget:description', 'profile,dashboard,group');
@@ -83,4 +82,9 @@ function init() {
 	elgg_register_plugin_hook_handler('usersettings:save', 'user', __NAMESPACE__ . '\\save_default_user_timezone');
 	elgg_register_plugin_hook_handler('timezones', 'events_api', __NAMESPACE__ . '\\filter_timezones');
 	elgg_extend_view('js/initialize_elgg', 'js/events_ui/config');
+	
+	// migration stuff
+	elgg_register_event_handler('upgrade', 'system', __NAMESPACE__ . '\\upgrades');
+	elgg_register_admin_menu_item('administer', 'events_migrate', 'administer_utilities');
+	elgg_register_action('events/migrate', __DIR__ . '/actions/events/migrate.php', 'admin');
 }
