@@ -180,7 +180,7 @@ function get_calendar_notification_methods($user, $notification_name) {
 		$attr = '__notify_' . $method . '_' . $notification_name;
 
 		// default to on if not set
-		if (!isset($user->$attr) || $user->attr) {
+		if (!isset($user->$attr) || $user->$attr) {
 			$methods[] = $method;
 		}
 	}

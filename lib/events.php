@@ -113,7 +113,7 @@ function add_to_calendar($event, $type, $params) {
 		return true;
 	}
 
-	$methods = get_calendar_notification_methods($user, 'addtocal'); error_log(print_r($methods,1));
+	$methods = get_calendar_notification_methods($user, 'addtocal');
 	if (!$methods) {
 		return true;
 	}

@@ -147,7 +147,7 @@ function notification_settings_save($h, $t, $r, $p) {
 		foreach ($calendar_notifications as $notification_name) {
 			$attr = '__notify_' . $method . '_' . $notification_name;
 
-			$value = get_input($method . $notification_name, 0);
+			$value = (int) get_input($method . $notification_name, 0);
 
 			$user->$attr = $value;
 		}
