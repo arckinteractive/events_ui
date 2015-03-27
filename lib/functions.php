@@ -231,6 +231,29 @@ function event_update_notify($event_guid) {
 	);
 
 	$calendars = new ElggBatch('elgg_get_entities_from_relationship', $options);
+	
+	$owner = $event->getOwnerEntity();
+	$owner_link = elgg_view('output/url', array(
+		'text' => $owner->name,
+		'href' => $owner->getURL()
+	));
+	
+	$in_group = '';
+	$in_group_link = '';
+	$container = $event->getContainerEntity();
+	$container_link = elgg_view('output/url', array(
+		'text' => $container->name,
+		'href' => $container->getURL()
+	));
+	if ($container instanceof \ElggGroup) {
+		$in_group = elgg_echo('events:notify:subject:ingroup', array($container->name));
+		$in_group_link = elgg_echo('events:notify:subject:ingroup', array($container_link));
+	}
+	
+	$event_link = elgg_view('output/url', array(
+		'text' => $event->title,
+		'href' => $event->getURL()
+	));
 
 	$notified = array(); // users could have multiple calendars
 	foreach ($calendars as $c) {
@@ -271,15 +294,20 @@ function event_update_notify($event_guid) {
 		
 		$timezone = Util::getClientTimezone($user);
 
-		$subject = elgg_echo('event:notify:eventupdate:subject', array($event->title));
+		$subject = elgg_echo('event:notify:eventupdate:subject', array(
+			$event->title,
+			$in_group,
+			$owner->name
+		));
 		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $subject);
 
 		$message = elgg_echo('event:notify:eventupdate:message', array(
-			$event->title,
-			elgg_view('output/events_ui/date_range', array('start' => $starttimestamp, 'end' => $endtimestamp, 'timezone' => $timezone)),
+			$owner_link,
+			$event_link,
+			$in_group_link,
+			elgg_view('output/events_ui/date_range', array('start' => $event->getStartTimestamp(), 'end' => $event->getEndTimestamp(), 'timezone' => $timezone)),
 			$event->location,
 			$event->description,
-			$event->getURL()
 		));
 
 		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $message);
@@ -324,6 +352,29 @@ function send_event_reminder($event, $remindertime = null) {
 
 	$starttimestamp = $event->getNextOccurrence($remindertime);
 	$endtimestamp = $starttimestamp + $event->delta;
+	
+	$owner = $event->getOwnerEntity();
+	$owner_link = elgg_view('output/url', array(
+		'text' => $owner->name,
+		'href' => $owner->getURL()
+	));
+	
+	$in_group = '';
+	$in_group_link = '';
+	$container = $event->getContainerEntity();
+	$container_link = elgg_view('output/url', array(
+		'text' => $container->name,
+		'href' => $container->getURL()
+	));
+	if ($container instanceof \ElggGroup) {
+		$in_group = elgg_echo('events:notify:subject:ingroup', array($container->name));
+		$in_group_link = elgg_echo('events:notify:subject:ingroup', array($container_link));
+	}
+	
+	$event_link = elgg_view('output/url', array(
+		'text' => $event->title,
+		'href' => $event->getURL()
+	));
 
 	$notified = array(); // users could have multiple calendars
 	foreach ($calendars as $calendar) {
@@ -369,11 +420,11 @@ function send_event_reminder($event, $remindertime = null) {
 		));
 
 		$original_message = elgg_echo('event:notify:eventreminder:message', array(
-			$event->title,
+			$event_link,
+			$in_group_link,
 			elgg_view('output/events_ui/date_range', array('start' => $starttimestamp, 'end' => $endtimestamp, 'timezone' => $timezone)),
 			$event->location,
 			$event->description,
-			$event->getURL()
 		));
 
 		$params = array(

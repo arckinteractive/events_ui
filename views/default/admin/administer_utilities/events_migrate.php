@@ -15,7 +15,7 @@ if (!$count) {
 }
 
 $progress = (int) elgg_get_plugin_setting('migration_progress', 'events_ui');
-$time = time() - 120; // 2 minute buffer
+$time = time() - 180; // 3 minute buffer
 if ($progress > $time) {
 	$body = elgg_echo('events:migrate:inprogress', array($count));
 	echo elgg_view_module('main', $title, $body);

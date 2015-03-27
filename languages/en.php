@@ -84,28 +84,23 @@ $english = array(
 %s
 %s
 ",
-	'event:notify:eventupdate:subject' => "An event on your calendar has been updated: %s",
+	'event:notify:eventupdate:subject' => "Event Updated: %s%s by %s",
 	'event:notify:eventupdate:message' => "
-An event has been updated on your calendar
+%s has updated the %s event%s
 
 %s
 %s
 %s
-
-%s
-
-See the full details: %s",
+",
 	'event:notify:eventreminder:subject' => "Reminder: %s begins %s",
 	'event:notify:eventreminder:message' => "
 An event on your calendar starts soon!
 
-%s
+%s%s
 %s
 %s
 
 %s
-
-See the full details: %s
 ",
 
 	'events_ui:cancel' => 'Delete',
