@@ -145,7 +145,7 @@ See the full details: %s
 	// misc
 	'admin:administer_utilities:events_migrate' => "Migrate Events",
 	'events:migrate:title' => "Migrate events from event_calendar",
-	'events:import:count:none' => "Congratulations, there are no event_calendar events to migrate!",
+	'events:migrate:count:none' => "Congratulations, there are no event_calendar events to migrate!",
 	'events:migrate:run' => "Run the migration",
 	'events:migrate:count' => "There are %s event_calendar entities that can be migrated",
 	'events:migrate:system_message' => "The migration upgrade is running in the background, if there are a lot of events to migrate it may take a while.  Please check back later to see the progress.",
