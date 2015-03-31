@@ -94,6 +94,10 @@ elgg.events.ui.Calendar.prototype = {
 			success: function (response) {
 				elgg.events.ui.dialog.open(response, {
 					title: event.title,
+                                        position: {
+                                            my: 'center',
+                                            at: 'center'
+                                        }
 				});
 				var eventObj = new elgg.events.ui.Event(event.id, self);
 				eventObj.init();
@@ -377,7 +381,8 @@ elgg.events.ui.EventForm.prototype = {
 				now = moment();
 
 		if (date.isBefore(now)) {
-			date.add(1, 'days').set('hour', 8).set('minute', 0);
+			//date.add(1, 'days').set('hour', 8).set('minute', 0);
+                        date.set('hour', 8).set('minute', 0);
 		}
 		
 		self.init();

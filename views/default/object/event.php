@@ -26,14 +26,19 @@ $start = (int) elgg_extract('start_timestamp', $instance, $entity->getStartTimes
 
 if (!$entity->isValidStartTime($start)) {
 	$start = $entity->getNextOccurrence();
+	
+	if (!$start) {
+		// this must be in the past
+		$start = $entity->getLastOccurrence();
+	}
 }
 $end = $start + $entity->end_delta;
 
 $date = elgg_view('output/events_ui/date_range', array(
 	'start' => $start,
 	'end' => $end,
-		));
-//$recurring = ($entity->isRecurring()) ? elgg_echo('events:status:recurring') : '';
+));
+
 $recurring = ($entity->isRecurring()) ? $entity->getRecurringDescription() : '';
 $location = elgg_view('output/location', array(
 	'value' => $entity->getLocation(),
