@@ -160,9 +160,17 @@ function add_to_calendar($event, $type, $params) {
 	));
 
 	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
+	
+	$params = array();
+	if ($event->canComment($user->guid)) {
+		$params = array('entity' => $event);
+	}
 	notify_user(
 			$user->guid, $event->container_guid, // user or group
-			$subject, $message, array(), $methods
+			$subject,
+			$message,
+			$params,
+			$methods
 	);
 }
 

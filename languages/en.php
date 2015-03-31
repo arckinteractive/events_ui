@@ -92,7 +92,7 @@ $english = array(
 %s
 %s
 ",
-	'event:notify:eventreminder:subject' => "Reminder: %s begins %s",
+	'event:notify:eventreminder:subject' => "Event Reminder: %s%s begins %s",
 	'event:notify:eventreminder:message' => "
 An event on your calendar starts soon!
 

@@ -68,7 +68,7 @@ function register_event_title_menu($event, $ts = null, $calendar = null) {
 			'text' => elgg_echo('events_ui:cancel'),
 			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
 			'is_action' => true,
-			'link_class' => 'elgg-button elgg-requires-confirmation events-ui-event-action-cancel-all',
+			'link_class' => 'elgg-button elgg-button-delete elgg-requires-confirmation events-ui-event-action-cancel-all',
 			'data-object-event' => true,
 			'data-guid' => $event->guid,
 			'priority' => 300,
@@ -311,9 +311,18 @@ function event_update_notify($event_guid) {
 		));
 
 		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $message);
+		
+		$params = array();
+		if ($event->canComment($user->guid)) {
+			$params = array('entity' => $event);
+		}
 		notify_user(
-				$user->guid, $event->container_guid, // user or group
-				$subject, $message, array(), $methods
+				$user->guid,
+				$event->container_guid, // user or group
+				$subject,
+				$message,
+				$params,
+				$methods
 		);
 
 		$notified[] = $user->guid;
@@ -416,6 +425,7 @@ function send_event_reminder($event, $remindertime = null) {
 
 		$original_subject = elgg_echo('event:notify:eventreminder:subject', array(
 			$event->title,
+			$in_group,
 			$dt->format('D, F j g:ia T')
 		));
 
