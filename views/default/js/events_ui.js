@@ -354,9 +354,6 @@ elgg.events.ui.EventForm = function ($form, Calendar) {
 	this.$endTimeInput = $('select[name="end_time"]', this.$form);
 	this.$datePickers = $('.events-ui-datepicker', this.$form);
 	this.$submitBtn = $('input[type="submit"]', this.$form);
-	this.$tzCountryPicker = $('select[data-timezone-country]', this.$form);
-	this.$tzIdPicker = $('select[data-timezone-id]', this.$form);
-	this.tzCache = [];
 };
 /**
  * EventForm prototype
@@ -424,7 +421,6 @@ elgg.events.ui.EventForm.prototype = {
 		//self.$remindersRemove.bind('click', self.removeReminder);
 		$('a.js-events-ui-reminder-remove').bind('click', self.removeReminder);
 
-		self.$tzCountryPicker.bind('change', self.onTzCountryPickerChange.bind(self));
 	},
 	/**
 	 * Submit event form via AJAX
@@ -565,33 +561,6 @@ elgg.events.ui.EventForm.prototype = {
 		var self = this;
 		var repeatEnd = self.$repeatEndOn.data('repeatEnd');
 		self.$repeatEndType.filter('[value="' + repeatEnd + '"]').prop('checked', true);
-	},
-	onTzCountryPickerChange: function (e) {
-		var self = this;
-		var country = self.$tzCountryPicker.val();
-
-		if (self.tzCache[country]) {
-			self.setTzIdOptions(self.tzCache[country]);
-		} else {
-			elgg.getJSON('calendar/timezones/' + country, {
-				cache: true,
-				success: function (data) {
-					self.tzCache[country] = data;
-					self.setTzIdOptions(data);
-				}
-			});
-		}
-	},
-	setTzIdOptions: function(options) {
-		var options = options || [];
-		var self = this;
-		self.$tzIdPicker.children('option').not(':selected').remove();
-		$.each(options, function(index, tz) {
-			if (self.$tzIdPicker.find('[value="' + tz.id + '"]').length === 0) {
-				var $option = $('<option>').attr({ value: tz.id }).text(tz.label);
-				$option.appendTo(self.$tzIdPicker);
-			}
-		});
 	},
 	changeRepeatLabel: function () {
 		var self = this;

@@ -7,6 +7,8 @@ namespace Events\UI;
 
 use Events\API\Util;
 
+elgg_load_js('events/timezone');
+
 $name = elgg_extract('name', $vars, 'timezone');
 $value = elgg_extract('value', $vars, Util::getClientTimezone());
 $this_timezone = Util::getTimezoneInfo($value);

@@ -42,6 +42,10 @@ function init() {
 	elgg_register_simplecache_view('js/events_ui');
 	$url = elgg_get_simplecache_url('js', 'events_ui');
 	elgg_register_js('events-ui', $url);
+	
+	elgg_register_simplecache_view('js/events_timezone');
+	$url = elgg_get_simplecache_url('js', 'events_timezone');
+	elgg_register_js('events/timezone', $url);
 
 	elgg_register_page_handler('calendar', __NAMESPACE__ . '\\page_handler');
 	elgg_register_page_handler('events', __NAMESPACE__ . '\\event_pagehandler');

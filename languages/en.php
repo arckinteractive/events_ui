@@ -14,6 +14,7 @@ $english = array(
 	'events:new' => "New Event",
 	'events:edit' => 'Edit event',
 	'events:add' => 'New event',
+	'events:full:view' => "View full event details and comments",
 	
 	// forms
 	'events:edit:title:placeholder' => 'Untitled Event',

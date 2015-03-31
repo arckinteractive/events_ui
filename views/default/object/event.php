@@ -67,6 +67,10 @@ if ($full) {
 		'value' => $entity->description,
 	));
 	$tags = '';
+	
+	if (!elgg_is_xhr()) {
+		$content .= elgg_view_comments($entity);
+	}
 } else {
 	$title = elgg_view('output/url', array(
 		'text' => $entity->getDisplayName(),
@@ -74,6 +78,16 @@ if ($full) {
 	));
 	$summary = elgg_get_excerpt($entity->description);
 	$tags = false;
+	
+	if (elgg_is_xhr()) {
+		$summary .= elgg_view('output/longtext', array(
+			'value' => elgg_view('output/url', array(
+				'text' => elgg_echo('events:full:view'),
+				'href' => $entity->getURL($start, $calendar->guid),
+				'is_trusted' => true
+			))
+		));
+	}
 }
 
 $summary = elgg_view('object/elements/summary', array(

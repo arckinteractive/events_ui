@@ -68,7 +68,7 @@ function register_event_title_menu($event, $ts = null, $calendar = null) {
 			'text' => elgg_echo('events_ui:cancel'),
 			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
 			'is_action' => true,
-			'link_class' => 'elgg-button elgg-button-delete elgg-requires-confirmation events-ui-event-action-cancel-all',
+			'link_class' => 'elgg-button elgg-button-delete elgg-requires-confirmation events-ui-event-action-cancel',
 			'data-object-event' => true,
 			'data-guid' => $event->guid,
 			'priority' => 300,

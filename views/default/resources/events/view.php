@@ -35,8 +35,8 @@ elgg_push_breadcrumb($title);
 register_event_title_menu($entity, $ts, $calendar);
 
 $sidebar = elgg_view('events_ui/sidebar', array(
-	'entity' => $entity,
-		));
+	'entity' => $calendar,
+));
 
 
 if (elgg_is_xhr()) {
