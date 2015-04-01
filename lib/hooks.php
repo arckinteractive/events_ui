@@ -300,3 +300,10 @@ function export_event_instance($hook, $type, $return, $params) {
 
 	return $return;
 }
+
+
+
+function register_comment_tracker($hook, $type, $return, $params) {
+	$return[] = 'event';
+	return $return;
+}
