@@ -180,7 +180,7 @@ function setup_public_pages($hook, $type, $return) {
 function event_reminders($hook, $type, $return, $params) {
 	// run our reminders a couple of minutes ahead of schedule
 	// to account for processing time and delivery time
-/*	$offset = (int) elgg_get_plugin_setting('reminder_offset', 'events_ui');
+	$offset = (int) elgg_get_plugin_setting('reminder_offset', 'events_ui');
 	if (!$offset && $offset !== 0) {
 		$offset = 120;
 	}
@@ -192,15 +192,12 @@ function event_reminders($hook, $type, $return, $params) {
 	}
 
 	elgg_set_plugin_setting('last_reminder_cron', $time, 'events_ui');
-*/
-	$last_time = 0;
-	$time = strtotime('+1 day');
+
 	$ia = elgg_set_ignore_access(true);
 	
 	$options = array(
 		'type' => 'object',
 		'subtype' => 'event',
-		'guid' => 184259,
 		'annotation_name' => 'reminder',
 		'wheres' => array(
 			"CAST(v.string AS SIGNED) BETWEEN {$last_time} AND {$time}"
