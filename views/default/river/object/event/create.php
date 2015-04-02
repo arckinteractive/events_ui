@@ -34,7 +34,6 @@ if ($event->isRecurring()) {
 	$vars['summary'] = elgg_echo('river:event:create', array($owner_link, $event_link));
 }
 
-$vars['message'] = elgg_get_excerpt($event->description);
 $vars['attachments'] = elgg_view('river/object/event/attachments', array('entity' => $event));
 
 echo elgg_view('page/components/image_block', array(
