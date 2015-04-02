@@ -146,7 +146,6 @@ function add_to_calendar($event, $type, $params) {
 		$in_group,
 		$owner->name
 	));
-	$subject = elgg_trigger_plugin_hook('events_ui', 'subject:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $subject);
 	
 	$timezone = Util::getClientTimezone($user);
 
@@ -165,6 +164,7 @@ function add_to_calendar($event, $type, $params) {
 		'calendar' => $calendar,
 		'user' => $user
 	);
+	$subject = elgg_trigger_plugin_hook('events_ui', 'subject:addtocal', $params, $subject);
 	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', $params, $message);
 	
 	$params = array();

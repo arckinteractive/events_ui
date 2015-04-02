@@ -299,7 +299,7 @@ function event_update_notify($event_guid) {
 			$in_group,
 			$owner->name
 		));
-		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $subject);
+		
 
 		$message = elgg_echo('event:notify:eventupdate:message', array(
 			$owner_link,
@@ -316,6 +316,7 @@ function event_update_notify($event_guid) {
 			'calendar' => $c,
 			'user' => $user
 		);
+		$subject = elgg_trigger_plugin_hook('events_ui', 'subject:eventupdate', $params, $subject);
 		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', $params, $message);
 		
 		$params = array();
