@@ -159,7 +159,13 @@ function add_to_calendar($event, $type, $params) {
 		$event->description,
 	));
 
-	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', array('event' => $event, 'calendar' => $calendar, 'user' => $user), $message);
+	$params = array(
+		'event' => $event,
+		'entity' => $event, // for BC with internal Arck message parsing plugins
+		'calendar' => $calendar,
+		'user' => $user
+	);
+	$message = elgg_trigger_plugin_hook('events_ui', 'message:addtocal', $params, $message);
 	
 	$params = array();
 	if ($event->canComment($user->guid)) {

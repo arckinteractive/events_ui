@@ -310,7 +310,13 @@ function event_update_notify($event_guid) {
 			$event->description,
 		));
 
-		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', array('event' => $event, 'calendar' => $c, 'user' => $user), $message);
+		$params = array(
+			'event' => $event,
+			'entity' => $event, // for BC with internal Arck message parsing plugins
+			'calendar' => $c,
+			'user' => $user
+		);
+		$message = elgg_trigger_plugin_hook('events_ui', 'message:eventupdate', $params, $message);
 		
 		$params = array();
 		if ($event->canComment($user->guid)) {
@@ -439,6 +445,7 @@ function send_event_reminder($event, $remindertime = null) {
 
 		$params = array(
 			'event' => $event,
+			'entity' => $event, // for back compatibility with some internal Arck message parsing plugins
 			'calendar' => $calendar,
 			'user' => $user,
 			'starttime' => $starttimestamp,
