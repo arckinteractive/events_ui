@@ -124,18 +124,20 @@ if (elgg_get_plugin_setting('timezone_picker', 'events_ui')) {
 ?>
 <div class="events-ui-row">
 	<ul class="elgg-menu elgg-menu-hz">
-		<li>
-			<label>
-				<?php
-				echo elgg_view('input/checkbox', array(
-					'name' => 'all_day',
-					'value' => 1,
-					'checked' => $entity->all_day ? true : false
-				));
-				echo elgg_echo('events_ui:allday');
-				?>
-			</label>
-		</li>
+		<?php
+//		<li>
+//			<label>
+//
+//				echo elgg_view('input/checkbox', array(
+//					'name' => 'all_day',
+//					'value' => 1,
+//					'checked' => $entity->all_day ? true : false
+//				));
+//				echo elgg_echo('events_ui:allday');
+//
+//			</label>
+//		</li>
+		?>
 		<li>
 			<label>
 				<?php
