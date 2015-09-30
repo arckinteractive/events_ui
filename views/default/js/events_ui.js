@@ -380,14 +380,25 @@ elgg.events.ui.EventForm.prototype = {
 				date = moment(date),
 				now = moment();
 
-		if (date.isBefore(now)) {
-			//date.add(1, 'days').set('hour', 8).set('minute', 0);
+		if (date.isBefore(now, 'day') || date.isAfter(now, 'day')) {
                         date.set('hour', 8).set('minute', 0);
 		}
-		
+                else {
+                    // same day, use an hour from now
+                    date = now.clone();
+                    date.add(1, 'hours');
+                    
+                    if (date.isAfter(now, 'day')) {
+                        // we rolled over to a new day, but that's inconsistent UI
+                        // to click on a day and add for the next
+                        // so make it 9am in the past then since we're so close to midnight
+                        date.subtract(1, 'hours').set('hour', 8).set('minute', 0);
+                    }
+                }
+
 		self.init();
 		// Reset start and end dates
-		self.$startDateInput.val(date.format('YYYY-MM-DD'));
+		self.$startDateInput.val(date.startOf('hour').format('YYYY-MM-DD'));
 		self.$endDateInput.val(date.add(1, 'hours').format('YYYY-MM-DD'));
 
 		// Reset start and end times
