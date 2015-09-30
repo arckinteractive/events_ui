@@ -62,6 +62,7 @@ $english = array(
 	
 	'river:event:create' => "%s created a new event %s",
 	'river:event:create:recurring' => "%s created a new recurring event %s",
+	'river:comment:object:event' => "%s commented on the event %s",
 	'events:start:time' => "Start Time",
 	'events:end:time' => "End Time",
 	'events:error:empty_title' => "You must enter a title for the event",
