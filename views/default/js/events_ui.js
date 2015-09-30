@@ -398,7 +398,7 @@ elgg.events.ui.EventForm.prototype = {
 
 		self.init();
 		// Reset start and end dates
-		self.$startDateInput.val(date.startOf('hour').format('YYYY-MM-DD'));
+		self.$startDateInput.val(date.format('YYYY-MM-DD'));
 		self.$endDateInput.val(date.add(1, 'hours').format('YYYY-MM-DD'));
 
 		// Reset start and end times
