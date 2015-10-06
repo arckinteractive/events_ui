@@ -6,6 +6,19 @@ use Events\API\Util;
 
 $entity = elgg_extract('entity', $vars);
 
+echo '<div>';
+echo '<label>' . elgg_echo('events:settings:sitecalendar:enable') . '</label>';
+echo elgg_view('input/dropdown', array(
+	'name' => "params[sitecalendar]",
+	'value' => (int) $entity->sitecalendar,
+	'options_values' => array(
+		1 => elgg_echo('option:yes'),
+		0 => elgg_echo('option:no')
+	)
+));
+echo '</div>';
+
+
 echo '<h3>' . elgg_echo('events:settings:timezone') . '</h3>';
 
 echo '<p class="elgg-text-help">' . elgg_echo('events:settings:timezone:help') . '</p>';

@@ -48,8 +48,10 @@ $summary = elgg_view('object/elements/summary', array(
 	'metadata' => $metadata,
 		));
 
-//$icon = elgg_view_entity_icon($entity, 'small');
-$icon = elgg_view_entity_icon($owner, 'small');
+$icon = false;
+if ($owner instanceof \ElggUser || $owner instanceof \ElggGroup) {
+	$icon = elgg_view_entity_icon($owner, 'small');
+}
 
 if ($full) {
 	$content = elgg_view('events_ui/calendar', $vars);

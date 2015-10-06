@@ -41,10 +41,17 @@ function page_handler($page) {
 	elgg_load_js('lightbox');
 	
 	switch ($page[0]) {
-
-//		case 'all':
-//			$page_view = elgg_view('resources/calendar/all');
-//			break;
+		case 'site':
+			$site_calendar = elgg_get_plugin_setting('sitecalendar', PLUGIN_ID);
+			if (!$site_calendar) {
+				return false;
+			}
+			set_input('guid', elgg_get_site_entity()->guid);
+			$page_view = elgg_view('resources/calendar/view');
+			break;
+		case 'all':
+			$page_view = elgg_view('resources/calendar/all');
+			break;
 
 		default :
 		case 'view':

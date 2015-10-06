@@ -10,6 +10,7 @@ $english = array(
 	'events:calendar:friends' => 'Friends\'s calendars',
 	'events:calendar:group' => 'Group calendars',
 	'events:calendar:none' => 'No calendars to display',
+	'events:settings:sitecalendar:enable' => "Enable a site calendar?",
 	
 	'events:new' => "New Event",
 	'events:edit' => 'Edit event',

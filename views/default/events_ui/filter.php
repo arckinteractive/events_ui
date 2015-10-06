@@ -16,12 +16,12 @@ $owner = elgg_get_page_owner_entity();
 $logged_in = elgg_get_logged_in_user_entity();
 
 $tabs = array(
-//	'all' => array(
-//		'text' => elgg_echo('all'),
-//		'href' => "caendar/all",
-//		'selected' => ($filter_context == 'all'),
-//		'priority' => 200,
-//	),
+	'all' => array(
+		'text' => elgg_echo('all'),
+		'href' => "calendar/all",
+		'selected' => ($filter_context == 'all'),
+		'priority' => 200,
+	),
 	'mine' => array(
 		'text' => elgg_echo('mine'),
 		'href' => "calendar/owner/$logged_in->username",

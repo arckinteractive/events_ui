@@ -13,6 +13,7 @@ $content = elgg_list_entities(array(
 	'types' => 'object',
 	'subtypes' => Calendar::SUBTYPE,
 	'no_results' => elgg_echo('events:calendar:none'),
+	'full_view' => false
 		));
 
 $layout = elgg_view_layout('content', array(
