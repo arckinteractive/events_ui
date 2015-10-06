@@ -42,7 +42,7 @@ function page_handler($page) {
 	
 	switch ($page[0]) {
 		case 'site':
-			$site_calendar = elgg_get_plugin_setting('sitecalendar', PLUGIN_ID);
+			$site_calendar = elgg_get_plugin_setting('sitecalendar', 'events_ui');
 			if (!$site_calendar) {
 				return false;
 			}
