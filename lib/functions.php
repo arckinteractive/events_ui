@@ -347,8 +347,10 @@ function event_update_notify($event_guid) {
  */
 function send_event_reminder($event, $remindertime = null) {
 
+	$force_send = true;
 	if ($remindertime === null) {
 		$remindertime = time();
+		$force_send = false; // default cron send
 	}
 
 	$dbprefix = elgg_get_config('dbprefix');
@@ -368,6 +370,11 @@ function send_event_reminder($event, $remindertime = null) {
 
 	$starttimestamp = $event->getNextOccurrence($remindertime);
 	$endtimestamp = $starttimestamp + $event->delta;
+	
+	// prevent sending if it was in the past, unless this is a forced reminder
+	if (!$force_send && $starttimestamp < strtotime('-10 minutes')) {
+		return true;
+	}
 	
 	$owner = $event->getOwnerEntity();
 	$owner_link = elgg_view('output/url', array(
