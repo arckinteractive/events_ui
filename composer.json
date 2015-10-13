@@ -1,0 +1,29 @@
+{
+	"name": "arckinteractive/events_ui",
+	"type": "elgg-plugin",
+	"description": "UI for Events API",
+	"homepage": "http://arckinteractive.com",
+	"keywords": [
+		"elgg", "plugin", "events"
+	],
+	"license": "GPL-2.0",
+	"authors": [
+		{
+			"name": "Matt Beckett",
+			"email": "matt@arckinteractive.com"
+		},
+		{
+			"name": "Ismayil Khayredinov",
+			"email": "ismayil@arckinteractive.com"
+		}
+	],
+	"require": {
+		"bower-asset/fullcalendar": "^2.4.0"
+	},
+	"require-dev": {
+		"arckinteractive/events_api": "dev-master",
+		"jumbojett/vroom": "dev-master",
+		"hypejunction/elgg_lightbox": "~2.0",
+		"composer/installers": "1.*"
+	}
+}

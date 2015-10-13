@@ -5,7 +5,7 @@
 
 namespace Events\UI;
 
-use Events\API\Calendar;
+require_once __DIR__ . '/autoloader.php';
 
 const UPGRADE_VERSION = 20141215;
 
@@ -26,26 +26,14 @@ function init() {
 	
 	elgg_extend_view('notifications/subscriptions/personal', 'core/settings/calendar/notifications');
 
-	elgg_register_css('jquery-ui', 'mod/events_ui/vendors/jquery-ui/jquery-ui.min.css');
-	elgg_register_css('fullcalendar', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.css');
-	elgg_register_css('fullcalendar:print', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.print.css');
-	elgg_register_js('fullcalendar', 'mod/events_ui/vendors/fullcalendar-1.6/fullcalendar/fullcalendar.min.js');
-
-	elgg_register_js('moment.js', 'mod/events_ui/vendors/jquery/moment.min.js');
-
 	elgg_register_viewtype('ical');
 
-	elgg_register_simplecache_view('css/events_ui');
-	$url = elgg_get_simplecache_url('css', 'events_ui');
-	elgg_register_css('events-ui', $url);
-
-	elgg_register_simplecache_view('js/events_ui');
-	$url = elgg_get_simplecache_url('js', 'events_ui');
-	elgg_register_js('events-ui', $url);
+	elgg_extend_view('components/calendar.css', 'fullcalendar.css', 100);
+	elgg_register_css('components/calendar', elgg_get_simplecache_url('components/calendar.css'));
+	elgg_extend_view('jquery-ui/theme/theme.css', 'jquery-ui/theme/jquery-ui.min.css', 100);
+	elgg_register_css('jquery-ui', elgg_get_simplecache_url('jquery-ui/theme/theme.css'));
 	
-	elgg_register_simplecache_view('js/events_timezone');
-	$url = elgg_get_simplecache_url('js', 'events_timezone');
-	elgg_register_js('events/timezone', $url);
+	elgg_extend_view('initialize_elgg.js', 'components/calendar/settings.js');
 
 	elgg_register_page_handler('calendar', __NAMESPACE__ . '\\page_handler');
 	elgg_register_page_handler('events', __NAMESPACE__ . '\\event_pagehandler');
@@ -86,7 +74,6 @@ function init() {
 	elgg_extend_view('forms/account/settings', 'core/settings/account/timezone', 100);
 	elgg_register_plugin_hook_handler('usersettings:save', 'user', __NAMESPACE__ . '\\save_default_user_timezone');
 	elgg_register_plugin_hook_handler('timezones', 'events_api', __NAMESPACE__ . '\\filter_timezones');
-	elgg_extend_view('js/initialize_elgg', 'js/events_ui/config');
 	
 	// migration stuff
 	elgg_register_event_handler('upgrade', 'system', __NAMESPACE__ . '\\upgrades');

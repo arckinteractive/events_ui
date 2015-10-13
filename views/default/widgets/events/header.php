@@ -49,25 +49,5 @@ $current = $dt->setTimestamp($start)->format('F');
 
 
 <script>
-	// inline js, ugh
-	$(document).ready(function() {
-		$('#elgg-widget-<?php echo $vars['entity']->guid; ?> .events-widget-nav').click(function(e) {
-			e.preventDefault();
-			var guid = $(this).data('guid');
-			var start = $(this).data('start');
-			
-			elgg.get('ajax/view/widgets/events/content', {
-				data: {
-					guid: guid,
-					event_widget_start: start
-				},
-				beforeSend: function() {
-					$('#elgg-widget-content-<?php echo $vars['entity']->guid; ?>').html('<div class="elgg-ajax-loader"></div>');
-				},
-				success: function(result) {
-					$('#elgg-widget-content-<?php echo $vars['entity']->guid; ?>').html(result);
-				}
-			});
-		});
-	});
+	require(['widgets/events/header']);
 </script>
