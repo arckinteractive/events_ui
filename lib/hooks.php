@@ -307,3 +307,17 @@ function register_comment_tracker($hook, $type, $return, $params) {
 	$return[] = 'event';
 	return $return;
 }
+
+
+/**
+ * Returns a canonical URL of an object
+ * @return string
+ */
+function url_handler($hook, $type, $return, $params) {
+	$entity = elgg_extract('entity', $params);
+	if ($entity instanceof Calendar) {
+		return "calendar/view/$entity->guid";
+	} else if ($entity instanceof Event) {
+		return "calendar/events/view/$entity->guid";
+	}
+}

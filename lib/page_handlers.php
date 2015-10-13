@@ -142,17 +142,3 @@ function event_pagehandler($page) {
 	}
 	return false;
 }
-
-/**
- * Returns a canonical URL of an object
- *
- * @param ElggObject $entity Object
- * @return string
- */
-function url_handler($entity) {
-	if ($entity instanceof Calendar) {
-		return "calendar/view/$entity->guid";
-	} else if ($entity instanceof Event) {
-		return "calendar/events/view/$entity->guid";
-	}
-}

@@ -38,8 +38,7 @@ function init() {
 	elgg_register_page_handler('calendar', __NAMESPACE__ . '\\page_handler');
 	elgg_register_page_handler('events', __NAMESPACE__ . '\\event_pagehandler');
 
-	elgg_register_entity_url_handler('object', 'calendar', __NAMESPACE__ . '\\url_handler');
-	elgg_register_entity_url_handler('object', 'event', __NAMESPACE__ . '\\url_handler');
+	elgg_register_plugin_hook_handler('entity:url', 'object', __NAMESPACE__ . '\\url_handler');
 
 	elgg_register_action('events_ui/settings/save', __DIR__ . '/actions/plugins/settings/save.php', 'admin');
 
