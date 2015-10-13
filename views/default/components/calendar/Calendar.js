@@ -43,6 +43,8 @@ define(function (require) {
 				editable: self.isEditable(),
 				fixedWeekCount: false,
 				events: {
+					startParam: 'start_iso',
+					endParam: 'end_iso',
 					url: self.getDataSrc(),
 					currentTimezone: elgg.config.timezone
 				},
