@@ -81,8 +81,8 @@ function entity_menu_setup($hook, $type, $return, $params) {
 						'text' => elgg_view_icon('delete'),
 						'href' => 'action/events/cancel?guid=' . $entity->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
 						'is_action' => true,
-						'link_class' => 'elgg-requires-confirmation events-ui-event-action-cancel',
-						'rel' => elgg_echo('events_ui:cancel:confirm'),
+						'link_class' => 'events-ui-event-action-cancel',
+						'confirm' => elgg_echo('events_ui:cancel:confirm'),
 						'data-object-event' => true,
 						'data-guid' => $entity->guid,
 						'priority' => 300,
