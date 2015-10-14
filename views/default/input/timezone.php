@@ -50,3 +50,6 @@ asort($country_options);
 		?>
 	</div>
 </div>
+<script>
+	require(['input/timezone']);
+</script>

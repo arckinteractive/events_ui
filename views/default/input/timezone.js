@@ -1,7 +1,8 @@
 define(function (require) {
 
 	var elgg = require('elgg');
-	var $ = require('jquery')
+	var $ = require('jquery');
+	var spinner = require('elgg/spinner');
 	var cache = [];
 
 	function setOptions(self, options) {
@@ -16,8 +17,10 @@ define(function (require) {
 				$option.appendTo($tzIdPicker);
 			}
 		});
+
+		// Tell chosen to self update
+		$tzIdPicker.trigger('chosen:updated');
 	}
-	;
 
 	$(document).on('change', '.elgg-input-timezone select[data-timezone-country]', function () {
 		var self = $(this);
@@ -28,6 +31,8 @@ define(function (require) {
 		} else {
 			elgg.getJSON('calendar/timezones/' + country, {
 				cache: true,
+				beforeSend: spinner.start,
+				complete: spinner.stop,
 				success: function (data) {
 					cache[country] = data;
 					setOptions(self, data);
