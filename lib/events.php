@@ -200,7 +200,7 @@ function event_update($event, $type, $event) {
 
 	// note that the event could be on *lots* of calendars, it may not be practical
 	// to notify them all now, use vroom to do it in the background if possible
-	if (!elgg_get_config('shutdown_intiated')) {
+	if (!elgg_get_config('shutdown_initiated')) {
 		register_vroom_function(__NAMESPACE__ . '\\event_update_notify', array(
 			$event->guid
 		));
