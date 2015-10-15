@@ -54,6 +54,16 @@ input.events-text-small {
 	width: auto;
 }
 
+.events-ui-controls .left {
+	text-align: left;
+}
+.events-ui-controls .center {
+	text-align: center;
+}
+.events-ui-controls .right {
+	text-align: right;
+}
+
 /**
 * UI
 * Icons by flaticon.com

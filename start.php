@@ -67,7 +67,7 @@ function init() {
 
 	elgg_register_ajax_view('events_ui/ajax/picker');
 	elgg_register_ajax_view('events_ui/ajax/ical_modal');
-	elgg_register_ajax_view('widgets/events/content');
+	elgg_register_ajax_view('components/calendar');
 
 	// Timezone logic
 	elgg_extend_view('forms/account/settings', 'core/settings/account/timezone', 100);
