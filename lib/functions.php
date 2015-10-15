@@ -295,7 +295,7 @@ function event_update_notify($event_guid) {
 		$timezone = Util::getClientTimezone($user);
 
 		$subject = elgg_echo('event:notify:eventupdate:subject', array(
-			$event->title,
+			html_entity_decode($event->title),
 			$in_group,
 			$owner->name
 		));

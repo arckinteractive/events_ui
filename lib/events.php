@@ -142,7 +142,7 @@ function add_to_calendar($event, $type, $params) {
 	));
 
 	$subject = elgg_echo('event:notify:addtocal:subject', array(
-		$event->title,
+		html_entity_decode($event->title),
 		$in_group,
 		$owner->name
 	));
