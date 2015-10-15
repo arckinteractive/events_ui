@@ -1,5 +1,5 @@
 define(function (require) {
-	var elgg = requrie('elgg');
+	var elgg = require('elgg');
 	var $ = require('jquery');
 	var spinner = require('elgg/spinner');
 
