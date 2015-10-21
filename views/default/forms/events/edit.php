@@ -18,7 +18,18 @@ $container = elgg_extract('container', $vars, elgg_get_logged_in_user_entity());
 
 $calendar = $vars['calendar'];
 if (!$calendar && $entity) {
-	$calendar = $entity->getContainerEntity();
+	$calendars = $entity->getCalendars(array(
+		'container_guid' => $entity->container_guid,
+		'limit' => 1
+	));
+	
+	foreach ($calendars as $c) {
+		$calendar = $c;
+	}
+	
+	if (!$calendar) {
+		$calendar = $entity->getContainerEntity();
+	}
 }
 
 $dt = new DateTime(null, new DateTimeZone(Util::UTC));
