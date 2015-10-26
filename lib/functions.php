@@ -369,8 +369,8 @@ function send_event_reminder($event, $remindertime = null) {
 	$calendars = new ElggBatch('elgg_get_entities_from_relationship', $options);
 
 	$starttimestamp = $event->getNextOccurrence($remindertime);
-	$endtimestamp = $starttimestamp + $event->delta;
-	
+	$endtimestamp = $starttimestamp + $event->end_delta;
+
 	// prevent sending if it was in the past, unless this is a forced reminder
 	if (!$force_send && $starttimestamp < strtotime('-10 minutes')) {
 		return true;
