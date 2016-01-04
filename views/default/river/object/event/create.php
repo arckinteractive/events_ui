@@ -36,8 +36,13 @@ if ($event->isRecurring()) {
 
 $vars['attachments'] = elgg_view('river/object/event/attachments', array('entity' => $event));
 
+$icon_size = 'small';
+if (elgg_in_context('widgets')) {
+	$icon_size = 'tiny';
+}
+
 echo elgg_view('page/components/image_block', array(
-	'image' => elgg_view_entity_icon($owner, 'small'),
+	'image' => elgg_view_entity_icon($owner, $icon_size),
 	'body' => elgg_view('river/elements/body', $vars),
 	'class' => 'elgg-river-item',
 ));
