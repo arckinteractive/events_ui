@@ -4,12 +4,13 @@ define(function (require) {
 	var $ = require('jquery');
 	var lightbox = require('elgg/lightbox');
 	var spinner = require('elgg/spinner');
-	
+	var CalendarEventForm = require('components/calendar/CalendarEventForm');
+
 	/**
 	 * @param {Number} guid
 	 * @constructor
 	 */
-	var Event = function (guid, Calendar) {
+	var CalendarEvent = function (guid, Calendar) {
 		this.Calendar = Calendar || null;
 		this.guid = guid;
 		this.$event = $("#elgg-object-" + guid);
@@ -20,11 +21,11 @@ define(function (require) {
 	};
 
 	/**
-	 * EventForm prototype
+	 * CalendarEvent prototype
 	 * @type object
 	 */
-	Event.prototype = {
-		constructor: Event,
+	CalendarEvent.prototype = {
+		constructor: CalendarEvent,
 		init: function () {
 			var self = this;
 			// Bind UI events to form elements
@@ -34,14 +35,14 @@ define(function (require) {
 		bindUIEvents: function () {
 			var self = this;
 			if (self.$addToCalendarBtn.data('calendarCount') > 1) {
-				self.$addToCalendarBtn.die('click').bind('click', self.loadAddToCalendarForm.bind(self));
+				self.$addToCalendarBtn.off('click').bind('click', self.loadAddToCalendarForm.bind(self));
 			}
-			self.$editBtn.die('click').bind('click', self.loadEditForm.bind(self));
+			self.$editBtn.off('click').bind('click', self.loadEditForm.bind(self));
 			if (self.Calendar) {
 				self.$cancelBtn.removeClass('elgg-requires-confirmation'); // removes default confirmation dialog
 				self.$cancelAllBtn.removeClass('elgg-requires-confirmation');
-				self.$cancelBtn.die('click').bind('click', self.cancel.bind(self));
-				self.$cancelAllBtn.die('click').bind('click', self.cancelAll.bind(self));
+				self.$cancelBtn.off('click').bind('click', self.cancel.bind(self));
+				self.$cancelAllBtn.off('click').bind('click', self.cancelAll.bind(self));
 			}
 		},
 		loadAddToCalendarForm: function (e) {
@@ -56,7 +57,8 @@ define(function (require) {
 				complete: spinner.stop,
 				success: function (result) {
 					lightbox.open({
-						html: result
+						html: result,
+						width: 600
 					});
 					self.$addToCalendarForm = $('.elgg-form-calendar-add-event');
 					if (self.Calendar) {
@@ -97,9 +99,10 @@ define(function (require) {
 				success: function (result) {
 					var $form = $(result);
 					lightbox.open({
-						html: $form
+						html: $form,
+						width: 600
 					});
-					var eventForm = new EventForm($form, self.Calendar);
+					var eventForm = new CalendarEventForm($form, self.Calendar);
 					eventForm.init();
 				},
 			});
@@ -146,7 +149,7 @@ define(function (require) {
 		}
 	};
 
-	return Event;
+	return CalendarEvent;
 });
 
 

@@ -10,7 +10,7 @@ define(function (require) {
 	 * @param {Object} Calendar
 	 * @constructor
 	 */
-	var EventForm = function ($form, Calendar) {
+	var CalendarEventForm = function ($form, Calendar) {
 		this.Calendar = Calendar || null;
 		this.$form = $form;
 		this.$repeatChkbx = $('input[type="checkbox"][name="repeat"]', this.$form);
@@ -34,11 +34,11 @@ define(function (require) {
 		this.$submitBtn = $('input[type="submit"]', this.$form);
 	};
 	/**
-	 * EventForm prototype
+	 * CalendarEventForm prototype
 	 * @type object
 	 */
-	EventForm.prototype = {
-		constructor: EventForm,
+	CalendarEventForm.prototype = {
+		constructor: CalendarEventForm,
 		init: function () {
 			var self = this;
 			// Bind UI events to form elements
@@ -292,6 +292,6 @@ define(function (require) {
 		}
 	};
 
-	return EventForm;
+	return CalendarEventForm;
 	
 });

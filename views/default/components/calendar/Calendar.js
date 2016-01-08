@@ -4,7 +4,8 @@ define(function (require) {
 	var $ = require('jquery');
 	var lightbox = require('elgg/lightbox');
 	var spinner = require('elgg/spinner');
-	var EventForm = require('components/calendar/EventForm');
+	var CalendarEvent = require('components/calendar/CalendarEvent');
+	var CalendarEventForm = require('components/calendar/CalendarEventForm');
 	require('fullcalendar');
 	
 	/**
@@ -15,7 +16,7 @@ define(function (require) {
 		this.guid = guid;
 		this.$calendar = $("#js-events-ui-calendar-" + guid);
 		var $form = $("#js-events-ui-form-" + guid).find('form');
-		this.eventForm = new EventForm($form, this);
+		this.eventForm = new CalendarEventForm($form, this);
 		this.initialized = false;
 	};
 	/**
@@ -105,8 +106,9 @@ define(function (require) {
 					lightbox.open({
 						html: response,
 						title: event.title,
+						width: 600
 					});
-					var eventObj = new Event(event.id, self);
+					var eventObj = new CalendarEvent(event.id, self);
 					eventObj.init();
 				},
 				complete: function () {
@@ -119,6 +121,7 @@ define(function (require) {
 			lightbox.open({
 				html: self.eventForm.$form,
 				title: elgg.echo('events:new'),
+				width: 600,
 				onComplete: function () {
 					self.eventForm.initNew(date);
 				}

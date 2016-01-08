@@ -6,8 +6,8 @@ define(function (require) {
 	var spinner = require('elgg/spinner');
 
 	var Calendar = require('components/calendar/Calendar');
-	var Event = require('components/calendar/Event');
-	var EventForm = require('components/calendar/EventForm');
+	var Event = require('components/calendar/CalendarEvent');
+	var EventForm = require('components/calendar/CalendarEventForm');
 
 	$('.js-events-ui-fullcalendar').each(function () {
 		var guid = $(this).data('guid');
