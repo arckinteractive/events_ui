@@ -23,71 +23,16 @@ function register_event_title_menu($event, $ts = null, $calendar = null) {
 		return;
 	}
 
-	$calendar_count = 0;
-	if (elgg_is_logged_in()) {
-		$calendar_count = Calendar::getCalendars(elgg_get_logged_in_user_entity(), true);
-	}
-	
-	if ($calendar_count) {
-		// may be different than the calendar being viewed
-		// make the add/remove button work for the current calendar if they own it
-		// or their default calendar if they're viewing another calendar
-		if ($calendar->owner_guid == elgg_get_logged_in_user_guid()) {
-			$mycalendar = $calendar;
-		}
-		else {
-			$mycalendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
-		}
-		
-		$text = elgg_echo('events:add_to_calendar:default');
-		$add_remove_calendar = $mycalendar->guid;
-		if ($mycalendar->hasEvent($event)) {
-			$text = elgg_echo('events:remove_from_calendar:default');
-			$add_remove_calendar = '';
-		}
-		
-		elgg_register_menu_item('title', array(
-			'name' => 'add_to_calendar',
-			'href' => elgg_http_add_url_query_elements('action/calendar/add_event', array(
-				'event_guid' => $event->guid,
-				'calendars[]' => $add_remove_calendar
-			)),
-			'is_action' => true,
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'text' => $text,
-			'data-calendar-count' => $calendar_count,
-			'link_class' => 'elgg-button elgg-button-action events-ui-event-action-addtocalendar',
-			'priority' => 100,
-		));
-	}
-	
-	if ($event->canEdit()) {
-		elgg_register_menu_item('title', array(
-			'name' => 'delete',
-			'text' => elgg_echo('events_ui:cancel'),
-			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
-			'is_action' => true,
-			'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel',
-			'confirm' => true,
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'priority' => 300,
-		));
-	}
+	$params = array(
+		'event' => $event,
+		'timestamp' => $ts,
+		'calendar' => $calendar,
+	);
 
-	if ($event->canEdit() && $event->isRecurring()) {
-		elgg_register_menu_item('title', array(
-			'name' => 'delete_all',
-			'text' => elgg_echo('events_ui:cancel:all'),
-			'href' => 'action/events/delete?guid=' . $event->guid, // add calendar_guid for proper forwarding
-			'is_action' => true,
-			'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel-all',
-			'confirm' => elgg_echo('events_ui:cancel:all:confirm'),
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'priority' => 400,
-		));
+	$profile_buttons = elgg_trigger_plugin_hook('profile_buttons', 'object:event', $params, array());
+
+	foreach ($profile_buttons as $button) {
+		elgg_register_menu_item('title', $button);
 	}
 }
 

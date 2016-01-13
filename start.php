@@ -78,4 +78,7 @@ function init() {
 	elgg_register_event_handler('upgrade', 'system', __NAMESPACE__ . '\\upgrades');
 	elgg_register_admin_menu_item('administer', 'events_migrate', 'administer_utilities');
 	elgg_register_action('events/migrate', __DIR__ . '/actions/events/migrate.php', 'admin');
+
+	// profile buttons
+	elgg_register_plugin_hook_handler('profile_buttons', 'object:event', __NAMESPACE__ . '\\prepare_profile_buttons');
 }
