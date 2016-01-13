@@ -191,7 +191,7 @@ if (elgg_get_plugin_setting('timezone_picker', 'events_ui')) {
 
 <?php
 // extension point for other plugins
-echo elgg_view('events/add/extend');
+echo elgg_view('events/add/extend', $vars);
 ?>
 
 <div class="events-ui-row">
