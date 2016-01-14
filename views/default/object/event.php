@@ -72,10 +72,6 @@ if ($full) {
 		'value' => $entity->description,
 	));
 	$tags = '';
-	
-	if (!elgg_is_xhr()) {
-		$content .= elgg_view_comments($entity);
-	}
 } else {
 	$title = elgg_view('output/url', array(
 		'text' => $entity->getDisplayName(),

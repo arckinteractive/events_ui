@@ -55,6 +55,8 @@ if (elgg_is_xhr()) {
 		),
 		'calendar' => $calendar,
 	));
+	$content .= elgg_view_comments($entity);
+	
 	$layout = elgg_view_layout('content', array(
 		'title' => $title,
 		'content' => $content,
