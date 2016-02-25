@@ -109,7 +109,6 @@ function register_vroom_function($function, $args = array(), $runonce = true) {
 /**
  * Returns preferred calendar notifications methods for the user
  *
- * @global array $NOTIFICATION_HANDLERS
  * @param ElggUser $user              User
  * @param string   $notification_name Notification name
  * @return type
@@ -121,7 +120,7 @@ function get_calendar_notification_methods($user, $notification_name) {
 	}
 
 	$methods = array();
-	global $NOTIFICATION_HANDLERS;
+	$NOTIFICATION_HANDLERS = _elgg_services()->notifications->getMethods();
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		$attr = '__notify_' . $method . '_' . $notification_name;
 
