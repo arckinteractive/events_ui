@@ -142,7 +142,7 @@ function notification_settings_save($h, $t, $r, $p) {
 
 	$calendar_notifications = get_calendar_notifications();
 
-	global $NOTIFICATION_HANDLERS;
+	$NOTIFICATION_HANDLERS = _elgg_services()->notifications->getMethods();
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		foreach ($calendar_notifications as $notification_name) {
 			$attr = '__notify_' . $method . '_' . $notification_name;

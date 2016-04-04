@@ -6,73 +6,68 @@ namespace Events\UI;
  * @uses $vars['user'] ElggUser
  */
 /* @var ElggUser $user */
-$user = $vars['user'];
+$user = elgg_extract('user', $vars);
 
-global $NOTIFICATION_HANDLERS;
+$methods = _elgg_services()->notifications->getMethods();
 $calendar_notifications = get_calendar_notifications();
 ?>
 <div class="notification_calendar">
-	<div class="elgg-module elgg-module-info">
+	<div class="elgg-module elgg-module-info elgg-subsriptions-module">
 		<div class="elgg-head">
 			<h3>
 				<?php echo elgg_echo('calendar:notifications'); ?>
 			</h3>
 		</div>
-	</div>
-	<table id="notificationstable" cellspacing="0" cellpadding="4" width="100%">
-		<tr>
-			<td>&nbsp;</td>
-			<?php
-			$i = 0;
-			foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
-				if ($i > 0) {
-					echo "<td class='spacercolumn'>&nbsp;</td>";
-				}
-				?>
-				<td class="<?php echo $method; ?>togglefield"><?php echo elgg_echo('notification:method:' . $method); ?></td>
-				<?php
-				$i++;
-			}
-			?>
-			<td>&nbsp;</td>
-		</tr>
+		<div class="elgg-body">
+			<table id="notificationstable" class="elgg-subscriptions-table">
+				<thead>
+					<tr>
+						<th class="namefield elgg-subscriptions-type-label"></th>
+						<?php
+						foreach ($methods as $method) {
+							echo elgg_format_element('th', [
+								'class' => $method ? "{$method}togglefield elgg-subscriptions-toggle-cell" : 'elgg-subscriptions-toggle-cell',
+									], elgg_echo("notification:method:$method"));
+						}
+						?>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
 
-		<?php
-		foreach ($calendar_notifications as $notification_name):
-			?>
-			<tr>
-				<td class="namefield">
-					<p>
-						<?php echo elgg_echo('calendar:notifications:' . $notification_name); ?>
-					</p>
-				</td>
+					<?php
+					foreach ($calendar_notifications as $notification_name) {
+						$user_notification_settings = get_calendar_notification_methods($user, $notification_name);
+						?>
+						<tr class="elgg-subscriptions-calendar">
+							<td class="namefield elgg-subscriptions-type-label">
+								<?php echo elgg_echo('calendar:notifications:' . $notification_name); ?>
+							</td>
 
-				<?php
-				$fields = '';
-				$i = 0;
-				foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
-					$attr = '__notify_' . $method . '_' . $notification_name;
-					$checked = '';
-					$user_notification_settings = get_calendar_notification_methods($user, $notification_name);
-					if (in_array($method, $user_notification_settings)) {
-						$checked = 'checked="checked"';
-					}
-
-					if ($i > 0) {
-						$fields .= "<td class='spacercolumn'>&nbsp;</td>";
-					}
-					$fields .= <<< END
+							<?php
+							$fields = '';
+							foreach ($methods as $method) {
+								$attr = '__notify_' . $method . '_' . $notification_name;
+								$checked = '';
+								if (in_array($method, $user_notification_settings)) {
+									$checked = 'checked="checked"';
+								}
+								$fields .= <<< END
 		<td class="{$method}togglefield">
-		<a  border="0" id="{$method}{$notification_name}" class="{$method}toggleOff" onclick="adjust{$method}_alt('{$method}{$notification_name}');">
+		<a  border="0" id="{$method}{$notification_name}" class="{$method}toggleOff elgg-subscriptions-toggle-cell" onclick="adjust{$method}_alt('{$method}{$notification_name}');">
 		<input type="checkbox" name="{$method}{$notification_name}" id="{$method}-{$notification_name}-checkbox" onclick="adjust{$method}('{$method}{$notification_name}');" value="1" {$checked} /></a></td>
 END;
-					$i++;
-				}
-				echo $fields;
-				?>
+							}
+							echo $fields;
+							?>
 
-				<td>&nbsp;</td>
-			</tr>
-		<?php endforeach; ?>
-	</table>
+							<td>&nbsp;</td>
+						</tr>
+						<?php
+					}
+					?>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
