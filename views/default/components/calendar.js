@@ -1,13 +1,14 @@
 define(function (require) {
 
-	var elgg = require('elgg');
 	var $ = require('jquery');
 	var lightbox = require('elgg/lightbox');
-	var spinner = require('elgg/spinner');
 
 	var Calendar = require('components/calendar/Calendar');
 	var Event = require('components/calendar/CalendarEvent');
 	var EventForm = require('components/calendar/CalendarEventForm');
+
+	var Ajax = require('elgg/Ajax');
+	var ajax = new Ajax();
 
 	$('.js-events-ui-fullcalendar').each(function () {
 		var guid = $(this).data('guid');
@@ -31,18 +32,18 @@ define(function (require) {
 	$(document).on('click', '.js-events-ui-ical-modal-trigger', function (e) {
 		e.preventDefault();
 		var feed_url = $(this).attr('href');
-		elgg.ajax('ajax/view/events_ui/ajax/ical_modal', {
+		ajax.path('ajax/view/events_ui/ajax/ical_modal', {
 			data: {
 				feed_url: feed_url,
-			},
-			beforeSend: spinner.start,
-			complete: spinner.stop,
-			success: function (response) {
-				lightbox.open({
-					html: response
-				});
 			}
+		}).done(function (output, statusText, jqXHR) {
+			if (jqXHR.AjaxData.status === -1) {
+				return;
+			}
+			lightbox.open({
+				html: output
+			});
 		});
 	});
-	
+
 });
