@@ -17,13 +17,20 @@
 			"email": "ismayil@arckinteractive.com"
 		}
 	],
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/jumbojett/vroom"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/hypejunction/events_api"
+		}
+	],
 	"require": {
-		"bower-asset/fullcalendar": "^2.4.0"
-	},
-	"require-dev": {
-		"arckinteractive/events_api": "dev-master",
+		"composer/installers": "1.*",
+		"bower-asset/fullcalendar": "^2.4.0",
 		"jumbojett/vroom": "dev-master",
-		"hypejunction/elgg_lightbox": "~2.0",
-		"composer/installers": "1.*"
+		"arckinteractive/events_api": "dev-master"
 	}
 }
