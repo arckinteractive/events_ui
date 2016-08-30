@@ -82,32 +82,45 @@ define(function (require) {
 		},
 		initDatePickers: function ($datepicker) {
 			var self = this;
-			$datepicker.datepicker({
-				dateFormat: 'yy-mm-dd', // ISO-8601
-				onSelect: self.onDatePickerChange
+			var defaults = {
+				dateFormat: 'yy-mm-dd',
+				nextText: '&#xBB;',
+				prevText: '&#xAB;',
+				changeMonth: true,
+				changeYear: true
+			};
+
+			$datepicker.each(function () {
+				var $elem = $(this);
+				var opts = $elem.data('datepickerOpts') || {};
+				opts = $.extend({}, defaults, opts);
+
+				opts.onSelect = self.onDatePickerChange;
+
+				$(this).datepicker(opts);
 			});
 		},
 		bindUIEvents: function () {
 			var self = this;
 
 			if (self.Calendar) {
-				self.$form.bind('submit', self.saveEvent.bind(self));
+				self.$form.on('submit', self.saveEvent.bind(self));
 			}
 
-			self.$repeatChkbx.bind('change', self.onRepeatChange.bind(self));
-			self.$remindersChkbx.bind('change', self.onRemindersEnable.bind(self));
-			self.$allDayChkbx.bind('change', self.onAllDayChange.bind(self));
-			self.$startDateInput.bind('change', self.onStartDateChange.bind(self));
-			self.$startTimeInput.bind('change', self.onStartTimeChange.bind(self));
-			self.$repeatFrequencyInput.bind('change', self.onFrequencyChange.bind(self));
-			self.$repeatEndAfter.bind('focus', self.onRepeatEndAfterFocus.bind(self));
-			self.$repeatEndOn.bind('focus', self.onRepeatEndOnFocus.bind(self));
+			self.$repeatChkbx.on('change', self.onRepeatChange.bind(self));
+			self.$remindersChkbx.on('change', self.onRemindersEnable.bind(self));
+			self.$allDayChkbx.on('change', self.onAllDayChange.bind(self));
+			self.$startDateInput.on('change', self.onStartDateChange.bind(self));
+			self.$startTimeInput.on('change', self.onStartTimeChange.bind(self));
+			self.$repeatFrequencyInput.on('change', self.onFrequencyChange.bind(self));
+			self.$repeatEndAfter.on('focus', self.onRepeatEndAfterFocus.bind(self));
+			self.$repeatEndOn.on('focus', self.onRepeatEndOnFocus.bind(self));
 
-			$('input,select', self.$form).bind('change', self.onChange.bind(self));
+			$('input,select', self.$form).on('change', self.onChange.bind(self));
 
-			self.$remindersAddNew.bind('click', self.addReminder.bind(self));
+			self.$remindersAddNew.on('click', self.addReminder.bind(self));
 			//self.$remindersRemove.bind('click', self.removeReminder);
-			$('a.js-events-ui-reminder-remove').bind('click', self.removeReminder);
+			$('a.js-events-ui-reminder-remove', self.$form).on('click', self.removeReminder);
 
 		},
 		/**
@@ -167,11 +180,9 @@ define(function (require) {
 		onDatePickerChange: function (dateText, instance) {
 			if ($(this).is('.elgg-input-timestamp')) {
 				// convert to unix timestamp
-				var dateParts = dateText.split("-");
-				var timestamp = Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]);
+				var timestamp = Date.UTC(instance.selectedYear, instance.selectedMonth, instance.selectedDay);
 				timestamp = timestamp / 1000;
-				var id = $(this).attr('id');
-				$('input[name="' + id + '"]').val(timestamp);
+				$('input[rel="' + this.id + '"]').val(timestamp);
 			}
 			// trigger change event
 			if (dateText !== instance.lastVal) {
