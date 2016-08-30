@@ -27,6 +27,8 @@
 			"url": "https://github.com/hypejunction/events_api"
 		}
 	],
+	"minimum-stability": "dev",
+    "prefer-stable": true,
 	"require": {
 		"composer/installers": "1.*",
 		"bower-asset/fullcalendar": "^2.4.0",
