@@ -40,6 +40,10 @@ $sidebar = elgg_view('events_ui/sidebar', array(
 
 
 if (elgg_is_xhr()) {
+	$title = elgg_view('output/url', [
+		'title' => $title,
+		'href' => $entity->getURL(),
+	]);
 	$content = elgg_view('object/event/modal', array(
 		'entity' => $entity,
 		'instance' => array(
