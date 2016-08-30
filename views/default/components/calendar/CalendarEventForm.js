@@ -4,8 +4,10 @@ define(function (require) {
 	var $ = require('jquery');
 	var moment = require('moment');
 	var lightbox = require('elgg/lightbox');
-	var spinner = require('elgg/spinner');
-	
+
+	var Ajax = require('elgg/Ajax');
+	var ajax = new Ajax();
+
 	/**
 	 * @param {Object} Calendar
 	 * @constructor
@@ -56,8 +58,7 @@ define(function (require) {
 
 			if (date.isBefore(now, 'day') || date.isAfter(now, 'day')) {
 				date.set('hour', 8).set('minute', 0);
-			}
-			else {
+			} else {
 				// same day, use an hour from now
 				date = now.clone();
 				date.add(1, 'hours');
@@ -117,26 +118,22 @@ define(function (require) {
 		saveEvent: function (e) {
 
 			e.preventDefault();
-			var self = this,
-					data = self.$form.data();
+			var self = this;
 
-			elgg.action(self.$form.attr('action'), {
-				data: self.$form.serialize(),
+			ajax.action(self.$form.attr('action'), {
+				data: ajax.objectify(self.$form),
 				beforeSend: function () {
 					self.$submitBtn.prop('disabled', true).addClass('elgg-state-disabled');
-					spinner.start();
 				},
 				complete: function () {
 					self.$submitBtn.prop('disabled', false).removeClass('elgg-state-disabled');
-					spinner.stop();
-				},
-				success: function (response) {
-					if (response.status >= 0) {
-						self.Calendar.$calendar.fullCalendar('refetchEvents');
-						lightbox.close();
-					}
-					self.$form[0].reset();
 				}
+			}).done(function (output, statusText, jqXHR) {
+				if (jqXHR.AjaxData.status === -1) {
+					return;
+				}
+				self.Calendar.$calendar.fullCalendar('refetchEvents');
+				lightbox.close();
 			});
 		},
 		getRepeatFrequency: function () {
@@ -293,5 +290,5 @@ define(function (require) {
 	};
 
 	return CalendarEventForm;
-	
+
 });

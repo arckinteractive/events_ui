@@ -3,8 +3,10 @@ define(function (require) {
 	var elgg = require('elgg');
 	var $ = require('jquery');
 	var lightbox = require('elgg/lightbox');
-	var spinner = require('elgg/spinner');
 	var CalendarEventForm = require('components/calendar/CalendarEventForm');
+
+	var Ajax = require('elgg/Ajax');
+	var ajax = new Ajax();
 
 	/**
 	 * @param {Number} guid
@@ -49,22 +51,25 @@ define(function (require) {
 			var self = this;
 			e.preventDefault();
 			var guid = self.$addToCalendarBtn.data('guid');
-			elgg.ajax('ajax/view/events_ui/ajax/picker', {
+			ajax.path('ajax/view/events_ui/ajax/picker', {
 				data: {
 					guid: guid
-				},
-				beforeSend: spinner.start,
-				complete: spinner.stop,
-				success: function (result) {
-					lightbox.open({
-						html: result,
-						width: 600
-					});
-					self.$addToCalendarForm = $('.elgg-form-calendar-add-event');
-					if (self.Calendar) {
-						self.$addToCalendarForm.bind('submit', self.submitAddToCalendarForm.bind(self));
-					}
 				}
+			}).done(function (output, statusText, jqXHR) {
+				if (jqXHR.AjaxData.status === -1) {
+					return;
+				}
+				var $output = $(output);
+				lightbox.open({
+					html: $output,
+					width: 600,
+					onComplete: function () {
+						self.$addToCalendarForm = $('.elgg-form-calendar-add-event');
+						if (self.Calendar) {
+							self.$addToCalendarForm.bind('submit', self.submitAddToCalendarForm.bind(self));
+						}
+					}
+				});
 			});
 		},
 		submitAddToCalendarForm: function (e) {
@@ -72,43 +77,41 @@ define(function (require) {
 			var self = this;
 			var $form = self.$addToCalendarForm;
 
-			elgg.action($form.attr('action'), {
-				data: $form.serialize(),
+			ajax.action($form.attr('action'), {
+				data: ajax.objectify($form),
 				beforeSend: function () {
 					$form.find('input[type="submit"]').prop('disabled', true).addClass('elgg-state-disabled');
-					spinner.start();
-				},
-				success: function (response) {
-					if (response.status >= 0) {
-						self.Calendar.$calendar.fullCalendar('refetchEvents');
-						lightbox.close();
-					}
 				},
 				complete: function () {
 					$form.find('input[type="submit"]').prop('disabled', false).removeClass('elgg-state-disabled');
-					spinner.stop();
 				}
+			}).done(function (output, statusText, jqXHR) {
+				if (jqXHR.AjaxData.status === -1) {
+					return;
+				}
+				self.Calendar.$calendar.fullCalendar('refetchEvents');
+				lightbox.close();
 			});
 		},
 		loadEditForm: function (e) {
 			var self = this;
 			e.preventDefault();
-			elgg.post(self.$editBtn.attr('href'), {
-				beforeSend: spinner.start,
-				complete: spinner.stop,
-				success: function (response) {
-					var $response = $(response);
-					lightbox.open({
-						html: $response,
-						width: 600,
-						onComplete: function () {
-							var $form = $response.find('form');
-							var eventForm = new CalendarEventForm($form, self.Calendar);
-							eventForm.init();
+			ajax.path(self.$editBtn.attr('href'))
+					.done(function (output, statusText, jqXHR) {
+						if (jqXHR.AjaxData.status === -1) {
+							return;
 						}
+						var $output = $(output);
+						lightbox.open({
+							html: $output,
+							width: 600,
+							onComplete: function () {
+								var $form = $output.find('form');
+								var eventForm = new CalendarEventForm($form, self.Calendar);
+								eventForm.init();
+							}
+						});
 					});
-				}
-			});
 		},
 		cancel: function (e) {
 			var self = this;
@@ -117,18 +120,14 @@ define(function (require) {
 			if (!confirm(confirmText)) {
 				return false;
 			}
-			elgg.action(self.$cancelBtn.attr('href'), {
-				beforeSend: function () {
-					self.Calendar.showLoading(true);
-				},
-				success: function () {
-					self.Calendar.$calendar.fullCalendar('refetchEvents');
-					lightbox.close();
-				},
-				complete: function () {
-					self.Calendar.showLoading(false);
-				}
-			});
+			ajax.action(self.$cancelBtn.attr('href'))
+					.done(function (output, statusText, jqXHR) {
+						if (jqXHR.AjaxData.status === -1) {
+							return;
+						}
+						self.Calendar.$calendar.fullCalendar('refetchEvents');
+						lightbox.close();
+					});
 		},
 		cancelAll: function (e) {
 			var self = this;
@@ -137,18 +136,14 @@ define(function (require) {
 			if (!confirm(confirmText)) {
 				return false;
 			}
-			elgg.action(self.$cancelAllBtn.attr('href'), {
-				beforeSend: function () {
-					self.Calendar.showLoading(true);
-				},
-				success: function (result) {
-					self.Calendar.$calendar.fullCalendar('refetchEvents');
-					lightbox.close();
-				},
-				complete: function () {
-					self.Calendar.showLoading(false);
-				}
-			});
+			ajax.action(self.$cancelAllBtn.attr('href'))
+					.done(function (output, statusText, jqXHR) {
+						if (jqXHR.AjaxData.status === -1) {
+							return;
+						}
+						self.Calendar.$calendar.fullCalendar('refetchEvents');
+						lightbox.close();
+					});
 		}
 	};
 

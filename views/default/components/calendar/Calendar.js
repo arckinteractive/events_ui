@@ -7,6 +7,10 @@ define(function (require) {
 	var CalendarEvent = require('components/calendar/CalendarEvent');
 	var CalendarEventForm = require('components/calendar/CalendarEventForm');
 	require('fullcalendar');
+
+	var Ajax = require('elgg/Ajax');
+	var ajax = new Ajax();
+
 	/**
 	 * @param {Number} guid
 	 * @constructor
@@ -90,87 +94,74 @@ define(function (require) {
 		showEventDetails: function (event, jsEvent, view) {
 			var self = this;
 			jsEvent.preventDefault();
-			elgg.ajax('events/view/' + event.id, {
+			ajax.path('events/view/' + event.id, {
 				data: {
 					ts: event.start_timestamp,
 					calendar: self.guid
-				},
-				beforeSend: function () {
-					self.showLoading(true);
-				},
-				success: function (response) {
-					lightbox.open({
-						html: response,
-						width: 600
-					});
-					var eventObj = new CalendarEvent(event.id, self);
-					eventObj.init();
-				},
-				complete: function () {
-					self.showLoading(false);
 				}
+			}).done(function (output, statusText, jqXHR) {
+				if (jqXHR.AjaxData.status === -1) {
+					return;
+				}
+				var $output = $(output);
+				lightbox.open({
+					html: $output,
+					width: 600,
+					onComplete: function () {
+						var eventObj = new CalendarEvent(event.id, self);
+						eventObj.init();
+					}
+				});
 			});
 		},
 		newEvent: function (date) {
 			var self = this;
-			elgg.ajax(self.$calendar.data('eventForm'), {
-				beforeSend: spinner.start,
-				complete: spinner.stop,
-				success: function (response) {
-					var $response = $(response);
-					lightbox.open({
-						html: $response,
-						width: 600,
-						onComplete: function () {
-							var $form = $response.find('form');
-							var eventForm = new CalendarEventForm($form, self);
-							eventForm.initNew(date);
+			ajax.path(self.$calendar.data('eventForm'))
+					.done(function (output, statusText, jqXHR) {
+						if (jqXHR.AjaxData.status === -1) {
+							return;
 						}
+						var $output = $(output);
+						lightbox.open({
+							html: $output,
+							width: 600,
+							onComplete: function () {
+								var $form = $output.find('form');
+								var eventForm = new CalendarEventForm($form, self);
+								eventForm.initNew(date);
+							}
+						});
 					});
-				}
-			});
 		},
 		moveEvent: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
 			// attempt to move the event
-			elgg.action('events/move', {
+			ajax.action('events/move', {
 				data: {
 					guid: event.id,
 					day_delta: dayDelta,
 					minute_delta: minuteDelta,
 					all_day: allDay ? 1 : 0
 				},
-				success: function (response) {
-					if (response.status !== 0) {
-						// some error has occurred
-						revertFunc();
-					}
-				},
-				error: function (response) {
+			}).done(function (output, statusText, jqXHR) {
+				if (jqXHR.AjaxData.status === -1) {
 					revertFunc();
 				}
-			});
+			}).fail(revertFunc);
 		},
 		resizeEvent: function (event, dayDelta, minuteDelta, revertFunc) {
-			// attempt to move the event
-			elgg.action('events/resize', {
+			ajax.action('events/resize', {
 				data: {
 					guid: event.id,
 					day_delta: dayDelta,
 					minute_delta: minuteDelta
-				},
-				success: function (response) {
-					if (response.status !== 0) {
-						// some error has occurred
-						revertFunc();
-					}
-				},
-				error: function (response) {
+				}
+			}).done(function (output, statusText, jqXHR) {
+				if (jqXHR.AjaxData.status === -1) {
 					revertFunc();
 				}
-			});
+			}).fail(revertFunc);
 		},
 		showLoading: function (isLoading, view) {
-			var self = this;
 			if (isLoading) {
 				spinner.start();
 			} else {
