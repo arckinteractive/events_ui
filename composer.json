@@ -21,10 +21,6 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/jumbojett/vroom"
-		},
-		{
-			"type": "vcs",
-			"url": "https://github.com/hypejunction/events_api"
 		}
 	],
 	"minimum-stability": "dev",
@@ -32,7 +28,7 @@
 	"require": {
 		"composer/installers": "1.*",
 		"bower-asset/fullcalendar": "^2.4.0",
-		"jumbojett/vroom": "dev-master",
-		"arckinteractive/events_api": "dev-master"
+		"jumbojett/vroom": "*",
+		"arckinteractive/events_api": "*"
 	}
 }
