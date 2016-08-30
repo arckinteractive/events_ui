@@ -7,7 +7,6 @@ define(function (require) {
 	var CalendarEvent = require('components/calendar/CalendarEvent');
 	var CalendarEventForm = require('components/calendar/CalendarEventForm');
 	require('fullcalendar');
-	
 	/**
 	 * @param {Number} guid
 	 * @constructor
@@ -15,8 +14,6 @@ define(function (require) {
 	var Calendar = function (guid) {
 		this.guid = guid;
 		this.$calendar = $("#js-events-ui-calendar-" + guid);
-		var $form = $("#js-events-ui-form-" + guid).find('form');
-		this.eventForm = new CalendarEventForm($form, this);
 		this.initialized = false;
 	};
 	/**
@@ -82,7 +79,6 @@ define(function (require) {
 		},
 		dayClick: function (date, allDay, jsEvent, view) {
 			var self = this;
-			
 			// if we can edit the calendar create a new event
 			if (self.isEditable()) {
 				self.newEvent(date);
@@ -105,7 +101,6 @@ define(function (require) {
 				success: function (response) {
 					lightbox.open({
 						html: response,
-						title: event.title,
 						width: 600
 					});
 					var eventObj = new CalendarEvent(event.id, self);
@@ -118,12 +113,20 @@ define(function (require) {
 		},
 		newEvent: function (date) {
 			var self = this;
-			lightbox.open({
-				html: self.eventForm.$form,
-				title: elgg.echo('events:new'),
-				width: 600,
-				onComplete: function () {
-					self.eventForm.initNew(date);
+			elgg.ajax(self.$calendar.data('eventForm'), {
+				beforeSend: spinner.start,
+				complete: spinner.stop,
+				success: function (response) {
+					var $response = $(response);
+					lightbox.open({
+						html: $response,
+						width: 600,
+						onComplete: function () {
+							var $form = $response.find('form');
+							var eventForm = new CalendarEventForm($form, self);
+							eventForm.initNew(date);
+						}
+					});
 				}
 			});
 		},
@@ -137,7 +140,7 @@ define(function (require) {
 					all_day: allDay ? 1 : 0
 				},
 				success: function (response) {
-					if (response.status != 0) {
+					if (response.status !== 0) {
 						// some error has occurred
 						revertFunc();
 					}
@@ -156,7 +159,7 @@ define(function (require) {
 					minute_delta: minuteDelta
 				},
 				success: function (response) {
-					if (response.status != 0) {
+					if (response.status !== 0) {
 						// some error has occurred
 						revertFunc();
 					}
@@ -175,9 +178,7 @@ define(function (require) {
 			}
 		}
 	};
-
 	return Calendar;
-
 });
 
 

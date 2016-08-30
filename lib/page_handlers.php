@@ -132,7 +132,7 @@ function event_pagehandler($page) {
 
 		case 'add' :
 			set_input('container_guid', $page[1]);
-			echo elgg_view('resources/events/edit');
+			echo elgg_view('resources/events/add');
 			return true;
 
 		case 'edit':

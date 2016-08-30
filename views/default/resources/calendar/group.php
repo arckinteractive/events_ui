@@ -21,9 +21,7 @@ if ($group->calendar_enable == 'no') {
 //elgg_push_breadcrumb(elgg_echo('events:calendar'), "calendar/all");
 elgg_push_breadcrumb($group->name, "calendar/group/$group->guid");
 
-if ($group->canWriteToContainer(0, 'object', Calendar::SUBTYPE)) {
-	elgg_register_title_button();
-}
+elgg_register_title_button('calendar', 'add', 'object', Calendar::SUBTYPE);
 
 $title = elgg_echo('events:calendar:group');
 $content = elgg_list_entities(array(

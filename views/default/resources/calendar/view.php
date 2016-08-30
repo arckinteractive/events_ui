@@ -3,6 +3,7 @@
 namespace Events\UI;
 
 use Events\API\Calendar;
+use Events\API\Event;
 
 $guid = get_input('guid');
 $entity = get_entity($guid);
@@ -22,7 +23,7 @@ if (!$entity) {
 $container = $entity->getContainerEntity();
 elgg_set_page_owner_guid($container->guid);
 
-//elgg_push_breadcrumb(elgg_echo('events:calendar'), "calendar/all");
+elgg_register_title_button('events', 'add', 'object', Event::SUBTYPE);
 
 if (elgg_instanceof($container, 'user')) {
 	elgg_push_breadcrumb($container->name, "calendar/owner/$container->username");

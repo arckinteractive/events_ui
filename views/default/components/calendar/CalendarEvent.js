@@ -96,15 +96,18 @@ define(function (require) {
 			elgg.post(self.$editBtn.attr('href'), {
 				beforeSend: spinner.start,
 				complete: spinner.stop,
-				success: function (result) {
-					var $form = $(result);
+				success: function (response) {
+					var $response = $(response);
 					lightbox.open({
-						html: $form,
-						width: 600
+						html: $response,
+						width: 600,
+						onComplete: function () {
+							var $form = $response.find('form');
+							var eventForm = new CalendarEventForm($form, self.Calendar);
+							eventForm.init();
+						}
 					});
-					var eventForm = new CalendarEventForm($form, self.Calendar);
-					eventForm.init();
-				},
+				}
 			});
 		},
 		cancel: function (e) {
