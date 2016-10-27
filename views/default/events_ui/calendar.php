@@ -24,3 +24,7 @@ $attrs = array(
 );
 
 echo elgg_format_element('div', $attrs);
+?>
+<script>
+	require(['components/calendar']);
+</script>
