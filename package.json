@@ -4,8 +4,8 @@
 	"license": "GPL-2.0",
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:hypeJunction/events_ui.git",
-		"owner": "hypeJunction",
+		"url": "git@github.com:arckinteractive/events_ui.git",
+		"owner": "arckinteractive",
 		"repo": "events_ui"
 	},
 	"devDependencies": {
