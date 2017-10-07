@@ -11,27 +11,20 @@ if (!$calendar instanceof Calendar) {
 
 $container = $calendar->getContainerEntity();
 
-$attr = array(
+$event_form = elgg_http_add_url_query_elements("events/add/$container->guid", [
+	'calendar_guid' => $calendar->guid,
+]);
+
+$attrs = array(
 	'id' => "js-events-ui-calendar-$calendar->guid",
 	'class' => 'js-events-ui-fullcalendar',
 	'data-guid' => $calendar->guid,
-	'data-editable' => $calendar->canAddEvent() ? 1 : 0
+	'data-editable' => $calendar->canAddEvent() ? 1 : 0,
+	'data-event-form' => elgg_normalize_url($event_form)
 );
 
-echo '<div ' . elgg_format_attributes($attr) . '></div>';
-
-$form_attr = array(
-	'id' => "js-events-ui-form-$calendar->guid",
-	'class' => 'js-events-ui-form hidden',
-	'data-guid' => $calendar->guid,
-);
-
-echo '<div ' . elgg_format_attributes($form_attr) . '>';
-echo elgg_view_form('events/edit', array(
-	'enctype' => 'multipart/form-data',
-	'class' => 'events-ui-form',
-		), array(
-	'calendar' => $calendar,
-	'container' => $container
-));
-echo '</div>';
+echo elgg_format_element('div', $attrs);
+?>
+<script>
+	require(['components/calendar']);
+</script>

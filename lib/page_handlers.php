@@ -28,18 +28,10 @@ use Events\API\Event;
  */
 function page_handler($page) {
 
-	elgg_load_css('events-ui');
 	elgg_load_css('jquery-ui');
-	elgg_load_css('fullcalendar');
-	elgg_load_js('fullcalendar');
-	elgg_load_js('events-ui');
-	elgg_load_js('events/timezone');
-	elgg_load_js('jquery.form');
-	elgg_load_js('moment.js');
+	elgg_load_css('components/calendar');
+	elgg_require_js('components/calendar');
 
-	elgg_load_css('lightbox');
-	elgg_load_js('lightbox');
-	
 	switch ($page[0]) {
 		case 'site':
 			$site_calendar = elgg_get_plugin_setting('sitecalendar', 'events_ui');
@@ -110,7 +102,6 @@ function page_handler($page) {
 
 		case 'events':
 			return event_pagehandler(array_slice($page, 1));
-			
 	}
 
 	if (isset($page_view)) {
@@ -129,18 +120,10 @@ function page_handler($page) {
  */
 function event_pagehandler($page) {
 
-	elgg_load_css('events-ui');
 	elgg_load_css('jquery-ui');
-	elgg_load_css('fullcalendar');
-	elgg_load_js('fullcalendar');
-	elgg_load_js('events-ui');
-	elgg_load_js('events/timezone');
-	elgg_load_js('jquery.form');
-	elgg_load_js('moment.js');
+	elgg_load_css('components/calendar');
+	elgg_require_js('components/calendar');
 
-	elgg_load_css('lightbox');
-	elgg_load_js('lightbox');
-	
 	switch ($page[0]) {
 		case 'view':
 			set_input('guid', $page[1]);
@@ -149,7 +132,7 @@ function event_pagehandler($page) {
 
 		case 'add' :
 			set_input('container_guid', $page[1]);
-			echo elgg_view('resources/events/edit');
+			echo elgg_view('resources/events/add');
 			return true;
 
 		case 'edit':
@@ -158,18 +141,4 @@ function event_pagehandler($page) {
 			return true;
 	}
 	return false;
-}
-
-/**
- * Returns a canonical URL of an object
- *
- * @param ElggObject $entity Object
- * @return string
- */
-function url_handler($entity) {
-	if ($entity instanceof Calendar) {
-		return "calendar/view/$entity->guid";
-	} else if ($entity instanceof Event) {
-		return "calendar/events/view/$entity->guid";
-	}
 }

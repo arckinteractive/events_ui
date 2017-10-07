@@ -40,6 +40,8 @@ foreach ($hour_options_ts as $ts) {
 }
 
 $dt->setTimezone(new DateTimeZone(Util::getClientTimezone()));
+$dt->setTimestamp(time());
+
 $start = $vars['start_date'] ? $vars['start_date'] : $dt->format('Y-m-d');
 
 $end = $vars['end_date'] ? $vars['end_date'] : $dt->modify('+1 hour')->format('Y-m-d');

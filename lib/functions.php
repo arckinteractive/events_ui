@@ -23,70 +23,16 @@ function register_event_title_menu($event, $ts = null, $calendar = null) {
 		return;
 	}
 
-	$calendar_count = 0;
-	if (elgg_is_logged_in()) {
-		$calendar_count = Calendar::getCalendars(elgg_get_logged_in_user_entity(), true);
-	}
-	
-	if ($calendar_count) {
-		// may be different than the calendar being viewed
-		// make the add/remove button work for the current calendar if they own it
-		// or their default calendar if they're viewing another calendar
-		if ($calendar->owner_guid == elgg_get_logged_in_user_guid()) {
-			$mycalendar = $calendar;
-		}
-		else {
-			$mycalendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
-		}
-		
-		$text = elgg_echo('events:add_to_calendar:default');
-		$add_remove_calendar = $mycalendar->guid;
-		if ($mycalendar->hasEvent($event)) {
-			$text = elgg_echo('events:remove_from_calendar:default');
-			$add_remove_calendar = '';
-		}
-		
-		elgg_register_menu_item('title', array(
-			'name' => 'add_to_calendar',
-			'href' => elgg_http_add_url_query_elements('action/calendar/add_event', array(
-				'event_guid' => $event->guid,
-				'calendars[]' => $add_remove_calendar
-			)),
-			'is_action' => true,
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'text' => $text,
-			'data-calendar-count' => $calendar_count,
-			'link_class' => 'elgg-button elgg-button-action events-ui-event-action-addtocalendar',
-			'priority' => 100,
-		));
-	}
-	
-	if ($event->canEdit()) {
-		elgg_register_menu_item('title', array(
-			'name' => 'delete',
-			'text' => elgg_echo('events_ui:cancel'),
-			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
-			'is_action' => true,
-			'link_class' => 'elgg-button elgg-button-delete elgg-requires-confirmation events-ui-event-action-cancel',
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'priority' => 300,
-		));
-	}
+	$params = array(
+		'event' => $event,
+		'timestamp' => $ts,
+		'calendar' => $calendar,
+	);
 
-	if ($event->canEdit() && $event->isRecurring()) {
-		elgg_register_menu_item('title', array(
-			'name' => 'delete_all',
-			'text' => elgg_echo('events_ui:cancel:all'),
-			'href' => 'action/events/delete?guid=' . $event->guid, // add calendar_guid for proper forwarding
-			'is_action' => true,
-			'link_class' => 'elgg-button elgg-button-delete elgg-requires-confirmation events-ui-event-action-cancel-all',
-			'rel' => elgg_echo('events_ui:cancel:all:confirm'),
-			'data-object-event' => true,
-			'data-guid' => $event->guid,
-			'priority' => 400,
-		));
+	$profile_buttons = elgg_trigger_plugin_hook('profile_buttons', 'object:event', $params, array());
+
+	foreach ($profile_buttons as $button) {
+		elgg_register_menu_item('title', $button);
 	}
 }
 
@@ -163,7 +109,6 @@ function register_vroom_function($function, $args = array(), $runonce = true) {
 /**
  * Returns preferred calendar notifications methods for the user
  *
- * @global array $NOTIFICATION_HANDLERS
  * @param ElggUser $user              User
  * @param string   $notification_name Notification name
  * @return type
@@ -175,7 +120,7 @@ function get_calendar_notification_methods($user, $notification_name) {
 	}
 
 	$methods = array();
-	global $NOTIFICATION_HANDLERS;
+	$NOTIFICATION_HANDLERS = _elgg_services()->notifications->getMethods();
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		$attr = '__notify_' . $method . '_' . $notification_name;
 
@@ -469,217 +414,4 @@ function send_event_reminder($event, $remindertime = null) {
 
 		$notified[] = $user->guid;
 	}
-}
-
-
-/**
- * @TODO this should be able to be removed for 1.9+
- * This does a real check for access to entity, doesn't care if you're logged out
- * Unlike buggy core version
- * 
- * @param type $entity
- * @param type $user
- */
-function has_access_to_entity($entity, $user) {
-	global $CONFIG;
-
-	$ia = elgg_set_ignore_access(false);
-	if (!isset($user)) {
-		$access_bit = get_access_sql_suffix("e");
-	} else {
-		$access_bit = get_access_sql_suffix("e", $user->getGUID());
-	}
-	elgg_set_ignore_access($ia);
-
-	$query = "SELECT guid from {$CONFIG->dbprefix}entities e WHERE e.guid = " . $entity->getGUID();
-	// Add access controls
-	$query .= " AND " . $access_bit;
-	if (get_data($query)) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-function get_access_sql_suffix($table_prefix = '', $owner = null) {
-	global $ENTITY_SHOW_HIDDEN_OVERRIDE, $CONFIG;
-
-	$sql = "";
-	$friends_bit = "";
-	$enemies_bit = "";
-
-	if ($table_prefix) {
-		$table_prefix = sanitise_string($table_prefix) . ".";
-	}
-
-	if (!isset($owner)) {
-		$owner = elgg_get_logged_in_user_guid();
-	}
-
-	if (!$owner) {
-		$owner = -1;
-	}
-
-	$ignore_access = elgg_check_access_overrides($owner);
-	$access = get_access_list($owner);
-
-	if ($ignore_access) {
-		$sql = " (1 = 1) ";
-	} else if ($owner != -1) {
-		// we have an entity's guid and auto check for friend relationships
-		$friends_bit = "{$table_prefix}access_id = " . ACCESS_FRIENDS . "
-			AND {$table_prefix}owner_guid IN (
-				SELECT guid_one FROM {$CONFIG->dbprefix}entity_relationships
-				WHERE relationship='friend' AND guid_two=$owner
-			)";
-
-		$friends_bit = '(' . $friends_bit . ') OR ';
-
-		// @todo untested and unsupported at present
-		if ((isset($CONFIG->user_block_and_filter_enabled)) && ($CONFIG->user_block_and_filter_enabled)) {
-			// check to see if the user is in the entity owner's block list
-			// or if the entity owner is in the user's filter list
-			// if so, disallow access
-			$enemies_bit = get_access_restriction_sql('elgg_block_list', "{$table_prefix}owner_guid", $owner, false);
-			$enemies_bit = '('
-				. $enemies_bit
-				. '	AND ' . get_access_restriction_sql('elgg_filter_list', $owner, "{$table_prefix}owner_guid", false)
-			. ')';
-		}
-	}
-
-	if (empty($sql)) {
-		$sql = " $friends_bit ({$table_prefix}access_id IN {$access}
-			OR ({$table_prefix}owner_guid = {$owner})
-			OR (
-				{$table_prefix}access_id = " . ACCESS_PRIVATE . "
-				AND {$table_prefix}owner_guid = $owner
-			)
-		)";
-	}
-
-	if ($enemies_bit) {
-		$sql = "$enemies_bit AND ($sql)";
-	}
-
-	if (!$ENTITY_SHOW_HIDDEN_OVERRIDE) {
-		$sql .= " and {$table_prefix}enabled='yes'";
-	}
-
-	return '(' . $sql . ')';
-}
-
-
-function get_access_list($user_id = 0, $site_id = 0, $flush = false) {
-	global $CONFIG, $init_finished;
-	$cache = _elgg_get_access_cache();
-	
-	if ($flush) {
-		$cache->clear();
-	}
-
-	if ($user_id == 0) {
-		$user_id = elgg_get_logged_in_user_guid();
-	}
-
-	if (($site_id == 0) && (isset($CONFIG->site_id))) {
-		$site_id = $CONFIG->site_id;
-	}
-	$user_id = (int) $user_id;
-	$site_id = (int) $site_id;
-
-	$hash = $user_id . $site_id . 'get_access_list';
-
-	if ($cache[$hash]) {
-		return $cache[$hash];
-	}
-	
-	$access_array = get_access_array($user_id, $site_id, $flush);
-	$access = "(" . implode(",", $access_array) . ")";
-
-	if ($init_finished) {
-		$cache[$hash] = $access;
-	}
-	
-	return $access;
-}
-
-
-function get_access_array($user_id, $site_id, $flush) {
-	global $CONFIG, $init_finished;
-
-	$cache = _elgg_get_access_cache();
-
-	if ($flush) {
-		$cache->clear();
-	}
-
-	if ($user_id == 0) {
-		$user_id = elgg_get_logged_in_user_guid();
-	}
-
-	if (($site_id == 0) && (isset($CONFIG->site_guid))) {
-		$site_id = $CONFIG->site_guid;
-	}
-
-	$user_id = (int) $user_id;
-	$site_id = (int) $site_id;
-
-	$hash = $user_id . $site_id . 'get_access_array';
-
-	if ($cache[$hash]) {
-		$access_array = $cache[$hash];
-	} else {
-		$access_array = array(ACCESS_PUBLIC);
-
-		// The following can only return sensible data if the user is logged in. - @Matt - nope!
-		if ($user_id) {
-			$access_array[] = ACCESS_LOGGED_IN;
-
-			// Get ACL memberships
-			$query = "SELECT am.access_collection_id"
-				. " FROM {$CONFIG->dbprefix}access_collection_membership am"
-				. " LEFT JOIN {$CONFIG->dbprefix}access_collections ag ON ag.id = am.access_collection_id"
-				. " WHERE am.user_guid = $user_id AND (ag.site_guid = $site_id OR ag.site_guid = 0)";
-
-			$collections = get_data($query);
-			if ($collections) {
-				foreach ($collections as $collection) {
-					if (!empty($collection->access_collection_id)) {
-						$access_array[] = (int)$collection->access_collection_id;
-					}
-				}
-			}
-
-			// Get ACLs owned.
-			$query = "SELECT ag.id FROM {$CONFIG->dbprefix}access_collections ag ";
-			$query .= "WHERE ag.owner_guid = $user_id AND (ag.site_guid = $site_id OR ag.site_guid = 0)";
-
-			$collections = get_data($query);
-			if ($collections) {
-				foreach ($collections as $collection) {
-					if (!empty($collection->id)) {
-						$access_array[] = (int)$collection->id;
-					}
-				}
-			}
-
-			$ignore_access = elgg_check_access_overrides($user_id);
-
-			if ($ignore_access == true) {
-				$access_array[] = ACCESS_PRIVATE;
-			}
-		}
-
-		if ($init_finished) {
-			$cache[$hash] = $access_array;
-		}
-	}
-
-	$options = array(
-		'user_id' => $user_id,
-		'site_id' => $site_id
-	);
-	
-	return elgg_trigger_plugin_hook('access:collections:read', 'user', $options, $access_array);
 }

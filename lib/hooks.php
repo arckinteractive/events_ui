@@ -81,8 +81,8 @@ function entity_menu_setup($hook, $type, $return, $params) {
 						'text' => elgg_view_icon('delete'),
 						'href' => 'action/events/cancel?guid=' . $entity->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
 						'is_action' => true,
-						'link_class' => 'elgg-requires-confirmation events-ui-event-action-cancel',
-						'rel' => elgg_echo('events_ui:cancel:confirm'),
+						'link_class' => 'events-ui-event-action-cancel',
+						'confirm' => elgg_echo('events_ui:cancel:confirm'),
 						'data-object-event' => true,
 						'data-guid' => $entity->guid,
 						'priority' => 300,
@@ -142,7 +142,7 @@ function notification_settings_save($h, $t, $r, $p) {
 
 	$calendar_notifications = get_calendar_notifications();
 
-	global $NOTIFICATION_HANDLERS;
+	$NOTIFICATION_HANDLERS = _elgg_services()->notifications->getMethods();
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		foreach ($calendar_notifications as $notification_name) {
 			$attr = '__notify_' . $method . '_' . $notification_name;
@@ -305,5 +305,104 @@ function export_event_instance($hook, $type, $return, $params) {
 
 function register_comment_tracker($hook, $type, $return, $params) {
 	$return[] = 'event';
+	return $return;
+}
+
+
+/**
+ * Returns a canonical URL of an object
+ * @return string
+ */
+function url_handler($hook, $type, $return, $params) {
+	$entity = elgg_extract('entity', $params);
+	if ($entity instanceof Calendar) {
+		return "calendar/view/$entity->guid";
+	} else if ($entity instanceof Event) {
+		return "calendar/events/view/$entity->guid";
+	}
+}
+
+/**
+ * Prepare buttons to be registered as title menu items
+ * 
+ * @param string         $hook   "profile_buttons"
+ * @param string         $type   "object:event"
+ * @param ElggMenuItem[] $return Profile buttons
+ * @param array          $params Hook params
+ * @return ElggMenuItem[]
+ */
+function prepare_profile_buttons($hook, $type, $return, $params) {
+
+	$event = elgg_extract('event', $params);
+	$ts = elgg_extract('timestamp', $params);
+	$calendar = elgg_extract('calendar', $params);
+	
+	$calendar_count = 0;
+	if (elgg_is_logged_in()) {
+		$calendar_count = Calendar::getCalendars(elgg_get_logged_in_user_entity(), true);
+	}
+
+	if ($calendar_count) {
+		// may be different than the calendar being viewed
+		// make the add/remove button work for the current calendar if they own it
+		// or their default calendar if they're viewing another calendar
+		if ($calendar->owner_guid == elgg_get_logged_in_user_guid()) {
+			$mycalendar = $calendar;
+		}
+		else {
+			$mycalendar = Calendar::getPublicCalendar(elgg_get_logged_in_user_entity());
+		}
+
+		$text = elgg_echo('events:add_to_calendar:default');
+		$add_remove_calendar = $mycalendar->guid;
+		if ($mycalendar->hasEvent($event)) {
+			$text = elgg_echo('events:remove_from_calendar:default');
+			$add_remove_calendar = '';
+		}
+
+		$return[] = ElggMenuItem::factory(array(
+			'name' => 'add_to_calendar',
+			'href' => elgg_http_add_url_query_elements('action/calendar/add_event', array(
+				'event_guid' => $event->guid,
+				'calendars[]' => $add_remove_calendar
+			)),
+			'is_action' => true,
+			'data-object-event' => true,
+			'data-guid' => $event->guid,
+			'text' => $text,
+			'data-calendar-count' => $calendar_count,
+			'link_class' => 'elgg-button elgg-button-action events-ui-event-action-addtocalendar',
+			'priority' => 100,
+		));
+	}
+
+	if ($event->canEdit()) {
+		$return[] = ElggMenuItem::factory(array(
+			'name' => 'delete',
+			'text' => elgg_echo('events_ui:cancel'),
+			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
+			'is_action' => true,
+			'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel',
+			'confirm' => true,
+			'data-object-event' => true,
+			'data-guid' => $event->guid,
+			'priority' => 300,
+		));
+	}
+
+	if ($event->canEdit() && $event->isRecurring()) {
+		$return[] = ElggMenuItem::factory(array(
+			'name' => 'delete_all',
+			'text' => elgg_echo('events_ui:cancel:all'),
+			'href' => 'action/events/delete?guid=' . $event->guid, // add calendar_guid for proper forwarding
+			'is_action' => true,
+			'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel-all',
+			'confirm' => elgg_echo('events_ui:cancel:all:confirm'),
+			'data-object-event' => true,
+			'data-guid' => $event->guid,
+			'priority' => 400,
+		));
+	}
+
 	return $return;
 }

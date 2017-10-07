@@ -5,6 +5,7 @@ namespace Events\UI;
 use DateTime;
 use DateTimeZone;
 use Events\API\Calendar;
+use Events\API\Event;
 use Events\API\PAM;
 use Events\API\Util;
 use Exception;
@@ -31,7 +32,8 @@ $owner = $entity->getOwnerEntity();
 
 elgg_set_page_owner_guid($owner->guid);
 
-//elgg_push_breadcrumb(elgg_echo('events:calendar'), "calendar/all");
+elgg_register_title_button('events', 'add', 'object', Event::SUBTYPE);
+
 elgg_push_breadcrumb($owner->name, "calendar/owner/$owner->username");
 elgg_push_breadcrumb($entity->getDisplayName());
 

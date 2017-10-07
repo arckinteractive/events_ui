@@ -19,7 +19,7 @@ elgg_push_breadcrumb($user->name, "calendar/owner/$user->username");
 
 $filter_context = false;
 if ($user->guid == $viewer->guid) {
-	elgg_register_title_button();
+	elgg_register_title_button('calendar', 'add', 'object', Calendar::SUBTYPE);
 	$filter = elgg_view('events_ui/filter', array(
 		'filter_context' => 'mine',
 	));

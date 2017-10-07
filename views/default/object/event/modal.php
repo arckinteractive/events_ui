@@ -4,6 +4,8 @@ namespace Events\UI;
 
 $entity = elgg_extract('entity',$vars);
 
+$vars['modal'] = true;
+
 echo elgg_view_entity($entity, $vars);
 
 echo '<div class="clearfix mtl mbl">';

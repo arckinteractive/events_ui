@@ -43,7 +43,7 @@ $content = elgg_view_form('events/edit', array(
 	'enctype' => 'multipart/form-data'
 		), $vars);
 if (elgg_is_xhr()) {
-	echo $content;
+	echo elgg_view_module('lightbox', $title, $content);
 } else {
 	$layout = elgg_view_layout('content', array(
 		'title' => $title,

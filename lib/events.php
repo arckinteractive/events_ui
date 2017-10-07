@@ -23,12 +23,12 @@ function pagesetup() {
 /**
  * Callback that fires when event is created
  *
- * @param string      $event "create"
- * @param string      $type  "object"
+ * @param string     $name "create"
+ * @param string     $type  "object"
  * @param ElggObject $event Object
  * @return boolean
  */
-function event_create($event, $type, $event) {
+function event_create($name, $type, $event) {
 	if (!($event instanceof Event)) {
 		return true;
 	}
@@ -183,12 +183,12 @@ function add_to_calendar($event, $type, $params) {
 /**
  * Callback that fires when event is updated
  *
- * @param string     $event "update"
+ * @param string     $name  "update"
  * @param string     $type  "object"
  * @param ElggObject $event Object
  * @return boolean
  */
-function event_update($event, $type, $event) {
+function event_update($name, $type, $event) {
 	if (!($event instanceof Event)) {
 		return true;
 	}

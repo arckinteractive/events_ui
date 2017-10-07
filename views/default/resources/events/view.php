@@ -40,13 +40,18 @@ $sidebar = elgg_view('events_ui/sidebar', array(
 
 
 if (elgg_is_xhr()) {
-	echo elgg_view('object/event/modal', array(
+	$title = elgg_view('output/url', [
+		'text' => $entity->getDisplayName(),
+		'href' => $entity->getURL(),
+	]);
+	$content = elgg_view('object/event/modal', array(
 		'entity' => $entity,
 		'instance' => array(
 			'start_timestamp' => $ts,
 		),
 		'calendar' => $calendar,
 	));
+	echo elgg_view_module('lightbox', $title, $content);
 } else {
 	$content = elgg_view_entity($entity, array(
 		'full_view' => true,
@@ -55,6 +60,8 @@ if (elgg_is_xhr()) {
 		),
 		'calendar' => $calendar,
 	));
+	$content .= elgg_view_comments($entity);
+	
 	$layout = elgg_view_layout('content', array(
 		'title' => $title,
 		'content' => $content,
