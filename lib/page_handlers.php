@@ -32,6 +32,8 @@ function page_handler($page) {
 	elgg_load_css('components/calendar');
 	elgg_require_js('components/calendar');
 
+	array_push($page, null, null, null);
+	
 	switch ($page[0]) {
 		case 'site':
 			$site_calendar = elgg_get_plugin_setting('sitecalendar', 'events_ui');
@@ -124,6 +126,8 @@ function event_pagehandler($page) {
 	elgg_load_css('components/calendar');
 	elgg_require_js('components/calendar');
 
+	array_push($page, null, null);
+	
 	switch ($page[0]) {
 		case 'view':
 			set_input('guid', $page[1]);
