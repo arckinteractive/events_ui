@@ -12,13 +12,14 @@ if (!$entity instanceof Calendar) {
 }
 
 $owner = $entity->getOwnerEntity();
-$owner_link = elgg_view('output/url', array(
-	'href' => "calendar/owner/$owner->username",
-	'text' => $owner->name,
-	'is_trusted' => true,
-		));
+// $owner_link = elgg_view('output/url', array(
+// 	'href' => "calendar/owner/$owner->username",
+// 	'text' => $owner->name,
+// 	'is_trusted' => true,
+// 		));
 
 //$subtitle = elgg_echo('byline', array($owner_link));
+$subtitle = null;
 
 $metadata = elgg_view_menu('entity', array(
 	'entity' => $entity,
