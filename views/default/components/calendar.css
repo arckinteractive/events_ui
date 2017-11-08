@@ -32,6 +32,13 @@ input.events-text-small {
 }
 
 /*
+* Fix for dayClick bug https://github.com/fullcalendar/fullcalendar/issues/3615#issuecomment-339333385
+*/
+.fc-scroller {
+	overflow-x: visible !important;
+}
+
+/*
 * FORMS
 */
 .events-ui-row {
