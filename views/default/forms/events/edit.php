@@ -129,7 +129,7 @@ if (elgg_get_plugin_setting('timezone_picker', 'events_ui')) {
 	</div>
 	<?php
 } else {
-	elgg_echo('input/hidden', array(
+	echo elgg_view('input/hidden', array(
 		'name' => 'timezone',
 		'value' => Util::getClientTimezone(),
 	));
