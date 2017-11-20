@@ -1,3 +1,16 @@
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/arckinteractive/events_ui/compare/2.0.0...v2.0.1) (2017-11-20)
+
+
+### Bug Fixes
+
+* **css:** dayClick event now more reliable ([d941142](https://github.com/arckinteractive/events_ui/commit/d941142))
+* **pages:** No more notices in page handlers ([c759882](https://github.com/arckinteractive/events_ui/commit/c759882))
+* **views:** hide time created, and byline/access for site calendars ([c00a428](https://github.com/arckinteractive/events_ui/commit/c00a428)), closes [#9](https://github.com/arckinteractive/events_ui/issues/9)
+* **views:** resubmit timezone if picker is turned off ([632f10d](https://github.com/arckinteractive/events_ui/commit/632f10d))
+
+
+
 <a name="2.0.0"></a>
 # 2.0.0 (2017-10-07)
 
