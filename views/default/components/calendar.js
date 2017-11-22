@@ -31,10 +31,9 @@ define(function (require) {
 
 	$(document).on('click', '.js-events-ui-ical-modal-trigger', function (e) {
 		e.preventDefault();
-		var feed_url = $(this).attr('href');
-		ajax.path('ajax/view/events_ui/ajax/ical_modal', {
+		ajax.view('events_ui/ajax/ical_modal', {
 			data: {
-				feed_url: feed_url,
+				feed_url: this.href
 			}
 		}).done(function (output, statusText, jqXHR) {
 			if (jqXHR.AjaxData.status === -1) {
