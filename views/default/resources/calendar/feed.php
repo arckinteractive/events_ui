@@ -101,10 +101,14 @@ $content = elgg_view('events_ui/feed', array(
 	'events' => $events
 		));
 
+$sidebar = elgg_view('events_ui/sidebar', array(
+	'entity' => $entity
+));
+
 $layout = elgg_view_layout('content', array(
 	'title' => $title,
 	'content' => $content,
-	'sidebar' => false,
+	'sidebar' => $sidebar,
 	'filter' => false,
 	'entity' => $entity,
 		));
