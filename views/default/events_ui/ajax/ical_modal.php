@@ -2,7 +2,7 @@
 
 namespace Events\UI;
 
-$feed_url = elgg_extract('feed_url', $vars);
+$feed_url = elgg_extract('feed_url', $vars, get_input('feed_url'));
 $help_url = elgg_get_plugin_setting('ical_help_page_url', 'events_ui');
 if ($help_url) {
 	$help_url = elgg_view('output/url', array(
