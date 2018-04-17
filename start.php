@@ -63,7 +63,7 @@ function init() {
 
 	add_group_tool_option('calendar', elgg_echo('events:calendar:groups:enable'), true);
 
-	elgg_register_widget_type('events', elgg_echo('events:widget:name'), 'events:widget:description', array('profile','dashboard','group'));
+	elgg_register_widget_type('events', elgg_echo('events:widget:name'), 'events:widget:description', array('profile','dashboard','groups'));
 
 	elgg_register_ajax_view('events_ui/ajax/picker');
 	elgg_register_ajax_view('events_ui/ajax/ical_modal');

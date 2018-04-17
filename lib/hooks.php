@@ -383,7 +383,7 @@ function prepare_profile_buttons($hook, $type, $return, $params) {
 			'href' => 'action/events/cancel?guid=' . $event->guid . '&ts=' . $ts, // add calendar_guid for proper forwarding
 			'is_action' => true,
 			'link_class' => 'elgg-button elgg-button-delete events-ui-event-action-cancel',
-			'confirm' => true,
+			'confirm' => false, //Done from CalendarEvents.js
 			'data-object-event' => true,
 			'data-guid' => $event->guid,
 			'priority' => 300,
