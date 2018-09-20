@@ -119,8 +119,7 @@ define(function (require) {
 			$('input,select', self.$form).on('change', self.onChange.bind(self));
 
 			self.$remindersAddNew.on('click', self.addReminder.bind(self));
-			//self.$remindersRemove.bind('click', self.removeReminder);
-			$('a.js-events-ui-reminder-remove', self.$form).on('click', self.removeReminder);
+			$(document).on('click', '.js-events-ui-reminder-remove', self.removeReminder);
 
 		},
 		/**

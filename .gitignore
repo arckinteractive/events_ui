@@ -11,4 +11,4 @@ robots.txt
 composer.lock
 Gemfile.lock
 .env
-
+/yarn.lock
