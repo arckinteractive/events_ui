@@ -124,8 +124,23 @@ function get_calendar_notification_methods($user, $notification_name) {
 	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
 		$attr = '__notify_' . $method . '_' . $notification_name;
 
+		$use_method = false;
+
+		$params = [
+			'user' => $user,
+			'method' => $method,
+			'notification_name' => $notification_name,
+		];
+
 		// default to on if not set
-		if (!isset($user->$attr) || $user->$attr) {
+		if (!isset($user->$attr)) {
+			$use_method = elgg_trigger_plugin_hook('notification:method:default', 'events_ui', $params, true);
+		}
+		else {
+			$use_method = elgg_trigger_plugin_hook('notification:method', 'events_ui', $params, (bool) $user->$attr);
+		}
+
+		if ($use_method) {
 			$methods[] = $method;
 		}
 	}
